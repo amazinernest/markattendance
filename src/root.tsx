@@ -8,7 +8,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 import { getUser } from "@/lib/session.server";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider } from "@clerk/react";
 import "./index.css";
 
 export async function loader({ request }: { request: Request }) {
@@ -45,7 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App({ loaderData }: { loaderData?: { user: any } }) {
   return (
-    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
       <Outlet />
     </ClerkProvider>
   );
