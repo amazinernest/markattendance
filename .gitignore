@@ -18,7 +18,7 @@
 /out/
 
 # react-router
-/.react-router/
+# /.react-router/  (keep build output for deployment)
 /build/
 
 # misc
