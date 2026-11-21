@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 enum CourseStatus {
@@ -38,10 +38,21 @@ enum VerificationMethod {
   OPEN_CHECKIN
 }
 
+enum UserRole {
+  LECTURER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
 model User {
   id                      String    @id @default(cuid())
   email                   String    @unique
-  passwordHash            String
+  // passwordHash field removed for Clerk auth
   fullName                String
   institution             String?
   department              String?
@@ -54,9 +65,14 @@ model User {
   updatedAt               DateTime  @updatedAt
 
   courses                 Course[]
-  emailVerificationTokens EmailVerificationToken[]
-  passwordResetTokens     PasswordResetToken[]
-  auditLogs               AuditLog[]
+  emailVerificationTokens EmailVerificationToken[] @relation("UserEmailVerificationTokens")
+  passwordResetTokens PasswordResetToken[]
+  clerkId          String? @unique
+
+
+  auditLogs AuditLog[]
+  role   UserRole   @default(LECTURER)
+  status UserStatus @default(PENDING)
 
   @@map("users")
 }
@@ -105,6 +121,10 @@ model Course {
   enrolments          CourseEnrolment[]
   attendanceSessions  AttendanceSession[]
   auditLogs           AuditLog[]
+
+  // Feature flags
+  requireChallenge Boolean @default(false)
+  requireLocation  Boolean @default(false)
 
   @@unique([lecturerId, code, session, semester])
   @@index([lecturerId])
@@ -164,10 +184,18 @@ model AttendanceSession {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
+  // Anti‑fraud extensions
+  qrSecret        String   @default(uuid()) // 32‑byte hex secret
+  qrTtlSeconds    Int      @default(45)   // allowed 15‑300, validated at runtime
+  venueId         String?  // optional link to a venue for location checks
+
   course             Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
   records            AttendanceRecord[]
   otps               StudentVerificationOTP[]
-  auditLogs          AuditLog[]
+  securityEvents SecurityEvent[] @relation("SecurityEventSession")
+
+  auditLogs AuditLog[] @relation("AuditLogSession")
+  venue      Venue?   @relation("VenueSessions", fields: [venueId], references: [id], onDelete: SetNull)
 
   @@index([courseId])
   @@index([token])
@@ -190,10 +218,16 @@ model AttendanceRecord {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 
-  session              AttendanceSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  enrolment            CourseEnrolment    @relation(fields: [enrolmentId], references: [id], onDelete: Cascade)
+  // Anti‑fraud & idempotency fields
+  distance          Float?   // metres (location verification)
+  locationVerified  Boolean  @default(false)
+  idempotencyKey    String?  // optional client‑provided key for safe retries
+
+  session            AttendanceSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  enrolment          CourseEnrolment    @relation(fields: [enrolmentId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, enrolmentId]) // Guarantees single attendance entry per student per session
+  @@unique([sessionId, enrolmentId, idempotencyKey]) // Idempotent submissions
   @@index([sessionId])
   @@index([enrolmentId])
   @@map("attendance_records")
@@ -217,19 +251,47 @@ model StudentVerificationOTP {
   @@map("student_verification_otps")
 }
 
+model Venue {
+  id           String   @id @default(cuid())
+  name         String
+  latitude     Float
+  longitude    Float
+  radiusM      Int @default(50)
+  maxAccuracyM Int @default(30)
+
+  sessions AttendanceSession[] @relation("VenueSessions")
+
+  @@map("venues")
+}
+
+model SecurityEvent {
+  id            String   @id @default(cuid())
+  sessionId     String?
+  matricNumber  String?
+  type          String
+  detail        Json?
+  reviewed      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  session       AttendanceSession? @relation("SecurityEventSession", fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
+  @@map("security_events")
+}
+
 model AuditLog {
-  id         String             @id @default(cuid())
+  id         String   @id @default(cuid())
   userId     String
   courseId   String?
   sessionId  String?
-  action     String             // e.g. "MANUAL_OVERRIDE", "COURSE_ARCHIVED", "ROSTER_IMPORTED"
-  details    String             // JSON serialized audit information
+  action     String   // e.g. "MANUAL_OVERRIDE", "COURSE_ARCHIVED", "ROSTER_IMPORTED"
+  details    String   // JSON serialized audit information
   ipAddress  String?
-  createdAt  DateTime           @default(now())
+  createdAt  DateTime @default(now())
 
-  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course     Course?            @relation(fields: [courseId], references: [id], onDelete: SetNull)
-  session    AttendanceSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  session    AttendanceSession? @relation("AuditLogSession", fields: [sessionId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([courseId])
