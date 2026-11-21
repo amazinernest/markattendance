@@ -82,7 +82,7 @@ model EmailVerificationToken {
   id        String   @id @default(cuid())
   token     String   @unique
   userId    String
-  user      User     @relation("UserEmailVerificationTokens", fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserPasswordResetTokens", fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
 
@@ -93,7 +93,7 @@ model PasswordResetToken {
   id        String   @id @default(cuid())
   token     String   @unique
   userId    String
-  user      User     @relation("UserEmailVerificationTokens", fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserPasswordResetTokens", fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime @default(now())
