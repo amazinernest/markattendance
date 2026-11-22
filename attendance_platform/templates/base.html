@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Attendly – Academic Attendance Management{% endblock %}</title>
+    <title>{% block title %}ClassMarker – Academic Attendance Management{% endblock %}</title>
     
     <!-- Google Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,7 +95,7 @@
                         <circle cx="24" cy="24" r="6" fill="#84cc16"/>
                     </svg>
                     <div class="flex flex-col">
-                        <span class="text-base font-black tracking-tight text-white font-mono flex items-center">attendly</span>
+                        <span class="text-base font-black tracking-tight text-white font-mono flex items-center">classmarker</span>
                         <span class="text-[10px] text-slate-400 font-medium">Academic Portal</span>
                     </div>
                 </a>
@@ -111,7 +111,7 @@
                 <div class="flex items-center space-x-2 min-w-0">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16] shrink-0"></span>
                     <span class="font-medium text-slate-300 truncate text-[11px]">
-                        {{ request.user.institution.name|default:"Attendly University" }}
+                        {{ request.user.institution.name|default:"ClassMarker University" }}
                     </span>
                 </div>
             </div>
@@ -216,7 +216,7 @@
                         </svg>
                     </button>
                     <div class="flex items-center text-xs text-slate-500 space-x-1.5 font-medium">
-                        <span class="text-slate-900 font-semibold">Attendly</span>
+                        <span class="text-slate-900 font-semibold">ClassMarker</span>
                         <span>/</span>
                         <span class="capitalize">{% block section_title %}Academic System{% endblock %}</span>
                     </div>
@@ -249,7 +249,7 @@
                                 <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
                                 <circle cx="24" cy="24" r="6" fill="#84cc16"/>
                             </svg>
-                            <span class="text-xl font-black tracking-tighter text-[#84cc16] font-mono">attendly</span>
+                            <span class="text-xl font-black tracking-tighter text-[#84cc16] font-mono">classmarker</span>
                         </a>
 
                         <!-- Desktop Auth Actions -->
@@ -313,7 +313,7 @@
         <!-- Footer -->
         <footer class="no-print bg-white border-t border-slate-200 mt-auto py-4 px-4 sm:px-6">
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-                <span>Attendly &bull; Higher Education Attendance & Compliance Platform</span>
+                <span>ClassMarker &bull; Higher Education Attendance & Compliance Platform</span>
                 <span class="text-slate-400">Institutional Multi-Tenant Architecture</span>
             </div>
         </footer>

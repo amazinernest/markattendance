@@ -231,7 +231,7 @@ def download_template(request, format_type):
         output.seek(0)
         
         response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename="attendly_class_list_template.xlsx"'
+        response['Content-Disposition'] = 'attachment; filename="classmarker_class_list_template.xlsx"'
         return response
 
     elif format_type == 'word':
@@ -261,7 +261,7 @@ def download_template(request, format_type):
         output.seek(0)
         
         response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-        response['Content-Disposition'] = 'attachment; filename="attendly_class_list_template.docx"'
+        response['Content-Disposition'] = 'attachment; filename="classmarker_class_list_template.docx"'
         return response
 
     elif format_type == 'csv':
@@ -272,7 +272,7 @@ def download_template(request, format_type):
         output.write("EEE/2021/089,Chinedu Eze,Electrical Engineering,chinedu@student.edu\n")
         
         response = HttpResponse(output.getvalue(), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="attendly_class_list_template.csv"'
+        response['Content-Disposition'] = 'attachment; filename="classmarker_class_list_template.csv"'
         return response
 
     return HttpResponse("Invalid format requested", status=400)

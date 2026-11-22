@@ -31,7 +31,7 @@ def register_view(request):
 
             user.save()
             login(request, user)
-            messages.success(request, f"Welcome to Attendly, {user.first_name or 'Professor'}! Your account is active. Let's create your first course.")
+            messages.success(request, f"Welcome to ClassMarker, {user.first_name or 'Professor'}! Your account is active. Let's create your first course.")
             return redirect('courses:course_create')
     else:
         form = LecturerRegistrationForm()
