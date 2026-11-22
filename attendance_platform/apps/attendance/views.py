@@ -93,6 +93,44 @@ def session_toggle(request, session_id):
     return redirect('attendance:session_detail', session_id=session.id)
 
 
+@never_cache
+def student_lookup(request, token):
+    """Fast JSON lookup of student details by matric number for this session's course."""
+    session = get_object_or_404(AttendanceSession, token=token)
+    matric = request.GET.get('matric', '').strip().upper()
+    if not matric:
+        return JsonResponse({'found': False})
+
+    # Search in CourseEnrolment
+    enrolment = session.course.enrolments.filter(
+        student__matric_number__iexact=matric
+    ).select_related('student').first()
+
+    if enrolment:
+        return JsonResponse({
+            'found': True,
+            'name': enrolment.student.name,
+            'department': enrolment.department or enrolment.student.department or '',
+            'matric_number': enrolment.student.matric_number,
+        })
+
+    # Search in general Student database
+    student = Student.objects.filter(
+        institution=session.course.institution,
+        matric_number__iexact=matric
+    ).first()
+
+    if student:
+        return JsonResponse({
+            'found': True,
+            'name': student.name,
+            'department': student.department or '',
+            'matric_number': student.matric_number,
+        })
+
+    return JsonResponse({'found': False})
+
+
 @csrf_exempt
 @never_cache
 def student_checkin(request, token):
@@ -107,18 +145,39 @@ def student_checkin(request, token):
         })
 
     if request.method == 'POST':
-        student_name = request.POST.get('student_name', '').strip()
         matric_number = request.POST.get('matric_number', '').strip().upper()
+        student_name = request.POST.get('student_name', '').strip()
         student_email = request.POST.get('student_email', '').strip().lower()
 
-        if not student_name or not matric_number:
-            messages.error(request, "Please enter both your full name and matriculation number.")
+        if not matric_number:
+            messages.error(request, "Please enter your matriculation number.")
             return render(request, 'attendance/student_checkin.html', {
                 'session': session,
-                'student_name': student_name,
-                'matric_number': matric_number,
-                'student_email': student_email,
+                'is_closed': False,
             })
+
+        # Auto-lookup student name from database if not explicitly submitted
+        if not student_name:
+            enr = session.course.enrolments.filter(
+                student__matric_number__iexact=matric_number
+            ).select_related('student').first()
+            if enr:
+                student_name = enr.student.name
+            else:
+                stu = Student.objects.filter(
+                    institution=session.course.institution,
+                    matric_number__iexact=matric_number
+                ).first()
+                if stu:
+                    student_name = stu.name
+                else:
+                    messages.error(request, f"Matriculation number '{matric_number}' was not found in the course roster. Please enter your full name to complete check-in.")
+                    return render(request, 'attendance/student_checkin.html', {
+                        'session': session,
+                        'matric_number': matric_number,
+                        'need_name': True,
+                        'is_closed': False,
+                    })
 
         # Check if already checked in
         existing = AttendanceRecord.objects.filter(session=session, matric_number=matric_number).first()
