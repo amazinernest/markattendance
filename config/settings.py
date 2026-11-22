@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-replace-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 testserver').split()
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 testserver .vercel.app *').split()
 
 # Application definition
 INSTALLED_APPS = [
@@ -74,9 +74,22 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
 import os
+import urllib.parse
 
-# Database configuration – use PostgreSQL if available, otherwise fallback to SQLite for local dev.
-if os.getenv('POSTGRES_HOST') and os.getenv('POSTGRES_DB'):
+db_url = os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL')
+if db_url and not db_url.startswith('sqlite'):
+    parsed_db = urllib.parse.urlparse(db_url)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': parsed_db.path.lstrip('/'),
+            'USER': urllib.parse.unquote(parsed_db.username or ''),
+            'PASSWORD': urllib.parse.unquote(parsed_db.password or ''),
+            'HOST': parsed_db.hostname or 'localhost',
+            'PORT': str(parsed_db.port or '5432'),
+        }
+    }
+elif os.getenv('POSTGRES_HOST') and os.getenv('POSTGRES_DB'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -156,8 +169,15 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
-# CSRF trusted origins – can be extended via env var
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split()
+# CSRF trusted origins – defaults to vercel and localhost, can be extended via env var
+_csrf_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in _csrf_env.split() if origin.strip()
+] or [
+    'https://*.vercel.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Logging – simple console logger for development
 LOGGING = {
