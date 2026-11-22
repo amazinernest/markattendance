@@ -74,6 +74,44 @@ def compute_course_attendance_stats(course, department_filter=None):
             'status_label': status_label,
         })
 
+    # Also capture students who checked in to sessions but were not in the imported roster
+    if department_filter in [None, 'ALL', 'Unassigned']:
+        enrolled_matrics = {e.student.matric_number.upper().strip() for e in enrolments}
+        unregistered_matrics = set(attendance_map.keys()) - enrolled_matrics
+        for u_matric in unregistered_matrics:
+            rec = records.filter(matric_number=u_matric).order_by('-checked_in_at').first()
+            if not rec:
+                continue
+            name = rec.student_name or u_matric
+            dept = 'Unassigned'
+            attended_count = len(attendance_map.get(u_matric, set()))
+            pct = round((attended_count / total_sessions) * 100, 1) if total_sessions > 0 else 0.0
+            is_eligible = pct >= float(course.attendance_threshold)
+            status_label = "ELIGIBLE" if is_eligible else "NOT ELIGIBLE"
+
+            if is_eligible:
+                eligible_count += 1
+            else:
+                not_eligible_count += 1
+
+            if dept not in dept_breakdown:
+                dept_breakdown[dept] = {'total': 0, 'attended_sum': 0}
+            dept_breakdown[dept]['total'] += 1
+            dept_breakdown[dept]['attended_sum'] += pct
+
+            student_stats.append({
+                'student': None,
+                'matric_number': u_matric,
+                'name': name,
+                'department': dept,
+                'email': rec.student_email or '',
+                'total_sessions': total_sessions,
+                'attended_count': attended_count,
+                'percentage': pct,
+                'is_eligible': is_eligible,
+                'status_label': status_label,
+            })
+
     # Sort student stats by matric number
     student_stats.sort(key=lambda x: (x['department'], x['matric_number']))
 
