@@ -178,6 +178,30 @@ def reverse_geocode(lat, lon):
     return ""
 
 
+def calculate_haversine_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great circle distance in meters between two coordinates on Earth.
+    lat1, lon1: Classroom / Venue
+    lat2, lon2: Student
+    """
+    import math
+    try:
+        lat1 = float(lat1)
+        lon1 = float(lon1)
+        lat2 = float(lat2)
+        lon2 = float(lon2)
+        R = 6371000.0  # Earth radius in meters
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        delta_phi = math.radians(lat2 - lat1)
+        delta_lambda = math.radians(lon2 - lon1)
+        a = math.sin(delta_phi / 2.0)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0)**2
+        c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+        return R * c
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
 @csrf_exempt
 @never_cache
 def student_checkin(request, token):
@@ -254,6 +278,63 @@ def student_checkin(request, token):
         except (ValueError, TypeError):
             pass
 
+        # Geofence enforcement
+        distance_meters = None
+        is_geofence_verified = True
+        geofence_status = 'NOT_REQUIRED'
+
+        if session.enable_geofence and session.has_venue_location:
+            venue_desc = session.location_name or 'the classroom venue'
+            if latitude is None or longitude is None:
+                messages.error(
+                    request,
+                    f"📍 Location Verification Required: This lecture requires GPS proof that you are physically in {venue_desc}. Please allow location access on your phone and try again."
+                )
+                return render(request, 'attendance/student_checkin.html', {
+                    'session': session,
+                    'matric_number': matric,
+                    'is_peer_mode': is_peer_mode,
+                    'geofence_error': 'GPS coordinates not provided. Please turn on location services on your device.',
+                })
+
+            # Calculate physical distance to venue
+            distance_meters = calculate_haversine_distance(
+                session.venue_latitude,
+                session.venue_longitude,
+                latitude,
+                longitude
+            )
+
+            if distance_meters is None:
+                messages.error(request, "Could not verify physical distance. Please ensure GPS is active.")
+                return render(request, 'attendance/student_checkin.html', {
+                    'session': session,
+                    'matric_number': matric,
+                    'is_peer_mode': is_peer_mode,
+                    'geofence_error': 'Invalid GPS coordinates received.',
+                })
+
+            # Check if within allowed radius
+            if distance_meters > session.geofence_radius_meters:
+                dist_str = f"{int(distance_meters):,}m" if distance_meters < 1000 else f"{(distance_meters/1000.0):.2f}km"
+                messages.error(
+                    request,
+                    f"❌ Attendance Blocked: Location Out of Range. You are approximately {dist_str} away from {venue_desc} (allowed radius: {session.geofence_radius_meters}m). Proxy check-in attempts from outside class are strictly prohibited."
+                )
+                return render(request, 'attendance/student_checkin.html', {
+                    'session': session,
+                    'matric_number': matric,
+                    'is_peer_mode': is_peer_mode,
+                    'geofence_blocked': True,
+                    'distance_meters': int(distance_meters),
+                    'allowed_radius': session.geofence_radius_meters,
+                    'venue_name': venue_desc,
+                })
+
+            # Passed geofence!
+            is_geofence_verified = True
+            geofence_status = 'VERIFIED'
+
         # Server-side reverse geocoding if client did not supply address
         if latitude and longitude and not loc_address:
             loc_address = reverse_geocode(latitude, longitude)
@@ -279,6 +360,9 @@ def student_checkin(request, token):
             longitude=longitude,
             accuracy_meters=accuracy_meters,
             location_address=loc_address,
+            distance_from_venue_meters=round(distance_meters, 1) if distance_meters is not None else None,
+            is_geofence_verified=is_geofence_verified,
+            geofence_status=geofence_status,
             status=AttendanceRecord.Status.PRESENT,
         )
 

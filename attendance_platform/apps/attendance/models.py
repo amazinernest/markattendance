@@ -20,6 +20,10 @@ class AttendanceSession(models.Model):
     end_time = models.TimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True, help_text='Whether students can currently check in')
     location_name = models.CharField(max_length=255, blank=True, help_text='e.g. Science Lecture Theatre 2')
+    enable_geofence = models.BooleanField(default=False, help_text='Require students to be physically within classroom radius')
+    venue_latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text='Classroom GPS Latitude')
+    venue_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text='Classroom GPS Longitude')
+    geofence_radius_meters = models.PositiveIntegerField(default=150, help_text='Allowed radius in meters from classroom (e.g. 50m, 100m, 150m, 200m)')
     allow_late = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,6 +58,10 @@ class AttendanceSession(models.Model):
     def total_attended(self):
         return self.records.count()
 
+    @property
+    def has_venue_location(self):
+        return self.venue_latitude is not None and self.venue_longitude is not None
+
 
 class AttendanceRecord(models.Model):
     """An individual student attendance record for a session."""
@@ -80,6 +88,18 @@ class AttendanceRecord(models.Model):
     longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text="GPS Longitude")
     accuracy_meters = models.FloatField(null=True, blank=True, help_text="GPS Accuracy in meters")
     location_address = models.CharField(max_length=500, blank=True, help_text="Human-readable address or landmark")
+    distance_from_venue_meters = models.FloatField(null=True, blank=True, help_text="Calculated distance in meters from classroom venue")
+    is_geofence_verified = models.BooleanField(default=True, help_text="Whether check-in passed venue proximity verification")
+    geofence_status = models.CharField(
+        max_length=30,
+        default='VERIFIED',
+        choices=[
+            ('VERIFIED', 'Verified In-Venue'),
+            ('OUT_OF_RANGE', 'Out of Range'),
+            ('NOT_REQUIRED', 'Not Required'),
+            ('NO_GPS', 'GPS Not Captured')
+        ]
+    )
     checked_in_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

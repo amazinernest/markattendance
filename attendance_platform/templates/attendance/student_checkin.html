@@ -263,6 +263,19 @@
                     <a href="{% url 'attendance:student_checkin' session.token %}" style="color: #b45309; text-decoration: underline; font-weight: 600;">Exit</a>
                 </div>
                 {% endif %}
+
+                {% if session.enable_geofence and session.has_venue_location %}
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 11px; color: #1e40af;">
+                    <div style="font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
+                        <span>📍</span>
+                        <span>Classroom GPS Geofence Enforced</span>
+                    </div>
+                    <div style="color: #3b82f6; line-height: 1.4;">
+                        Physical presence required: You must be within <strong>{{ session.geofence_radius_meters }}m</strong> of <strong>{{ session.location_name|default:"the lecture hall" }}</strong>. Off-campus and proxy check-ins are blocked.
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="form-title">Student Verification</div>
                 <div class="form-subtitle">Enter your Matric Number to confirm presence</div>
 
@@ -423,7 +436,32 @@
             btn.style.opacity = '0.7';
         }
 
+        const GEOFENCE_ACTIVE = {% if session.enable_geofence and session.has_venue_location %}true{% else %}false{% endif %};
+        const VENUE_LAT = {% if session.venue_latitude %}{{ session.venue_latitude }}{% else %}null{% endif %};
+        const VENUE_LON = {% if session.venue_longitude %}{{ session.venue_longitude }}{% else %}null{% endif %};
+        const VENUE_RADIUS = {% if session.geofence_radius_meters %}{{ session.geofence_radius_meters }}{% else %}150{% endif %};
+
+        function calcDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const toRad = deg => deg * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            const pill = document.getElementById('geoPill');
+            const text = document.getElementById('geoText');
+            const dot = document.getElementById('geoDot');
+
+            if (GEOFENCE_ACTIVE && text) {
+                text.innerText = 'Acquiring GPS location for classroom verification...';
+            }
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(pos) {
@@ -432,10 +470,27 @@
                         document.getElementById('latitude').value = lat;
                         document.getElementById('longitude').value = lon;
                         document.getElementById('accuracy').value = pos.coords.accuracy;
-                        const pill = document.getElementById('geoPill');
-                        const text = document.getElementById('geoText');
-                        const dot = document.getElementById('geoDot');
-                        if (pill && text && dot) {
+
+                        if (GEOFENCE_ACTIVE && VENUE_LAT !== null && VENUE_LON !== null) {
+                            const distance = calcDistance(VENUE_LAT, VENUE_LON, lat, lon);
+                            const distRounded = Math.round(distance);
+
+                            if (distance <= VENUE_RADIUS) {
+                                if (text && pill && dot) {
+                                    text.innerText = '✅ In Classroom (~' + distRounded + 'm from venue)';
+                                    pill.style.background = '#f0fdf4';
+                                    pill.style.color = '#15803d';
+                                    dot.style.background = '#22c55e';
+                                }
+                            } else {
+                                if (text && pill && dot) {
+                                    text.innerText = '⚠️ Out of Range: ~' + (distRounded > 1000 ? (distRounded/1000).toFixed(1) + 'km' : distRounded + 'm') + ' away (Allowed: ' + VENUE_RADIUS + 'm)';
+                                    pill.style.background = '#fef2f2';
+                                    pill.style.color = '#b91c1c';
+                                    dot.style.background = '#ef4444';
+                                }
+                            }
+                        } else if (pill && text && dot) {
                             text.innerText = 'Resolving address...';
                             pill.style.background = '#f0fdf4';
                             pill.style.color = '#15803d';
@@ -447,32 +502,38 @@
                             .then(geo => {
                                 if (geo && geo.display_name) {
                                     document.getElementById('location_address').value = geo.display_name;
-                                    const a = geo.address || {};
-                                    const landmark = a.amenity || a.building || a.road || a.suburb || geo.display_name.split(',')[0];
-                                    if (text) {
+                                    if (!GEOFENCE_ACTIVE && text) {
+                                        const a = geo.address || {};
+                                        const landmark = a.amenity || a.building || a.road || a.suburb || geo.display_name.split(',')[0];
                                         text.innerText = 'Location: ' + landmark + ' (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
                                     }
                                 }
                             })
-                            .catch(() => {
-                                if (text) {
-                                    text.innerText = 'Location captured (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
-                                }
-                            });
+                            .catch(() => {});
                     },
                     function(err) {
-                        const pill = document.getElementById('geoPill');
-                        const text = document.getElementById('geoText');
-                        const dot = document.getElementById('geoDot');
-                        if (pill && text && dot) {
-                            text.innerText = 'Location optional (skipped)';
-                            pill.style.background = '#f8fafc';
-                            pill.style.color = '#94a3b8';
-                            dot.style.background = '#cbd5e1';
+                        if (GEOFENCE_ACTIVE) {
+                            if (text && pill && dot) {
+                                text.innerText = '⚠️ GPS permission required to confirm attendance';
+                                pill.style.background = '#fef2f2';
+                                pill.style.color = '#b91c1c';
+                                dot.style.background = '#ef4444';
+                            }
+                        } else {
+                            if (pill && text && dot) {
+                                text.innerText = 'Location optional (skipped)';
+                                pill.style.background = '#f8fafc';
+                                pill.style.color = '#94a3b8';
+                                dot.style.background = '#cbd5e1';
+                            }
                         }
                     },
-                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
                 );
+            } else if (GEOFENCE_ACTIVE && text) {
+                text.innerText = '⚠️ Geolocation not supported on this browser';
+                pill.style.background = '#fef2f2';
+                pill.style.color = '#b91c1c';
             }
 
             const initialMatric = document.getElementById('matric_number')?.value;

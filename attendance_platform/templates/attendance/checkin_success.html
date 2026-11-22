@@ -163,6 +163,14 @@
                     </span>
                 </div>
                 {% endif %}
+                {% if record.distance_from_venue_meters is not None %}
+                <div class="receipt-row">
+                    <span class="receipt-label">In-Class Proximity</span>
+                    <span class="receipt-val" style="color: #15803d; font-weight: 700;">
+                        &check; {{ record.distance_from_venue_meters|floatformat:0 }}m from venue (Verified)
+                    </span>
+                </div>
+                {% endif %}
                 <div class="receipt-row">
                     <span class="receipt-label">Status</span>
                     <span class="status-pill">{{ record.get_status_display }}</span>
