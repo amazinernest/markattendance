@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.utils import timezone
-from django.http import JsonResponse
-from attendance_platform.apps.courses.models import Course
+from django.http import JsonResponse, HttpResponse
+from attendance_platform.apps.courses.models import Course, Student
 from .models import AttendanceSession, AttendanceRecord
 
 
@@ -57,8 +59,24 @@ def session_detail(request, session_id):
         'qr_code_b64': qr_code_b64,
         'records': records,
         'attendance_rate': min(attendance_rate, 100.0),
+        'is_localhost': request.get_host().startswith(('127.0.0.1', 'localhost')),
+        'local_ip': '192.168.0.112:8000',
     }
     return render(request, 'attendance/session_detail.html', context)
+
+
+def session_qr_image(request, session_id):
+    """Dynamically stream a QR code PNG image for a given target URL."""
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    target_url = request.GET.get('url') or session.get_checkin_url(request)
+    import qrcode, io
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=10, border=2)
+    qr.add_data(target_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#0f172a", back_color="white")
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
 
 
 @login_required
@@ -75,6 +93,8 @@ def session_toggle(request, session_id):
     return redirect('attendance:session_detail', session_id=session.id)
 
 
+@csrf_exempt
+@never_cache
 def student_checkin(request, token):
     """Public student check-in portal accessed via QR code or direct link."""
     session = get_object_or_404(AttendanceSession, token=token)

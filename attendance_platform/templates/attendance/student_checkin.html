@@ -1,92 +1,261 @@
-{% extends "base.html" %}
-{% block title %}Check In – {{ session.course.code }} Attendance{% endblock %}
-{% block content %}
-<div class="max-w-lg mx-auto my-4 sm:my-8 space-y-6">
-    <!-- Course Info Card Header -->
-    <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden">
-        <div class="space-y-3 relative z-10">
-            <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                {{ session.course.code }} • Live Attendance
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Check In – {{ session.course.code }}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .container {
+            width: 100%;
+            max-width: 440px;
+            margin: auto;
+        }
+        .header-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #ffffff;
+            border-radius: 24px;
+            padding: 24px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+            border: 1px solid rgba(147, 197, 253, 0.3);
+            border-radius: 9999px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .course-code {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .course-title {
+            font-size: 14px;
+            color: #cbd5e1;
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .meta-row {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+        .meta-row span {
+            color: #f1f5f9;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .form-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 24px 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .form-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .form-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        label span { color: #ef4444; }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            height: 48px;
+            padding: 10px 14px;
+            font-size: 15px;
+            border-radius: 12px;
+            border: 1.5px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        input[type="text"]:focus, input[type="email"]:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        .matric-input {
+            text-transform: uppercase;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 52px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+            transition: transform 0.1s ease, background 0.15s ease;
+            margin-top: 8px;
+        }
+        .btn-submit:active {
+            transform: scale(0.98);
+            background: #1d4ed8;
+        }
+        .error-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        .closed-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 36px 20px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .closed-icon {
+            width: 64px;
+            height: 64px;
+            background: #fef2f2;
+            color: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+        }
+        .footer-text {
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Class Banner -->
+        <div class="header-card">
+            <div class="badge">Live Attendance</div>
+            <div class="course-code">{{ session.course.code }}</div>
+            <div class="course-title">{{ session.course.title }}</div>
+            <div class="meta-row">
+                Lecturer: <span>{{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email }}</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">{{ session.course.title }}</h1>
-            <div class="text-xs text-slate-300 space-y-1 pt-1">
-                <p><strong>Faculty Lecturer:</strong> {{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email }}</p>
-                <p><strong>Session:</strong> {{ session.title }} • {{ session.session_date|date:"M d, Y" }}</p>
-                {% if session.location_name %}
-                    <p><strong>Location:</strong> {{ session.location_name }}</p>
+            <div class="meta-row">
+                Date: <span>{{ session.session_date|date:"l, M d, Y" }}</span>
+            </div>
+            {% if session.location_name %}
+            <div class="meta-row">
+                Location: <span>{{ session.location_name }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if is_closed %}
+            <!-- Closed State -->
+            <div class="closed-card">
+                <div class="closed-icon">&#10006;</div>
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Check-In Window Closed</h2>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
+                    The lecturer has closed attendance for this lecture. If you are present, please notify your instructor in class.
+                </p>
+            </div>
+        {% else %}
+            <!-- Open Form -->
+            <div class="form-card">
+                <div class="form-title">Student Check-In</div>
+                <div class="form-subtitle">Enter your name and matric number to verify your attendance</div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="error-box">{{ message }}</div>
+                    {% endfor %}
                 {% endif %}
+
+                <form method="post" id="checkinForm" onsubmit="handleSubmit(this)">
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="student_name">Full Name <span>*</span></label>
+                        <input type="text" name="student_name" id="student_name" required autofocus placeholder="e.g. Adebayo Johnson" value="{{ student_name|default:'' }}">
+                    </div>
+
+                    <!-- Matriculation Number -->
+                    <div class="form-group">
+                        <label for="matric_number">Matric / Student ID <span>*</span></label>
+                        <input type="text" name="matric_number" id="matric_number" required placeholder="e.g. 250305001 or CSC/2021/001" class="matric-input" value="{{ matric_number|default:'' }}" autocapitalize="characters">
+                    </div>
+
+                    <!-- Optional Email -->
+                    <div class="form-group">
+                        <label for="student_email" style="color: #64748b;">Email Address <span style="font-weight: normal; color: #94a3b8;">(Optional)</span></label>
+                        <input type="email" name="student_email" id="student_email" placeholder="student@university.edu" value="{{ student_email|default:'' }}">
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        Confirm My Attendance
+                    </button>
+                </form>
             </div>
+        {% endif %}
+
+        <div class="footer-text">
+            Attendly Instant Verification &bull; Encrypted Session
         </div>
     </div>
 
-    <!-- Check-in Container -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-        {% if is_closed %}
-            <!-- Closed State -->
-            <div class="text-center py-6 space-y-4">
-                <div class="w-16 h-16 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <div class="space-y-1">
-                    <h2 class="text-xl font-bold text-slate-900">Attendance Window Closed</h2>
-                    <p class="text-sm text-slate-500 max-w-sm mx-auto">
-                        The lecturer has closed check-ins for this lecture meeting. If you arrived on time, please notify your professor directly.
-                    </p>
-                </div>
-            </div>
-        {% else %}
-            <!-- Open Check-in Form -->
-            <div class="space-y-1">
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Student Lecture Check-In</h2>
-                <p class="text-xs text-slate-500">Provide your matriculation details to verify your presence in class</p>
-            </div>
-
-            <form method="post" class="space-y-5">
-                {% csrf_token %}
-
-                <!-- Full Name -->
-                <div class="space-y-1.5">
-                    <label for="student_name" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Full Name <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" name="student_name" id="student_name" required value="{{ student_name|default:'' }}" placeholder="e.g. Alex Johnson" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900 placeholder:text-slate-400 transition">
-                </div>
-
-                <!-- Matric Number -->
-                <div class="space-y-1.5">
-                    <label for="matric_number" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Matriculation / Student ID <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" name="matric_number" id="matric_number" required value="{{ matric_number|default:'' }}" placeholder="e.g. CSC/2022/089" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm font-mono text-slate-900 placeholder:text-slate-400 uppercase transition">
-                    <p class="text-[11px] text-slate-400">Must be your registered university matric number.</p>
-                </div>
-
-                <!-- Email (Optional) -->
-                <div class="space-y-1.5">
-                    <label for="student_email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        University Email <span class="text-slate-400 font-normal">(Optional receipt)</span>
-                    </label>
-                    <input type="email" name="student_email" id="student_email" value="{{ student_email|default:'' }}" placeholder="e.g. alex@student.edu" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900 placeholder:text-slate-400 transition">
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="w-full py-3.5 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>Confirm My Attendance</span>
-                </button>
-            </form>
-
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-center space-x-2 text-[11px] text-slate-400 text-center">
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
-                <span>Timestamp and network integrity verified for academic compliance.</span>
-            </div>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
+    <script>
+        function handleSubmit(form) {
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = 'Verifying Attendance...';
+            btn.style.opacity = '0.7';
+        }
+    </script>
+</body>
+</html>

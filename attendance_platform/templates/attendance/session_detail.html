@@ -60,9 +60,36 @@
                     <p class="text-xs text-slate-500 mt-1">Project this on screen or let students scan from their phones</p>
                 </div>
 
+                <!-- Host / Network Selector -->
+                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-left space-y-2">
+                    <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        <span>QR Target Network</span>
+                        <span id="activeHostLabel" class="text-blue-600 font-semibold lowercase"></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 text-xs font-semibold">
+                        <button type="button" onclick="setHostMode('current')" id="btnCurrentHost" class="px-2.5 py-1.5 rounded-xl border bg-white text-slate-800 shadow-sm border-slate-300 hover:bg-slate-50 text-center transition">
+                            Current Host
+                        </button>
+                        {% if is_localhost %}
+                        <button type="button" onclick="setHostMode('wifi')" id="btnWifiHost" class="px-2.5 py-1.5 rounded-xl border bg-slate-100 text-slate-600 border-slate-200 hover:bg-white text-center transition">
+                            Wi-Fi IP (Mobile)
+                        </button>
+                        {% else %}
+                        <button type="button" onclick="setHostMode('custom')" id="btnCustomHost" class="px-2.5 py-1.5 rounded-xl border bg-slate-100 text-slate-600 border-slate-200 hover:bg-white text-center transition">
+                            Custom URL
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% if is_localhost %}
+                    <p class="text-[10px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200 leading-tight">
+                        <strong>Phone scanning tip:</strong> If students scan from phones on the same Wi-Fi, select <strong>Wi-Fi IP</strong> so their phones can reach your laptop!
+                    </p>
+                    {% endif %}
+                </div>
+
                 <!-- QR Code Box -->
                 <div class="p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 inline-block shadow-inner">
-                    <img src="data:image/png;base64,{{ qr_code_b64 }}" alt="Attendance QR Code" class="w-64 h-64 sm:w-72 sm:h-72 mx-auto rounded-lg">
+                    <img id="qrCodeImg" src="data:image/png;base64,{{ qr_code_b64 }}" alt="Attendance QR Code" class="w-64 h-64 sm:w-72 sm:h-72 mx-auto rounded-lg transition transform">
                 </div>
 
                 <!-- Direct Link & Copy Action -->
@@ -192,6 +219,48 @@
 </div>
 
 <script>
+const sessionToken = "{{ session.token }}";
+const sessionId = "{{ session.id }}";
+const wifiIp = "{{ local_ip|default:'' }}";
+
+function updateQrAndLink(baseUrl) {
+    const checkinUrl = baseUrl.replace(/\/+$/, '') + '/attendance/check-in/' + sessionToken + '/';
+    document.getElementById('checkinUrlInput').value = checkinUrl;
+    
+    // Update QR Code image dynamically via server endpoint
+    const qrImg = document.getElementById('qrCodeImg');
+    qrImg.src = '/attendance/session/' + sessionId + '/qr/?url=' + encodeURIComponent(checkinUrl);
+    document.getElementById('activeHostLabel').innerText = new URL(checkinUrl).host;
+}
+
+function setHostMode(mode) {
+    const btnCurrent = document.getElementById('btnCurrentHost');
+    const btnWifi = document.getElementById('btnWifiHost');
+    const btnCustom = document.getElementById('btnCustomHost');
+
+    if (mode === 'current') {
+        updateQrAndLink(window.location.origin);
+        btnCurrent.className = 'px-2.5 py-1.5 rounded-xl border bg-white text-slate-800 shadow-sm border-slate-300 font-bold';
+        if (btnWifi) btnWifi.className = 'px-2.5 py-1.5 rounded-xl border bg-slate-100 text-slate-600 border-slate-200';
+    } else if (mode === 'wifi') {
+        const protocol = window.location.protocol;
+        updateQrAndLink(protocol + '//' + wifiIp);
+        btnWifi.className = 'px-2.5 py-1.5 rounded-xl border bg-blue-600 text-white shadow-sm border-blue-600 font-bold';
+        btnCurrent.className = 'px-2.5 py-1.5 rounded-xl border bg-slate-100 text-slate-600 border-slate-200';
+    } else if (mode === 'custom') {
+        const customUrl = prompt('Enter public Vercel or ngrok URL (e.g. https://markattendance.vercel.app):');
+        if (customUrl) {
+            updateQrAndLink(customUrl);
+        }
+    }
+}
+
+// Initial setup: ensure checkin link matches current browser origin
+window.addEventListener('DOMContentLoaded', () => {
+    // If currently on localhost and wifi IP available, default to current origin
+    updateQrAndLink(window.location.origin);
+});
+
 function copyCheckinUrl() {
     const input = document.getElementById('checkinUrlInput');
     input.select();
