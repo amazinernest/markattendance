@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Check In – {{ session.course.code }} Attendance{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto my-4 sm:my-8 space-y-6">
+    <!-- Course Info Card Header -->
+    <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden">
+        <div class="space-y-3 relative z-10">
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                {{ session.course.code }} • Live Attendance
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">{{ session.course.title }}</h1>
+            <div class="text-xs text-slate-300 space-y-1 pt-1">
+                <p><strong>Faculty Lecturer:</strong> {{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email }}</p>
+                <p><strong>Session:</strong> {{ session.title }} • {{ session.session_date|date:"M d, Y" }}</p>
+                {% if session.location_name %}
+                    <p><strong>Location:</strong> {{ session.location_name }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Check-in Container -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+        {% if is_closed %}
+            <!-- Closed State -->
+            <div class="text-center py-6 space-y-4">
+                <div class="w-16 h-16 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-xl font-bold text-slate-900">Attendance Window Closed</h2>
+                    <p class="text-sm text-slate-500 max-w-sm mx-auto">
+                        The lecturer has closed check-ins for this lecture meeting. If you arrived on time, please notify your professor directly.
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <!-- Open Check-in Form -->
+            <div class="space-y-1">
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Student Lecture Check-In</h2>
+                <p class="text-xs text-slate-500">Provide your matriculation details to verify your presence in class</p>
+            </div>
+
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+
+                <!-- Full Name -->
+                <div class="space-y-1.5">
+                    <label for="student_name" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Full Name <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" name="student_name" id="student_name" required value="{{ student_name|default:'' }}" placeholder="e.g. Alex Johnson" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900 placeholder:text-slate-400 transition">
+                </div>
+
+                <!-- Matric Number -->
+                <div class="space-y-1.5">
+                    <label for="matric_number" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Matriculation / Student ID <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" name="matric_number" id="matric_number" required value="{{ matric_number|default:'' }}" placeholder="e.g. CSC/2022/089" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm font-mono text-slate-900 placeholder:text-slate-400 uppercase transition">
+                    <p class="text-[11px] text-slate-400">Must be your registered university matric number.</p>
+                </div>
+
+                <!-- Email (Optional) -->
+                <div class="space-y-1.5">
+                    <label for="student_email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        University Email <span class="text-slate-400 font-normal">(Optional receipt)</span>
+                    </label>
+                    <input type="email" name="student_email" id="student_email" value="{{ student_email|default:'' }}" placeholder="e.g. alex@student.edu" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900 placeholder:text-slate-400 transition">
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-3.5 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Confirm My Attendance</span>
+                </button>
+            </form>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-center space-x-2 text-[11px] text-slate-400 text-center">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <span>Timestamp and network integrity verified for academic compliance.</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

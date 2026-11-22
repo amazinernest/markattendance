@@ -99,5 +99,35 @@ def seed():
     )
     print(f"Course: {course.code} - {course.title}")
 
+    # 7. Create Sample Attendance Session & Records
+    from attendance_platform.apps.attendance.models import AttendanceSession, AttendanceRecord
+    att_session, _ = AttendanceSession.objects.get_or_create(
+        course=course,
+        title="Lecture 1: Architectural Patterns & Clean Architecture",
+        defaults={
+            "session_date": date.today(),
+            "location_name": "Auditorium B, Science Complex",
+            "is_active": True,
+        }
+    )
+    print(f"Attendance Session: {att_session.title} (Token: {att_session.token})")
+
+    sample_students = [
+        ("David Adebayo", "CSC/2021/014", "david.adebayo@student.edu"),
+        ("Fatima Al-Mansoor", "CSC/2021/029", "fatima@student.edu"),
+        ("Chinedu Eze", "CSC/2021/045", "chinedu@student.edu"),
+    ]
+    for name, matric, mail in sample_students:
+        AttendanceRecord.objects.get_or_create(
+            session=att_session,
+            matric_number=matric,
+            defaults={
+                "student_name": name,
+                "student_email": mail,
+                "status": AttendanceRecord.Status.PRESENT,
+            }
+        )
+    print(f"Attendance Records seeded: {att_session.records.count()} students checked in")
+
 if __name__ == '__main__':
     seed()

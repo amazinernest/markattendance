@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Attendance Verified – {{ session.course.code }}{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto my-6 sm:my-12">
+    <div class="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-xl text-center space-y-6">
+        <!-- Success Icon -->
+        <div class="w-20 h-20 rounded-full bg-emerald-50 text-emerald-500 mx-auto flex items-center justify-center border-4 border-emerald-100/60 shadow-inner">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <!-- Heading -->
+        <div class="space-y-1">
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                {% if already_recorded %}
+                    Attendance Already Verified!
+                {% else %}
+                    Attendance Confirmed!
+                {% endif %}
+            </h1>
+            <p class="text-xs text-slate-500">
+                {% if already_recorded %}
+                    You have already been checked into this lecture session.
+                {% else %}
+                    Your presence has been officially marked on the faculty roster.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Official Receipt Card -->
+        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200/80 text-left space-y-3 font-sans text-xs">
+            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                <span class="text-slate-400 font-semibold uppercase">Course</span>
+                <span class="font-bold text-slate-900">{{ session.course.code }} – {{ session.course.title }}</span>
+            </div>
+            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                <span class="text-slate-400 font-semibold uppercase">Student</span>
+                <span class="font-bold text-slate-900">{{ record.student_name }}</span>
+            </div>
+            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                <span class="text-slate-400 font-semibold uppercase">Matric No</span>
+                <span class="font-mono font-bold text-blue-700">{{ record.matric_number }}</span>
+            </div>
+            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                <span class="text-slate-400 font-semibold uppercase">Timestamp</span>
+                <span class="text-slate-700 font-medium">{{ record.checked_in_at|date:"M d, Y" }} at {{ record.checked_in_at|time:"g:i:s A" }}</span>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+                <span class="text-slate-400 font-semibold uppercase">Status</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                    {{ record.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <p class="text-[11px] text-slate-400">
+            You may take a screenshot of this receipt for your records.
+        </p>
+
+        <div class="pt-2">
+            <a href="{% url 'frontend:home' %}" class="inline-flex items-center justify-center w-full py-3 px-4 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                Return to Attendly Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
