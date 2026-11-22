@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50">
+<html lang="en" class="h-full bg-[#f7f9f3]">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Attendly – Academic Attendance Management{% endblock %}</title>
     
-    <!-- Google Fonts: Inter with font-feature-settings for tabular numbers -->
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,19 +17,36 @@
         theme: {
           extend: {
             colors: {
+              canvas: '#f7f9f3',
+              lime: {
+                DEFAULT: '#a3e635',
+                light: '#bef264',
+                bright: '#84cc16',
+                soft: '#d9f99d',
+                tint: '#ecfccb',
+                dark: '#4d7c0f',
+                deep: '#365314',
+              },
+              forest: {
+                DEFAULT: '#064e3b',
+                deep: '#022c22',
+              },
               brand: {
-                50: '#f0f5ff',
-                100: '#e5edff',
-                200: '#cddbfe',
-                500: '#3b82f6',
-                600: '#1d4ed8',
-                700: '#1e40af',
-                800: '#1e3a8a',
+                50: '#f7fee7',
+                100: '#ecfccb',
+                200: '#d9f99d',
+                300: '#bef264',
+                400: '#a3e635',
+                500: '#84cc16',
+                600: '#65a30d',
+                700: '#4d7c0f',
+                800: '#3f6212',
                 900: '#0f172a',
               },
             },
             fontFamily: {
-              sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+              sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+              mono: ['ui-monospace', 'monospace'],
             },
             boxShadow: {
               'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -41,7 +58,8 @@
     </script>
     <style>
       body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #f7f9f3;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         letter-spacing: -0.011em;
@@ -56,7 +74,7 @@
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-full flex flex-col text-slate-800 antialiased bg-slate-50 selection:bg-slate-900 selection:text-white">
+<body class="min-h-full flex flex-col text-slate-800 antialiased bg-[#f7f9f3] selection:bg-[#a3e635] selection:text-black">
 
 <div class="min-h-screen flex flex-col md:flex-row">
     {% if request.user.is_authenticated %}
@@ -69,14 +87,15 @@
         <aside id="sidebarNav" class="no-print fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-slate-800">
             <!-- Brand & Institution Header -->
             <div class="h-16 px-5 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40">
-                <a href="{% url 'frontend:dashboard' %}" class="flex items-center space-x-2.5">
-                    <div class="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-xs tracking-tight shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
+                <a href="{% url 'frontend:dashboard' %}" class="flex items-center space-x-2">
+                    <svg class="w-7 h-7 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                        <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                        <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                        <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+                    </svg>
                     <div class="flex flex-col">
-                        <span class="text-sm font-semibold tracking-tight text-white leading-tight">Attendly</span>
+                        <span class="text-base font-black tracking-tight text-white font-mono flex items-center">attendly</span>
                         <span class="text-[10px] text-slate-400 font-medium">Academic Portal</span>
                     </div>
                 </a>
@@ -90,7 +109,7 @@
             <!-- Institution Badge -->
             <div class="px-5 py-2.5 border-b border-slate-800/60 bg-slate-950/20 flex items-center justify-between text-xs">
                 <div class="flex items-center space-x-2 min-w-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16] shrink-0"></span>
                     <span class="font-medium text-slate-300 truncate text-[11px]">
                         {{ request.user.institution.name|default:"Attendly University" }}
                     </span>
@@ -103,9 +122,9 @@
                     <div class="px-2.5 pb-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                         Overview
                     </div>
-                    <a href="{% url 'frontend:dashboard' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-medium transition {% if request.resolver_match.view_name == 'frontend:dashboard' %}bg-blue-600 text-white{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
-                        <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    <a href="{% url 'frontend:dashboard' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-semibold transition {% if request.resolver_match.view_name == 'frontend:dashboard' %}bg-[#84cc16] text-slate-950 shadow-sm{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-4 h-4 mr-2.5 {% if request.resolver_match.view_name == 'frontend:dashboard' %}text-slate-950{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                         Dashboard
                     </a>
@@ -115,23 +134,23 @@
                     <div class="px-2.5 pb-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                         Curriculum & Attendance
                     </div>
-                    <a href="{% url 'courses:course_list' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-medium transition {% if 'courses' in request.resolver_match.namespaces or 'courses' in request.path %}bg-blue-600 text-white{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
-                        <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    <a href="{% url 'courses:course_list' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-semibold transition {% if 'courses' in request.resolver_match.namespaces or 'courses' in request.path %}bg-[#84cc16] text-slate-950 shadow-sm{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-4 h-4 mr-2.5 {% if 'courses' in request.resolver_match.namespaces or 'courses' in request.path %}text-slate-950{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
                         Courses & Classes
                     </a>
 
-                    <a href="{% url 'imports:upload' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-medium transition {% if 'imports' in request.resolver_match.namespaces or 'imports' in request.path %}bg-blue-600 text-white{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
-                        <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    <a href="{% url 'imports:upload' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-semibold transition {% if 'imports' in request.resolver_match.namespaces or 'imports' in request.path %}bg-[#84cc16] text-slate-950 shadow-sm{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-4 h-4 mr-2.5 {% if 'imports' in request.resolver_match.namespaces or 'imports' in request.path %}text-slate-950{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                         </svg>
                         Import Class Rosters
                     </a>
 
-                    <a href="{% url 'reports:index' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-medium transition {% if 'reports' in request.resolver_match.namespaces or 'reports' in request.path %}bg-blue-600 text-white{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
-                        <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <a href="{% url 'reports:index' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-semibold transition {% if 'reports' in request.resolver_match.namespaces or 'reports' in request.path %}bg-[#84cc16] text-slate-950 shadow-sm{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-4 h-4 mr-2.5 {% if 'reports' in request.resolver_match.namespaces or 'reports' in request.path %}text-slate-950{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         Semester Reports & Audit
                     </a>
@@ -141,9 +160,9 @@
                     <div class="px-2.5 pb-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                         Academic Structure
                     </div>
-                    <a href="{% url 'academics:session_list' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-medium transition {% if 'academics' in request.resolver_match.namespaces or 'academics' in request.path %}bg-blue-600 text-white{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
-                        <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    <a href="{% url 'academics:session_list' %}" class="flex items-center px-2.5 py-2 rounded-lg text-xs font-semibold transition {% if 'academics' in request.resolver_match.namespaces or 'academics' in request.path %}bg-[#84cc16] text-slate-950 shadow-sm{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-4 h-4 mr-2.5 {% if 'academics' in request.resolver_match.namespaces or 'academics' in request.path %}text-slate-950{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                         Academic Sessions
                     </a>
@@ -219,24 +238,25 @@
                 </div>
             </header>
         {% else %}
-            <!-- Public Navigation for Landing / Auth -->
-            <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+            <!-- Public Navigation for Auth Pages & Fallback -->
+            <header class="bg-[#f7f9f3] border-b border-slate-300/70 sticky top-0 z-30">
                 <div class="max-w-6xl mx-auto px-4 sm:px-6">
-                    <div class="flex items-center justify-between h-14">
-                        <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2.5">
-                            <div class="w-7 h-7 rounded-md bg-slate-900 text-white flex items-center justify-center font-bold text-xs tracking-tight shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <span class="text-base font-bold text-slate-900 tracking-tight">Attendly</span>
+                    <div class="flex items-center justify-between h-16">
+                        <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2">
+                            <svg class="w-7 h-7 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                                <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                                <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                                <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+                            </svg>
+                            <span class="text-xl font-black tracking-tighter text-[#84cc16] font-mono">attendly</span>
                         </a>
 
-                        <div class="flex items-center space-x-2">
-                            <a href="{% url 'accounts:login' %}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition">
+                        <div class="flex items-center space-x-3 text-xs">
+                            <a href="{% url 'accounts:login' %}" class="font-semibold text-slate-700 hover:text-black transition px-3 py-1.5">
                                 Sign In
                             </a>
-                            <a href="{% url 'accounts:register' %}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-md text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+                            <a href="{% url 'accounts:register' %}" class="inline-flex items-center px-4 py-2 rounded-full font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm text-xs">
                                 Create Account &rarr;
                             </a>
                         </div>

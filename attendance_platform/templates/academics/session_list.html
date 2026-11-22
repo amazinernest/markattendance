@@ -8,13 +8,13 @@
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">Academic Sessions</h1>
             <p class="text-xs text-slate-500">Configure university academic calendars, active years, and semester structures</p>
         </div>
-        <a href="{% url 'academics:session_create' %}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+        <a href="{% url 'academics:session_create' %}" class="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm">
             + Add Academic Session
         </a>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200 text-xs">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-100 text-xs">
             <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                     <th class="px-4 py-3 text-left">Session Name</th>
@@ -26,15 +26,15 @@
             </thead>
             <tbody class="bg-white divide-y divide-slate-100">
                 {% for session in sessions %}
-                <tr class="hover:bg-slate-50/70 transition">
+                <tr class="hover:bg-[#f7f9f3]/60 transition">
                     <td class="px-4 py-3 whitespace-nowrap font-semibold text-slate-900">{{ session.name }}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-slate-600">{{ session.start_date|date:"M d, Y" }}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-slate-600">{{ session.end_date|date:"M d, Y" }}</td>
                     <td class="px-4 py-3 whitespace-nowrap">
-                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Active</span>
+                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">Active</span>
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-right font-medium">
-                        <a href="{% url 'academics:semester_list' session.id %}" class="text-xs font-semibold text-blue-600 hover:underline">View Semesters &rarr;</a>
+                        <a href="{% url 'academics:semester_list' session.id %}" class="text-xs font-bold text-[#4d7c0f] hover:underline">View Semesters &rarr;</a>
                     </td>
                 </tr>
                 {% empty %}

@@ -9,13 +9,13 @@
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ session.name }} &bull; Semesters</h1>
             <p class="text-xs text-slate-500">Configure semester terms within this academic session</p>
         </div>
-        <a href="{% url 'academics:semester_create' session.id %}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+        <a href="{% url 'academics:semester_create' session.id %}" class="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm">
             + Add Semester
         </a>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200 text-xs">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-100 text-xs">
             <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                     <th class="px-4 py-3 text-left">Semester Name</th>
@@ -25,11 +25,11 @@
             </thead>
             <tbody class="bg-white divide-y divide-slate-100">
                 {% for semester in semesters %}
-                <tr class="hover:bg-slate-50/70 transition">
+                <tr class="hover:bg-[#f7f9f3]/60 transition">
                     <td class="px-4 py-3 whitespace-nowrap font-semibold text-slate-900">{{ semester.name }}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-slate-600 font-mono">{{ semester.order }}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right">
-                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Active</span>
+                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">Active</span>
                     </td>
                 </tr>
                 {% empty %}

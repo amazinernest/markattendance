@@ -9,7 +9,7 @@
         <p class="text-xs text-slate-500">Define a new university calendar year</p>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 shadow-card p-6">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
         <form method="post" class="space-y-4">
             {% csrf_token %}
             {% for field in form %}
@@ -25,10 +25,10 @@
             </div>
             {% endfor %}
             <div class="flex items-center space-x-2 pt-3 border-t border-slate-100">
-                <button type="submit" class="px-4 py-2 rounded-lg font-semibold text-xs text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+                <button type="submit" class="px-4 py-2 rounded-xl font-bold text-xs text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm">
                     Create Session
                 </button>
-                <a href="{% url 'academics:session_list' %}" class="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition">Cancel</a>
+                <a href="{% url 'academics:session_list' %}" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 transition">Cancel</a>
             </div>
         </form>
     </div>

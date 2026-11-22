@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -18,8 +18,8 @@
             print-color-adjust: exact;
         }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f1f5f9;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f7f9f3;
             color: #0f172a;
             min-height: 100vh;
             padding: 24px;
@@ -36,13 +36,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #0f172a;
+            background: #121316;
             color: #ffffff;
             padding: 12px 18px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .toolbar-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 13px;
             font-weight: 500;
         }
@@ -52,9 +55,9 @@
         }
         .btn {
             font-size: 12px;
-            font-weight: 600;
-            padding: 7px 14px;
-            border-radius: 6px;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             text-decoration: none;
@@ -63,19 +66,19 @@
             transition: all 0.15s ease;
         }
         .btn-primary {
-            background: #ffffff;
-            color: #0f172a;
+            background: #84cc16;
+            color: #020617;
         }
         .btn-primary:hover {
-            background: #e2e8f0;
+            background: #65a30d;
         }
         .btn-secondary {
-            background: #1e293b;
-            color: #cbd5e1;
-            border: 1px solid #334155;
+            background: #27272a;
+            color: #e4e4e7;
+            border: 1px solid #3f3f46;
         }
         .btn-secondary:hover {
-            background: #334155;
+            background: #3f3f46;
             color: #ffffff;
         }
 
@@ -85,9 +88,9 @@
             max-width: 680px;
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 44px 40px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -113,20 +116,21 @@
         .inst-dot {
             width: 6px;
             height: 6px;
-            background: #0f172a;
+            background: #84cc16;
             border-radius: 50%;
         }
 
         /* Course Code Badge */
         .course-badge {
             display: inline-block;
-            background: #0f172a;
-            color: #ffffff;
+            background: #ecfccb;
+            color: #365314;
+            border: 1px solid #bef264;
             font-family: ui-monospace, monospace;
             font-size: 16px;
             font-weight: 800;
             padding: 4px 14px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 10px;
             letter-spacing: 0.5px;
         }
@@ -142,9 +146,9 @@
 
         /* Lecture Topic Box */
         .topic-box {
-            background: #f8fafc;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 8px;
+            background: #f7f9f3;
+            border: 1.5px solid #d9f99d;
+            border-radius: 12px;
             padding: 12px 18px;
             margin: 12px 0 20px;
             width: 100%;
@@ -154,7 +158,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #64748b;
+            color: #65a30d;
             margin-bottom: 2px;
         }
         .topic-name {
@@ -188,7 +192,7 @@
             background: #ffffff;
             border: 2px solid #0f172a;
             padding: 16px;
-            border-radius: 12px;
+            border-radius: 14px;
             display: inline-block;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             margin-bottom: 24px;
@@ -202,9 +206,9 @@
         /* Instructions */
         .instructions {
             width: 100%;
-            background: #f8fafc;
+            background: #f7f9f3;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 14px 20px;
             margin-bottom: 20px;
             text-align: left;
@@ -231,12 +235,12 @@
             display: inline-block;
             width: 18px;
             height: 18px;
-            background: #0f172a;
-            color: #ffffff;
+            background: #84cc16;
+            color: #020617;
             border-radius: 50%;
             text-align: center;
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
             line-height: 18px;
             margin-right: 4px;
         }
@@ -286,7 +290,13 @@
     <!-- Top Action Toolbar (Hidden during print) -->
     <div class="toolbar">
         <div class="toolbar-info">
-            <strong>Classroom Attendance Poster</strong> &bull; Ready to print on A4 / Letter
+            <svg style="width: 22px; height: 22px;" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+            </svg>
+            <span><strong>Attendly Poster</strong> &bull; Ready to print on A4 / Letter</span>
         </div>
         <div class="toolbar-actions">
             <button type="button" onclick="window.print()" class="btn btn-primary">

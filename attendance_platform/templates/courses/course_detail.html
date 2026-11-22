@@ -8,7 +8,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="space-y-1">
                 <div class="flex items-center space-x-2.5">
-                    <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-slate-100 text-slate-800 border border-slate-200">
+                    <span class="px-2.5 py-0.5 rounded text-xs font-bold font-mono bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
                         {{ course.code }}
                     </span>
                     <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">{{ course.title }}</h1>
@@ -20,9 +20,9 @@
 
             <!-- Primary Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle space-x-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-3.5 py-2 rounded-lg text-xs font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm space-x-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                     </svg>
                     <span>Take Attendance (QR)</span>
                 </a>

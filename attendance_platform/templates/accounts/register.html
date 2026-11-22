@@ -2,11 +2,22 @@
 {% block title %}Create Lecturer Account – Attendly{% endblock %}
 {% block content %}
 <div class="max-w-md mx-auto my-6 sm:my-10">
-    <div class="bg-white rounded-xl border border-slate-200 shadow-card p-6 sm:p-8 space-y-6">
-        <!-- Header -->
-        <div class="space-y-1">
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Create Lecturer Account</h1>
-            <p class="text-xs text-slate-500">Sign up to manage your courses, students, and live lecture attendance</p>
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-6 sm:p-8 space-y-6">
+        <!-- Brand Logo & Header -->
+        <div class="space-y-3">
+            <div class="flex items-center space-x-2">
+                <svg class="w-8 h-8 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                    <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                    <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                    <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+                </svg>
+                <span class="text-2xl font-black tracking-tighter text-[#84cc16] font-mono">attendly</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Create Lecturer Account</h1>
+                <p class="text-xs text-slate-500">Sign up to manage your courses, students, and live lecture attendance</p>
+            </div>
         </div>
 
         <!-- Error Summary -->
@@ -82,15 +93,15 @@
             </div>
 
             <!-- Submit -->
-            <button type="submit" class="w-full py-2.5 px-4 rounded-lg font-semibold text-xs text-white bg-slate-900 hover:bg-slate-800 active:bg-slate-950 transition shadow-subtle">
-                Complete Registration & Setup Courses
+            <button type="submit" class="w-full py-2.5 px-4 rounded-lg font-bold text-xs text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm">
+                Complete Registration & Setup Courses &rarr;
             </button>
         </form>
 
         <div class="text-center pt-2 text-xs text-slate-500 border-t border-slate-100">
             Already have an account?
-            <a href="{% url 'accounts:login' %}" class="font-semibold text-blue-600 hover:underline ml-1">
-                Sign In
+            <a href="{% url 'accounts:login' %}" class="font-bold text-[#4d7c0f] hover:underline ml-1">
+                Sign In &rarr;
             </a>
         </div>
     </div>
