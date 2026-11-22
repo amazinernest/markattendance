@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-replace-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 testserver .vercel.app *').split()
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 testserver .vercel.app classmarker.online www.classmarker.online .classmarker.online *').split()
 
 # Application definition
 INSTALLED_APPS = [
@@ -177,16 +177,19 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 
-# CSRF trusted origins – defaults to vercel and localhost, can be extended via env var
+# CSRF trusted origins – defaults to vercel, classmarker domain, and localhost
 _csrf_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip() for origin in _csrf_env.split() if origin.strip()
-] or [
+_default_origins = [
     'https://*.vercel.app',
     'https://*.now.sh',
+    'https://classmarker.online',
+    'https://www.classmarker.online',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+CSRF_TRUSTED_ORIGINS = list(set(
+    [origin.strip() for origin in _csrf_env.split() if origin.strip()] + _default_origins
+))
 
 # Logging – simple console logger for development
 LOGGING = {
