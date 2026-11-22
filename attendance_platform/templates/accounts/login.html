@@ -1,20 +1,105 @@
 {% extends "base.html" %}
-{% block title %}Login – Attendly{% endblock %}
+{% block title %}Sign In – Attendly Faculty & Administration{% endblock %}
 {% block content %}
-<h2 class="text-2xl font-bold mb-4">Login</h2>
-<form method="post" class="max-w-md">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="mb-4">
-        {{ form.email.label_tag }}
-        {{ form.email }}
-        {{ form.email.errors }}
+<div class="max-w-md mx-auto my-6">
+    <!-- Card Container -->
+    <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10 space-y-8">
+        <!-- Header -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 items-center justify-center shadow-inner mb-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Welcome to Attendly</h1>
+            <p class="text-sm text-slate-500">Sign in with your university academic credentials</p>
+        </div>
+
+        <!-- Form Error Summary -->
+        {% if form.non_field_errors %}
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start space-x-3">
+            <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0118 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            <div class="space-y-1">
+                {% for error in form.non_field_errors %}
+                    <p class="font-medium">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Login Form -->
+        <form method="post" action="{% url 'accounts:login' %}" class="space-y-5" id="loginForm">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next|default:'/' }}">
+
+            <!-- Email Field -->
+            <div class="space-y-1.5">
+                <label for="id_email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Institutional Email
+                </label>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"></path>
+                        </svg>
+                    </div>
+                    <input type="email" name="email" id="id_email" value="{{ form.email.value|default:'' }}" required placeholder="e.g. lecturer@attendly.edu" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm placeholder:text-slate-400 text-slate-900 transition">
+                </div>
+                {% if form.email.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label for="id_password" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Password
+                    </label>
+                    <span class="text-xs text-blue-600 hover:text-blue-500 hover:underline cursor-pointer">Forgot password?</span>
+                </div>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <input type="password" name="password" id="id_password" required placeholder="••••••••••••" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm placeholder:text-slate-400 text-slate-900 transition">
+                </div>
+                {% if form.password.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full py-3.5 px-4 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5">
+                Sign In to Attendly
+            </button>
+        </form>
+
+        <!-- Quick 1-Click Demo Login Fill -->
+        <div class="pt-6 border-t border-slate-100 space-y-3">
+            <p class="text-xs text-center font-medium text-slate-500 uppercase tracking-wider">Quick Demo Login Presets</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" onclick="fillCredentials('lecturer@attendly.edu', 'lecturer123')" class="p-3 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 text-left transition group">
+                    <div class="text-xs font-semibold text-slate-900 group-hover:text-blue-600">Lecturer Demo</div>
+                    <div class="text-[11px] text-slate-500 font-mono">lecturer@attendly.edu</div>
+                </button>
+                <button type="button" onclick="fillCredentials('admin@attendly.edu', 'admin123')" class="p-3 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 text-left transition group">
+                    <div class="text-xs font-semibold text-slate-900 group-hover:text-blue-600">Admin Demo</div>
+                    <div class="text-[11px] text-slate-500 font-mono">admin@attendly.edu</div>
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="mb-4">
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        {{ form.password.errors }}
-    </div>
-    <button type="submit" class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80">Log in</button>
-</form>
+</div>
+
+<script>
+function fillCredentials(email, password) {
+    document.getElementById('id_email').value = email;
+    document.getElementById('id_password').value = password;
+}
+</script>
 {% endblock %}

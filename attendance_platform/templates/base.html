@@ -1,22 +1,34 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-light">
+<html lang="en" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Attendly{% endblock %}</title>
-    <!-- Tailwind via CDN (production should use compiled CSS) -->
+    <title>{% block title %}Attendly – Academic Attendance Management{% endblock %}</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              navy: '#14243A',
-              primary: '#2457A7',
-              success: '#16845B',
-              warning: '#C58A24',
-              error: '#C34444',
-              muted: '#748094',
+              brand: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                500: '#3b82f6',
+                600: '#2563eb',
+                700: '#1d4ed8',
+                800: '#1e40af',
+                900: '#1e3a8a',
+                950: '#0f172a',
+              },
+              navy: '#0f172a',
+              card: '#ffffff',
             },
             fontFamily: {
               sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -25,39 +37,105 @@
         },
       };
     </script>
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-full flex flex-col">
-    <!-- Header -->
-    <header class="bg-navy text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-            <div class="flex items-center space-x-8">
-                <a href="/" class="text-xl font-bold tracking-tight">Attendly</a>
-                <nav class="hidden md:flex space-x-6 text-sm">
-                    <a href="/" class="hover:text-blue-300 transition">Dashboard</a>
-                    <a href="{% url 'courses:course_list' %}" class="hover:text-blue-300 transition">Courses</a>
-                    <a href="{% url 'academics:session_list' %}" class="hover:text-blue-300 transition">Academics</a>
-                    <a href="/admin/" class="hover:text-blue-300 transition">Admin</a>
-                </nav>
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
+    <!-- Main Top Navigation -->
+    <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Left: Brand Logo & Primary Nav -->
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2 group">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">Attendly</span>
+                    </a>
+
+                    <!-- Nav Links -->
+                    <nav class="hidden md:flex items-center space-x-1">
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url 'frontend:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-800/80 transition">Dashboard</a>
+                            <a href="{% url 'courses:course_list' %}" class="px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-800/80 transition">Courses</a>
+                            <a href="{% url 'academics:session_list' %}" class="px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-800/80 transition">Academic Sessions</a>
+                            {% if request.user.is_staff %}
+                                <a href="/admin/" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition">Admin Portal</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'frontend:home' %}" class="px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-800/80 transition">Home</a>
+                            <a href="{% url 'courses:course_list' %}" class="px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-800/80 transition">Courses Directory</a>
+                        {% endif %}
+                    </nav>
+                </div>
+
+                <!-- Right: User / Auth Controls -->
+                <div class="flex items-center space-x-4">
+                    {% if request.user.is_authenticated %}
+                        <div class="hidden sm:flex flex-col text-right">
+                            <span class="text-xs font-semibold text-white leading-tight">
+                                {{ request.user.first_name }} {{ request.user.last_name|default:request.user.email }}
+                            </span>
+                            <span class="text-[11px] text-blue-400 font-medium">
+                                {{ request.user.get_role_display|default:"Staff" }} • {{ request.user.institution.name|default:"Attendly Edu" }}
+                            </span>
+                        </div>
+                        <a href="{% url 'accounts:logout' %}" class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-medium rounded-lg text-white bg-slate-800 hover:bg-rose-600/90 border border-slate-700 hover:border-rose-500 transition shadow-sm">
+                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            Sign Out
+                        </a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-500 transition shadow-sm shadow-blue-600/30">
+                            Sign In to Portal
+                            <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-            <nav class="flex items-center space-x-4 text-sm">
-                {% if request.user.is_authenticated %}
-                    <span class="text-gray-300">{{ request.user.email }}</span>
-                    <a href="{% url 'accounts:logout' %}" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded transition">Logout</a>
-                {% else %}
-                    <a href="{% url 'accounts:login' %}" class="bg-primary hover:bg-blue-700 px-3 py-1.5 rounded transition">Login</a>
-                {% endif %}
-            </nav>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Global Messages Toast / Alert -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% for message in messages %}
+        <div class="flex items-center p-4 mb-3 text-sm rounded-xl shadow-sm border {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200{% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border-rose-200{% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %}" role="alert">
+            <svg class="w-5 h-5 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0118 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            <div class="font-medium">{{ message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-light text-muted py-4 mt-8">
-        <div class="max-w-7xl mx-auto text-center text-sm">
-            © {{ now|date:"Y" }} Attendly – Academic Attendance Management
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500">
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <span class="font-bold text-slate-900">Attendly</span>
+                <span>•</span>
+                <span>Lecturer Attendance Management System</span>
+            </div>
+            <div class="flex space-x-6 text-xs text-slate-400">
+                <span>Enterprise Academic Platform</span>
+                <span>v2.0 (Django & SQLite)</span>
+                <span>Institutional Grade</span>
+            </div>
         </div>
     </footer>
 </body>

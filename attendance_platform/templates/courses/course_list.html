@@ -1,26 +1,83 @@
 {% extends "base.html" %}
-{% block title %}Courses{% endblock %}
+{% block title %}Course Directory – Attendly{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Courses</h1>
-<a href="{% url 'courses:course_create' %}" class="bg-primary text-white px-4 py-2 rounded mb-4 inline-block">Create New Course</a>
-<table class="min-w-full bg-white border">
-  <thead>
-    <tr>
-      <th class="px-4 py-2 border">Code</th>
-      <th class="px-4 py-2 border">Title</th>
-      <th class="px-4 py-2 border">Institution</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for course in courses %}
-    <tr class="hover:bg-gray-100">
-      <td class="px-4 py-2 border"><a href="{% url 'courses:course_detail' course.pk %}" class="text-primary hover:underline">{{ course.code }}</a></td>
-      <td class="px-4 py-2 border">{{ course.title }}</td>
-      <td class="px-4 py-2 border">{{ course.institution.name }}</td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="3" class="px-4 py-2 text-center">No courses available.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Courses Directory</h1>
+            <p class="text-sm text-slate-500">Curriculum catalog, lecturer allocations, and attendance thresholds</p>
+        </div>
+        <a href="{% url 'courses:course_create' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-semibold text-sm text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-500/20 transition">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Create New Course
+        </a>
+    </div>
+
+    <!-- Courses Table Card -->
+    <div class="bg-white shadow-sm rounded-2xl border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50/75">
+                    <tr>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Course Code</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Title & Department</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Lecturer</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Population</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Min Threshold</th>
+                        <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                    {% for course in courses %}
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                {{ course.code }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-slate-900">
+                                <a href="{% url 'courses:course_detail' course.pk %}" class="hover:text-blue-600 transition">{{ course.title }}</a>
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                {{ course.department|default:course.faculty|default:"General Studies" }} • {{ course.level|default:"All Levels" }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {% if course.lecturer %}
+                                <div class="font-medium text-slate-900">{{ course.lecturer.first_name }} {{ course.lecturer.last_name }}</div>
+                                <div class="text-xs text-slate-400 font-mono">{{ course.lecturer.email }}</div>
+                            {% else %}
+                                <span class="text-xs text-slate-400 italic">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
+                            {{ course.expected_population }} students
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                {{ course.attendance_threshold }}% Req.
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            <a href="{% url 'courses:course_detail' course.pk %}" class="text-blue-600 hover:text-blue-800">Detail</a>
+                            <span class="text-slate-300">|</span>
+                            <a href="{% url 'courses:course_update' course.pk %}" class="text-slate-600 hover:text-slate-900">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                            No courses available yet. Click "Create New Course" above.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
