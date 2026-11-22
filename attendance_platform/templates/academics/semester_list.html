@@ -1,46 +1,46 @@
 {% extends "base.html" %}
 {% block title %}{{ session.name }} Semesters – Attendly{% endblock %}
+{% block section_title %}Semester Configuration{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <div>
-        <a href="{% url 'academics:session_list' %}" class="text-primary hover:underline text-sm mb-1 inline-block">&larr; Back to Sessions</a>
-        <h1 class="text-2xl font-bold text-navy">{{ session.name }} – Semesters</h1>
+<div class="space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <a href="{% url 'academics:session_list' %}" class="text-xs font-medium text-slate-500 hover:text-slate-800 mb-1 inline-block">&larr; Back to Sessions</a>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ session.name }} &bull; Semesters</h1>
+            <p class="text-xs text-slate-500">Configure semester terms within this academic session</p>
+        </div>
+        <a href="{% url 'academics:semester_create' session.id %}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+            + Add Semester
+        </a>
     </div>
-    <a href="{% url 'academics:semester_create' session.id %}" class="bg-primary hover:bg-blue-700 text-white font-medium px-4 py-2 rounded shadow transition">
-        + Add Semester
-    </a>
-</div>
 
-<div class="bg-white shadow rounded-lg overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Semester Name</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for semester in semesters %}
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-navy">{{ semester.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ semester.order }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    {% if semester.is_current %}
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Current</span>
-                    {% else %}
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">Inactive</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" class="px-6 py-8 text-center text-gray-500">
-                    No semesters added to this session yet.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-200 text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                <tr>
+                    <th class="px-4 py-3 text-left">Semester Name</th>
+                    <th class="px-4 py-3 text-left">Academic Order</th>
+                    <th class="px-4 py-3 text-right">Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-100">
+                {% for semester in semesters %}
+                <tr class="hover:bg-slate-50/70 transition">
+                    <td class="px-4 py-3 whitespace-nowrap font-semibold text-slate-900">{{ semester.name }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-slate-600 font-mono">{{ semester.order }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Active</span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="px-4 py-8 text-center text-slate-400">
+                        No semesters added to this session yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

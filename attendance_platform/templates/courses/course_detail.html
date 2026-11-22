@@ -1,141 +1,137 @@
 {% extends "base.html" %}
 {% block title %}{{ course.code }} – {{ course.title }} – Attendly{% endblock %}
+{% block section_title %}Course Overview{% endblock %}
 {% block content %}
-<div class="space-y-8 max-w-5xl mx-auto">
-    <!-- Header with Badges & Actions -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+<div class="space-y-6 max-w-5xl mx-auto">
+    <!-- Header with Course Meta & Primary Actions -->
+    <div class="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-card space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="space-y-1.5">
-                <div class="flex items-center space-x-3">
-                    <span class="px-3 py-1 rounded-lg text-sm font-bold bg-blue-50 text-blue-700 border border-blue-100">
+            <div class="space-y-1">
+                <div class="flex items-center space-x-2.5">
+                    <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-slate-100 text-slate-800 border border-slate-200">
                         {{ course.code }}
                     </span>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ course.title }}</h1>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">{{ course.title }}</h1>
                 </div>
-                <p class="text-sm text-slate-500">
-                    {{ course.institution.name }} • {{ course.faculty|default:"School of Sciences" }} • {{ course.department|default:"Lead Department" }}
+                <p class="text-xs text-slate-500">
+                    {{ course.institution.name }} &bull; {{ course.faculty|default:"Academic Faculty" }} &bull; {{ course.department|default:"Lead Department" }}
                 </p>
             </div>
 
             <!-- Primary Action Buttons -->
-            <div class="flex flex-wrap items-center gap-2.5">
-                <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-500/20 transition space-x-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle space-x-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                     </svg>
                     <span>Take Attendance (QR)</span>
                 </a>
-                <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="inline-flex items-center px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition space-x-1.5">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-subtle space-x-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                     </svg>
-                    <span>Import Class List</span>
+                    <span>Import Class Lists</span>
                 </a>
-                <a href="{% url 'reports:index' %}?course_id={{ course.id }}" class="inline-flex items-center px-3.5 py-2.5 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition space-x-1.5">
-                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{% url 'reports:index' %}?course_id={{ course.id }}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-subtle space-x-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <span>Export Audit</span>
+                    <span>Audit Report</span>
                 </a>
-                <a href="{% url 'courses:course_update' course.pk %}" class="inline-flex items-center px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition border border-slate-200">
+                <a href="{% url 'courses:course_update' course.pk %}" class="inline-flex items-center px-2.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
                     Edit
                 </a>
             </div>
         </div>
 
-        <!-- Course Meta Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 text-xs">
+        <!-- Course Meta Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100 text-xs">
             <div>
-                <span class="text-slate-400 font-semibold uppercase block">Lecturer</span>
-                <span class="font-bold text-slate-800 text-sm">
+                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Lecturer</span>
+                <span class="font-medium text-slate-800">
                     {{ course.lecturer.first_name }} {{ course.lecturer.last_name|default:course.lecturer.email|default:"Unassigned" }}
                 </span>
             </div>
             <div>
-                <span class="text-slate-400 font-semibold uppercase block">Academic Term</span>
-                <span class="font-bold text-slate-800 text-sm">
+                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Academic Term</span>
+                <span class="font-medium text-slate-800">
                     {{ course.academic_session.name }} ({{ course.semester.name }})
                 </span>
             </div>
             <div>
-                <span class="text-slate-400 font-semibold uppercase block">Enrolled Roster</span>
-                <span class="font-bold text-slate-800 text-sm">{{ course.enrolled_count|default:course.expected_population }} students</span>
+                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Enrolled Roster</span>
+                <span class="font-medium text-slate-800 tabular-nums">{{ course.enrolled_count }} students</span>
             </div>
             <div>
-                <span class="text-slate-400 font-semibold uppercase block">Required Threshold</span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded font-bold text-xs bg-emerald-50 text-emerald-700">
+                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Exam Threshold</span>
+                <span class="font-medium text-emerald-700">
                     {{ course.attendance_threshold }}% Minimum
                 </span>
             </div>
         </div>
     </div>
 
-    <!-- Multi-Department Participation Banner -->
-    <div class="bg-indigo-50/60 rounded-2xl p-6 border border-indigo-100 space-y-3">
+    <!-- Multi-Department Cohort Strip -->
+    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-2.5">
         <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
-                <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">
-                    Participating Departments ({% if course.all_departments %}{{ course.all_departments|length }}{% else %}All Departments{% endif %})
-                </h3>
+            <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Participating Academic Departments ({{ course.all_departments|length }})
             </div>
-            <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="text-xs font-bold text-indigo-600 hover:underline">
-                + Enrol Department List
+            <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="text-xs font-semibold text-blue-600 hover:underline">
+                + Upload Department List
             </a>
         </div>
-        <p class="text-xs text-slate-600">
-            This course accommodates cross-departmental attendance. Students from all participating faculties are tracked together with departmental filtering on semester reports.
+        <p class="text-xs text-slate-500">
+            Students from multiple departments are accommodated in this section and audited both jointly and by department.
         </p>
-        <div class="flex flex-wrap gap-2 pt-1">
+        <div class="flex flex-wrap gap-1.5 pt-1">
             {% for d in course.all_departments %}
-                <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-white text-indigo-700 border border-indigo-200/80 shadow-xs">
+                <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200">
                     {{ d }}
                 </span>
             {% empty %}
-                <span class="text-xs text-slate-500 italic">No specific departments enrolled yet. Import a class list to populate.</span>
+                <span class="text-xs text-slate-400 italic">No specific departments enrolled yet. Upload a roster to populate.</span>
             {% endfor %}
         </div>
     </div>
 
     <!-- Attendance Sessions Section -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 sm:p-8 space-y-6">
-        <div class="flex items-center justify-between">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
             <div>
-                <h2 class="text-lg font-bold text-slate-900">Lecture Attendance Sessions</h2>
-                <p class="text-xs text-slate-500">Live and completed QR code check-in sessions for this class</p>
+                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Attendance Sessions ({{ course.attendance_sessions.count }})</h2>
+                <p class="text-[11px] text-slate-500">Recorded classroom lectures and QR check-in events</p>
             </div>
-            <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-500">
+            <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
                 + Launch New Session
             </a>
         </div>
 
-        <div class="divide-y divide-slate-100">
+        <div class="divide-y divide-slate-200">
             {% for sess in course.attendance_sessions.all %}
-            <div class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/50 -mx-4 px-4 rounded-xl transition">
-                <div class="space-y-1">
+            <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-slate-50/70 transition text-xs">
+                <div class="space-y-0.5">
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm font-bold text-slate-900">{{ sess.title }}</span>
+                        <span class="font-semibold text-slate-900">{{ sess.title }}</span>
                         {% if sess.is_active %}
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 animate-pulse">LIVE NOW</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">LIVE NOW</span>
                         {% else %}
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">Closed</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">Closed</span>
                         {% endif %}
                     </div>
-                    <div class="text-xs text-slate-500">
-                        {{ sess.session_date|date:"l, M d, Y" }} at {{ sess.start_time|time:"g:i A" }} • 
-                        <strong class="text-slate-700">{{ sess.records.count }}</strong> students verified
+                    <div class="text-[11px] text-slate-500">
+                        {{ sess.session_date|date:"l, M d, Y" }} at {{ sess.start_time|time:"g:i A" }} &bull;
+                        <strong class="text-slate-700 tabular-nums">{{ sess.records.count }}</strong> students verified
                     </div>
                 </div>
-                <div class="flex items-center space-x-2 shrink-0">
-                    <a href="{% url 'attendance:session_detail' sess.id %}" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 transition">
-                        Open QR Code & Roster &rarr;
+                <div>
+                    <a href="{% url 'attendance:session_detail' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-subtle">
+                        Open QR & Roster &rarr;
                     </a>
                 </div>
             </div>
             {% empty %}
-            <div class="text-center py-10 text-slate-400 text-xs">
+            <div class="text-center py-8 text-slate-400 text-xs">
                 No attendance sessions recorded yet. Click "Take Attendance (QR)" to launch your first session.
             </div>
             {% endfor %}
@@ -143,39 +139,48 @@
     </div>
 
     <!-- Enrolled Students Roster Section -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 sm:p-8 space-y-6">
-        <div class="flex items-center justify-between">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-                <h2 class="text-lg font-bold text-slate-900">Enrolled Class Roster</h2>
-                <p class="text-xs text-slate-500">{{ course.enrolments.count }} verified students taking this course</p>
+                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    Enrolled Class Roster ({{ course.enrolments.count }})
+                </h2>
+                <p class="text-[11px] text-slate-500">Official student list for this course</p>
             </div>
-            <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-500">
-                + Import / Add Students
-            </a>
+            <div class="flex items-center space-x-2">
+                <input type="text" id="rosterSearchInput" onkeyup="filterRosterTable()" placeholder="Search students..." class="px-2.5 py-1 rounded-md border border-slate-300 text-xs text-slate-800 placeholder:text-slate-400 focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
+                <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition">
+                    + Add Students
+                </a>
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-100 text-xs">
-                <thead class="bg-slate-50">
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-xs" id="rosterTable">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] sticky top-0">
                     <tr>
-                        <th class="px-4 py-3 text-left font-bold text-slate-500 uppercase">Matric Number</th>
-                        <th class="px-4 py-3 text-left font-bold text-slate-500 uppercase">Student Name</th>
-                        <th class="px-4 py-3 text-left font-bold text-slate-500 uppercase">Department</th>
-                        <th class="px-4 py-3 text-left font-bold text-slate-500 uppercase">Email</th>
+                        <th class="px-4 py-2.5 text-left">Matric Number</th>
+                        <th class="px-4 py-2.5 text-left">Student Name</th>
+                        <th class="px-4 py-2.5 text-left">Department</th>
+                        <th class="px-4 py-2.5 text-left">Email</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
                     {% for enr in course.enrolments.all %}
-                    <tr class="hover:bg-slate-50/50">
-                        <td class="px-4 py-3 font-mono font-bold text-slate-900">{{ enr.student.matric_number }}</td>
-                        <td class="px-4 py-3 font-medium text-slate-800">{{ enr.student.name }}</td>
-                        <td class="px-4 py-3 text-slate-600">{{ enr.department|default:enr.student.department|default:"General" }}</td>
-                        <td class="px-4 py-3 text-slate-400 font-mono">{{ enr.student.email|default:"–" }}</td>
+                    <tr class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-mono font-semibold text-slate-900">{{ enr.student.matric_number }}</td>
+                        <td class="px-4 py-2.5 font-medium text-slate-800">{{ enr.student.name }}</td>
+                        <td class="px-4 py-2.5 text-slate-600">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-800 border border-slate-200">
+                                {{ enr.department|default:enr.student.department|default:"General" }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2.5 text-slate-400 font-mono text-[11px]">{{ enr.student.email|default:"–" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="4" class="px-4 py-8 text-center text-slate-400">
-                            No students enrolled yet. Go to <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="text-blue-600 font-bold hover:underline">Import Class List</a> to upload an Excel, Word, or PDF document.
+                            No students enrolled yet. Go to <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="text-blue-600 font-semibold hover:underline">Import Class List</a> to upload an Excel, Word, or PDF document.
                         </td>
                     </tr>
                     {% endfor %}
@@ -184,4 +189,15 @@
         </div>
     </div>
 </div>
+
+<script>
+function filterRosterTable() {
+    const query = document.getElementById('rosterSearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#rosterTable tbody tr');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+</script>
 {% endblock %}

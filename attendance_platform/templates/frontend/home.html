@@ -1,27 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Dashboard – Attendly{% endblock %}
+{% block title %}Attendly Portal{% endblock %}
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <h1 class="text-3xl font-bold text-navy mb-2">Welcome to Attendly</h1>
-        <p class="text-gray-600">Lecturer Attendance Management System</p>
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-card flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Academic Portal Overview</h1>
+            <p class="text-xs text-slate-500">Lecturer Attendance and Curriculum System</p>
+        </div>
+        <a href="{% url 'frontend:dashboard' %}" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition">
+            Go to Faculty Dashboard &rarr;
+        </a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
-            <h2 class="text-xl font-semibold text-navy mb-2">Courses</h2>
-            <p class="text-gray-600 text-sm mb-4">View, create, and manage course offerings and allocations.</p>
-            <a href="{% url 'courses:course_list' %}" class="text-primary hover:underline font-medium text-sm">&rarr; Go to Courses</a>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-card space-y-2">
+            <h2 class="text-sm font-semibold text-slate-900">Courses Directory</h2>
+            <p class="text-xs text-slate-500">Configure courses, multi-department rosters, and attendance policies.</p>
+            <a href="{% url 'courses:course_list' %}" class="inline-block text-xs font-semibold text-blue-600 hover:underline pt-1">Open Courses &rarr;</a>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
-            <h2 class="text-xl font-semibold text-navy mb-2">Academic Sessions</h2>
-            <p class="text-gray-600 text-sm mb-4">Manage academic years, calendars, and semesters.</p>
-            <a href="{% url 'academics:session_list' %}" class="text-primary hover:underline font-medium text-sm">&rarr; Go to Academics</a>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-card space-y-2">
+            <h2 class="text-sm font-semibold text-slate-900">Academic Sessions</h2>
+            <p class="text-xs text-slate-500">Review university academic sessions, calendars, and semesters.</p>
+            <a href="{% url 'academics:session_list' %}" class="inline-block text-xs font-semibold text-blue-600 hover:underline pt-1">Open Sessions &rarr;</a>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
-            <h2 class="text-xl font-semibold text-navy mb-2">Admin Portal</h2>
-            <p class="text-gray-600 text-sm mb-4">Administrative settings, user management, and audit logs.</p>
-            <a href="/admin/" class="text-primary hover:underline font-medium text-sm">&rarr; Go to Admin</a>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-card space-y-2">
+            <h2 class="text-sm font-semibold text-slate-900">Semester Audit</h2>
+            <p class="text-xs text-slate-500">Review 75% exam compliance thresholds and export grade sheets.</p>
+            <a href="{% url 'reports:index' %}" class="inline-block text-xs font-semibold text-blue-600 hover:underline pt-1">Open Audit Reports &rarr;</a>
         </div>
     </div>
 </div>

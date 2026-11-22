@@ -1,138 +1,130 @@
 {% extends "base.html" %}
 {% block title %}Import Class Roster – Attendly{% endblock %}
+{% block section_title %}Import Roster{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-8">
+<div class="max-w-4xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 mb-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                </svg>
-                <span>Multi-File & Multi-Department Enabled</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Import Class Roster</h1>
-            <p class="text-sm text-slate-500">Upload one or multiple class lists from Excel (.xlsx), Word (.docx), PDF (.pdf), or CSV</p>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Import Class Roster</h1>
+            <p class="text-xs text-slate-500">Upload one or multiple class lists from Excel (.xlsx), Word (.docx), PDF (.pdf), or CSV</p>
         </div>
         <!-- Template Download Dropdown/Pills -->
-        <div class="flex items-center space-x-2 text-xs">
-            <span class="text-slate-400 font-medium">Download Sample:</span>
-            <a href="{% url 'imports:download_template' 'excel' %}" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold border border-emerald-200 transition">
+        <div class="flex items-center space-x-1.5 text-xs">
+            <span class="text-slate-400 font-medium text-[11px]">Templates:</span>
+            <a href="{% url 'imports:download_template' 'excel' %}" class="px-2 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-[11px] shadow-subtle transition">
                 .xlsx
             </a>
-            <a href="{% url 'imports:download_template' 'word' %}" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold border border-blue-200 transition">
+            <a href="{% url 'imports:download_template' 'word' %}" class="px-2 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-[11px] shadow-subtle transition">
                 .docx
             </a>
-            <a href="{% url 'imports:download_template' 'csv' %}" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold border border-slate-200 transition">
+            <a href="{% url 'imports:download_template' 'csv' %}" class="px-2 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-[11px] shadow-subtle transition">
                 .csv
             </a>
         </div>
     </div>
 
     <!-- Upload Card -->
-    <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm space-y-8">
-        <form method="post" enctype="multipart/form-data" class="space-y-6" id="uploadForm">
+    <div class="bg-white rounded-xl p-5 sm:p-7 border border-slate-200 shadow-card space-y-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-5" id="uploadForm">
             {% csrf_token %}
 
             <!-- Step 1: Select Target Course -->
-            <div class="space-y-2">
-                <label for="course_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Select Target Course <span class="text-rose-500">*</span>
+            <div class="space-y-1.5">
+                <label for="course_id" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Target Course <span class="text-rose-500">*</span>
                 </label>
-                <select name="course_id" id="course_id" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900 bg-white transition">
+                <select name="course_id" id="course_id" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900 bg-white transition">
                     <option value="">-- Choose Course Section --</option>
                     {% for c in courses %}
                         <option value="{{ c.id }}" {% if selected_course and selected_course.id == c.id %}selected{% endif %}>
                             {{ c.code }} – {{ c.title }} 
                             {% if c.enrolments.count %}
-                                ({{ c.enrolments.count }} students enrolled across {{ c.all_departments|length }} dept{{ c.all_departments|length|pluralize }})
+                                ({{ c.enrolments.count }} students &bull; {{ c.all_departments|length }} dept{{ c.all_departments|length|pluralize }})
                             {% else %}
-                                (No students enrolled yet)
+                                (Empty roster)
                             {% endif %}
                         </option>
                     {% endfor %}
                 </select>
-                <p class="text-xs text-slate-400">
-                    Existing student records in this course are <strong>never deleted</strong>. Any newly uploaded files will safely add new students to this course.
+                <p class="text-[11px] text-slate-400">
+                    Existing student records in this course are <strong>never deleted</strong>; newly uploaded records will be safely appended.
                 </p>
             </div>
 
             <!-- Multi-Department Guidance Box -->
-            <div class="bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-purple-50/70 p-5 rounded-2xl border border-indigo-100/80 space-y-3">
-                <div class="flex items-center space-x-2 text-indigo-900 font-bold text-xs uppercase tracking-wider">
-                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2.5">
+                <div class="flex items-center space-x-1.5 text-slate-900 font-bold text-xs uppercase tracking-wider">
                     <span>Multi-Department Course Rosters</span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 leading-relaxed">
-                    <div class="bg-white/80 p-3 rounded-xl border border-indigo-100/60 space-y-1">
-                        <strong class="text-indigo-950 block">Option A: Batch Upload Multiple Files</strong>
-                        <p>Select multiple department files at once (e.g. hold <kbd class="px-1 py-0.5 rounded bg-slate-100 border text-[10px] font-mono">Ctrl</kbd> or <kbd class="px-1 py-0.5 rounded bg-slate-100 border text-[10px] font-mono">Cmd</kbd> to select 3+ files). Attendly automatically identifies each department from the file name or document headers.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs text-slate-600">
+                    <div class="bg-white p-3 rounded-md border border-slate-200 space-y-1">
+                        <strong class="text-slate-800 block text-[11px]">Option A: Batch Upload Multiple Files</strong>
+                        <p class="text-[11px] text-slate-500 leading-normal">Select multiple department files at once (hold Ctrl/Cmd). Attendly identifies departments from document columns or file names.</p>
                     </div>
-                    <div class="bg-white/80 p-3 rounded-xl border border-indigo-100/60 space-y-1">
-                        <strong class="text-indigo-950 block">Option B: Sequential Uploads Over Time</strong>
-                        <p>You can upload Department A today and Department B tomorrow. Each upload appends students to the course roster without removing previously enrolled students.</p>
+                    <div class="bg-white p-3 rounded-md border border-slate-200 space-y-1">
+                        <strong class="text-slate-800 block text-[11px]">Option B: Incremental Uploads Over Time</strong>
+                        <p class="text-[11px] text-slate-500 leading-normal">Upload Department A today and Department B tomorrow. Each submission appends students without overwriting.</p>
                     </div>
                 </div>
 
-                <div class="pt-2">
+                <div class="pt-1.5">
                     <label for="default_department" class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">
                         Fallback Department Name (Optional)
                     </label>
-                    <input type="text" name="default_department" id="default_department" placeholder="e.g. Guidance & Counselling (used only if files do not specify a department)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-xs text-slate-800 bg-white">
+                    <input type="text" name="default_department" id="default_department" placeholder="e.g. Guidance & Counselling (used only if file has no department column)" class="w-full px-3 py-1.5 rounded-md border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-800 bg-white">
                 </div>
             </div>
 
             <!-- Step 2: Drag and Drop Multi-File Input -->
-            <div class="space-y-2">
+            <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Upload Class List Document(s) <span class="text-rose-500">*</span>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Roster File(s) <span class="text-rose-500">*</span>
                     </label>
-                    <span class="text-[11px] text-indigo-600 font-semibold bg-indigo-50 px-2.5 py-0.5 rounded-full">
-                        You can select multiple files
+                    <span class="text-[11px] text-slate-500">
+                        Select 1 or more files
                     </span>
                 </div>
 
-                <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-3xl p-8 sm:p-10 text-center transition bg-slate-50/50 hover:bg-blue-50/20 group cursor-pointer relative" id="dropZone">
+                <div class="border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-lg p-6 sm:p-8 text-center transition bg-slate-50 hover:bg-slate-100/50 cursor-pointer relative" id="dropZone">
                     <input type="file" name="class_files" id="class_files" multiple required accept=".xlsx,.xls,.docx,.doc,.pdf,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFilesSelected(this)">
-                    <div class="space-y-3 pointer-events-none">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 mx-auto flex items-center justify-center group-hover:scale-110 transition transform">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="space-y-2 pointer-events-none">
+                        <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 text-slate-600 mx-auto flex items-center justify-center shadow-subtle">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                             </svg>
                         </div>
-                        <div class="space-y-1">
-                            <p class="text-sm font-bold text-slate-900" id="filePrompt">
+                        <div class="space-y-0.5">
+                            <p class="text-xs font-semibold text-slate-800" id="filePrompt">
                                 Click or drag & drop class roster file(s) here
                             </p>
-                            <p class="text-xs text-slate-400">
-                                Select 1 or more Excel (.xlsx, .xls), Word (.docx, .doc), PDF (.pdf), or CSV files
+                            <p class="text-[11px] text-slate-400">
+                                Supports Excel (.xlsx, .xls), Word (.docx, .doc), PDF (.pdf), and CSV (.csv)
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Live Selected Files List -->
-                <div id="selectedFilesContainer" class="hidden space-y-2 pt-2">
+                <div id="selectedFilesContainer" class="hidden space-y-1.5 pt-1">
                     <div class="flex items-center justify-between text-xs text-slate-500 px-1">
-                        <span class="font-bold text-slate-700">Selected Files (<span id="fileCountBadge">0</span>)</span>
-                        <button type="button" onclick="clearSelectedFiles()" class="text-rose-600 hover:underline font-semibold">Clear All</button>
+                        <span class="font-semibold text-slate-700">Selected Files (<span id="fileCountBadge">0</span>)</span>
+                        <button type="button" onclick="clearSelectedFiles()" class="text-rose-600 hover:underline text-[11px]">Clear All</button>
                     </div>
-                    <div id="selectedFilesList" class="space-y-1.5 max-h-60 overflow-y-auto"></div>
+                    <div id="selectedFilesList" class="space-y-1 max-h-48 overflow-y-auto"></div>
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <div class="pt-4 flex items-center justify-between">
-                <button type="submit" id="submitBtn" class="px-6 py-3.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <button type="submit" id="submitBtn" class="px-4 py-2 rounded-lg font-semibold text-xs text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle flex items-center space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                     </svg>
                     <span id="btnText">Import and Enrol Students</span>
                 </button>
-                <a href="{% url 'courses:course_list' %}" class="text-sm font-semibold text-slate-500 hover:text-slate-800">
+                <a href="{% url 'courses:course_list' %}" class="text-xs font-medium text-slate-500 hover:text-slate-800">
                     Cancel
                 </a>
             </div>
@@ -166,24 +158,17 @@ function handleFilesSelected(input) {
     container.classList.remove('hidden');
     list.innerHTML = '';
 
-    filePrompt.innerHTML = `<span class="text-blue-600 font-bold">${count} file${count > 1 ? 's' : ''} ready to upload</span>`;
-    btnText.innerText = `Import and Enrol from ${count} File${count > 1 ? 's' : ''}`;
+    filePrompt.innerHTML = `<span class="text-slate-900 font-bold">${count} file${count > 1 ? 's' : ''} ready to upload</span>`;
+    btnText.innerText = `Import from ${count} File${count > 1 ? 's' : ''}`;
 
-    Array.from(input.files).forEach((file, index) => {
+    Array.from(input.files).forEach((file) => {
         const item = document.createElement('div');
-        item.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs';
-        
-        let fileIcon = '📄';
-        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) fileIcon = '📊';
-        else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) fileIcon = '📝';
-        else if (file.name.endsWith('.pdf')) fileIcon = '📑';
-
+        item.className = 'flex items-center justify-between p-2 rounded-md bg-slate-50 border border-slate-200 text-xs';
         item.innerHTML = `
-            <div class="flex items-center space-x-2.5 truncate pr-3">
-                <span class="text-base">${fileIcon}</span>
-                <span class="font-bold text-slate-800 truncate">${file.name}</span>
+            <div class="flex items-center space-x-2 truncate pr-2">
+                <span class="font-medium text-slate-800 truncate">${file.name}</span>
             </div>
-            <span class="shrink-0 font-mono text-slate-400 font-medium">${formatFileSize(file.size)}</span>
+            <span class="shrink-0 font-mono text-slate-400 text-[11px]">${formatFileSize(file.size)}</span>
         `;
         list.appendChild(item);
     });

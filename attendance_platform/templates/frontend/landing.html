@@ -1,119 +1,77 @@
 {% extends "base.html" %}
-{% block title %}Attendly – Intelligent Attendance Platform for Higher Education{% endblock %}
+{% block title %}Attendly – Academic Attendance & Exam Compliance Platform{% endblock %}
 {% block content %}
-<div class="space-y-16">
+<div class="space-y-12 max-w-5xl mx-auto py-4">
     <!-- Hero Section -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-8 sm:p-14 lg:p-16 shadow-2xl border border-slate-800">
-        <!-- Background Glow Accent -->
-        <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-card p-8 sm:p-12 text-left space-y-6">
+        <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+            <span>Higher Education Attendance Infrastructure</span>
+        </div>
 
-        <div class="relative max-w-3xl space-y-6">
-            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold uppercase tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                <span>Next-Gen Academic Tracking</span>
-            </div>
-            
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15]">
-                Frictionless Lecture Attendance & Real-Time Verification
+        <div class="space-y-3 max-w-3xl">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+                Reliable lecture attendance tracking and semester exam compliance.
             </h1>
-            
-            <p class="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed">
-                Attendly empowers universities, departments, and professors to verify class attendance instantaneously, safeguard academic compliance thresholds, and automate semester audits.
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                Attendly provides universities and faculty with real-time QR attendance, automated 75% exam admission audits, and cross-department roster management without hardware dependencies.
             </p>
+        </div>
 
-            <div class="flex flex-wrap gap-4 pt-4">
-                <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5">
-                    Launch Faculty Portal
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                    </svg>
-                </a>
-                <a href="{% url 'courses:course_list' %}" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-semibold text-slate-200 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition">
-                    Explore Course Catalog
-                </a>
-            </div>
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+            <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+                Sign In to Faculty Portal &rarr;
+            </a>
+            <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition shadow-subtle">
+                Create Lecturer Account
+            </a>
+        </div>
 
-            <!-- Pre-configured Credentials Hint -->
-            <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap items-center gap-4 text-xs text-slate-400">
-                <span class="font-medium text-slate-300">Quick Demo Accounts:</span>
-                <span class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-mono">
-                    Lecturer: lecturer@attendly.edu (lecturer123)
-                </span>
-                <span class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-mono">
-                    Admin: admin@attendly.edu (admin123)
-                </span>
-            </div>
+        <!-- Quick Demo Presets Bar -->
+        <div class="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span class="font-medium text-slate-700">Pre-configured Demo Access:</span>
+            <span class="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px]">
+                lecturer@attendly.edu (lecturer123)
+            </span>
+            <span class="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px]">
+                admin@attendly.edu (admin123)
+            </span>
         </div>
     </div>
 
-    <!-- Core Capabilities Grid -->
-    <div>
-        <div class="text-center max-w-2xl mx-auto mb-12">
-            <h2 class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Engineered for Universities</h2>
-            <h3 class="text-3xl font-bold text-slate-900">Everything needed to monitor and enforce lecture standards</h3>
+    <!-- Product Workflow Pillars (3-Column Clean Grid) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Pillar 1 -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold">
+                01
+            </div>
+            <h3 class="text-sm font-semibold text-slate-900">Dynamic QR Verification</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Lecturers project a rotating cryptographic QR token in class. Students scan with mobile devices to verify presence with GPS and timestamp validation.
+            </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                    </svg>
-                </div>
-                <h4 class="text-xl font-bold text-slate-900 mb-2">Instant QR Attendance</h4>
-                <p class="text-slate-600 text-sm leading-relaxed">
-                    Generate dynamic, rotating check-in QR tokens during live lectures. Prevents proxy check-ins with device and timestamp verification.
-                </p>
+        <!-- Pillar 2 -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold">
+                02
             </div>
-
-            <!-- Feature 2 -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                </div>
-                <h4 class="text-xl font-bold text-slate-900 mb-2">75% Exam Threshold Rules</h4>
-                <p class="text-slate-600 text-sm leading-relaxed">
-                    Automatically computes student attendance percentages against faculty exam admission policies. Instant alerts for students at risk.
-                </p>
-            </div>
-
-            <!-- Feature 3 -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                </div>
-                <h4 class="text-xl font-bold text-slate-900 mb-2">Multi-Tenant Architecture</h4>
-                <p class="text-slate-600 text-sm leading-relaxed">
-                    Designed for university-wide deployment with strict isolation across institutions, faculties, departments, and course sessions.
-                </p>
-            </div>
+            <h3 class="text-sm font-semibold text-slate-900">Multi-Department Rosters</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Accommodates courses shared by 10+ faculties. Upload rosters simultaneously or incrementally from Excel, Word, or PDF with zero data collisions.
+            </p>
         </div>
-    </div>
 
-    <!-- Role Walkthrough Strip -->
-    <div class="bg-slate-100 rounded-3xl p-8 sm:p-12 border border-slate-200">
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div class="space-y-4 max-w-xl">
-                <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Designed for Faculty</span>
-                <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">Manage course sessions, rosters, and attendance in seconds.</h3>
-                <p class="text-slate-600 text-sm leading-relaxed">
-                    Log in with your university credentials to immediately view your assigned courses, open attendance windows during class, and export complete audit sheets.
-                </p>
+        <!-- Pillar 3 -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold">
+                03
             </div>
-            <div class="flex flex-col sm:flex-row gap-4 shrink-0">
-                <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white bg-slate-900 hover:bg-slate-800 transition">
-                    Sign In as Lecturer
-                </a>
-                <a href="{% url 'academics:session_list' %}" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition">
-                    View Academic Calendar
-                </a>
-            </div>
+            <h3 class="text-sm font-semibold text-slate-900">75% Exam Compliance Audits</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Automates end-of-semester attendance ratios against university exam eligibility regulations with one-click official Excel audit exports.
+            </p>
         </div>
     </div>
 </div>

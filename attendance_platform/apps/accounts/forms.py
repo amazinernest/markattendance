@@ -26,14 +26,14 @@ class LecturerRegistrationForm(forms.ModelForm):
     password = forms.CharField(
         label="Create Password",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900',
-            'placeholder': 'Minimum 8 characters'
+            'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900',
+            'placeholder': 'Minimum 6 characters'
         })
     )
     confirm_password = forms.CharField(
         label="Confirm Password",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900',
+            'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900',
             'placeholder': 'Re-enter your password'
         })
     )
@@ -48,15 +48,15 @@ class LecturerRegistrationForm(forms.ModelForm):
         }
         widgets = {
             'first_name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900',
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900',
                 'placeholder': 'e.g. Dr. Sarah'
             }),
             'last_name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900',
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900',
                 'placeholder': 'e.g. Connor'
             }),
             'email': forms.EmailInput(attrs={
-                'class': 'w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm text-slate-900',
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900',
                 'placeholder': 'lecturer@university.edu'
             }),
         }

@@ -14,228 +14,214 @@
             flex-direction: column;
             min-height: 100vh;
             padding: 16px;
+            letter-spacing: -0.01em;
         }
         .container {
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             margin: auto;
         }
         .header-card {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: #0f172a;
             color: #ffffff;
-            border-radius: 24px;
-            padding: 24px 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+            border-radius: 12px;
+            padding: 20px 18px;
+            margin-bottom: 12px;
+            border: 1px solid #1e293b;
         }
         .badge {
             display: inline-block;
-            background: rgba(59, 130, 246, 0.25);
-            color: #93c5fd;
-            border: 1px solid rgba(147, 197, 253, 0.3);
-            border-radius: 9999px;
-            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            padding: 2px 8px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .course-code {
-            font-size: 24px;
-            font-weight: 800;
+            font-size: 20px;
+            font-weight: 700;
             letter-spacing: -0.5px;
             line-height: 1.2;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            font-family: ui-monospace, monospace;
         }
         .course-title {
-            font-size: 14px;
-            color: #cbd5e1;
+            font-size: 13px;
+            color: #94a3b8;
             font-weight: 500;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .meta-row {
             display: flex;
             align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 5px;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 3px;
         }
         .meta-row span {
-            color: #f1f5f9;
-            font-weight: 600;
-            margin-left: 6px;
+            color: #e2e8f0;
+            font-weight: 500;
+            margin-left: 5px;
         }
         .form-card {
             background: #ffffff;
-            border-radius: 24px;
-            padding: 24px 20px;
+            border-radius: 12px;
+            padding: 20px 18px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         .form-title {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .form-subtitle {
             font-size: 12px;
             color: #64748b;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
         label {
             display: block;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #475569;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
-        label span { color: #ef4444; }
+        label span { color: #dc2626; }
         .input-wrapper {
             position: relative;
         }
         input[type="text"], input[type="email"] {
             width: 100%;
-            height: 52px;
-            padding: 10px 14px;
-            font-size: 16px;
-            border-radius: 14px;
-            border: 2px solid #cbd5e1;
+            height: 46px;
+            padding: 8px 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
             background: #ffffff;
             color: #0f172a;
             outline: none;
             transition: all 0.15s ease;
         }
         input[type="text"]:focus, input[type="email"]:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            border-color: #0f172a;
+            box-shadow: 0 0 0 1px #0f172a;
         }
         .matric-input {
             text-transform: uppercase;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: ui-monospace, monospace;
             font-weight: 700;
-            letter-spacing: 1px;
-            font-size: 18px;
+            font-size: 16px;
         }
         .lookup-spinner {
             position: absolute;
-            right: 14px;
-            top: 17px;
-            font-size: 12px;
+            right: 12px;
+            top: 14px;
+            font-size: 11px;
             color: #64748b;
             display: none;
         }
-        /* Identified Student Card */
         .identity-card {
             display: none;
             background: #f0fdf4;
-            border: 1.5px solid #86efac;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 18px;
-            animation: fadeIn 0.2s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
         }
         .identity-header {
             display: flex;
             align-items: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #166534;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .identity-header span {
-            margin-right: 6px;
-            font-size: 14px;
         }
         .student-name-display {
-            font-size: 18px;
-            font-weight: 800;
+            font-size: 15px;
+            font-weight: 700;
             color: #0f172a;
-            line-height: 1.3;
         }
         .student-dept-display {
-            font-size: 12px;
+            font-size: 11px;
             color: #15803d;
-            font-weight: 600;
-            margin-top: 3px;
+            font-weight: 500;
+            margin-top: 2px;
         }
         .fallback-name-box {
             display: {% if need_name %}block{% else %}none{% endif %};
             background: #fffbeb;
-            border: 1.5px solid #fde68a;
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 16px;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 14px;
         }
         .btn-submit {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            height: 52px;
-            background: #2563eb;
+            height: 46px;
+            background: #0f172a;
             color: #ffffff;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
             transition: all 0.15s ease;
         }
         .btn-submit:active {
-            transform: scale(0.98);
+            opacity: 0.9;
         }
         .btn-confirmed {
             background: #16a34a !important;
-            box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4) !important;
         }
         .error-box {
             background: #fef2f2;
             border: 1px solid #fecaca;
             color: #b91c1c;
-            padding: 12px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            margin-bottom: 16px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 14px;
             font-weight: 500;
         }
         .closed-card {
             background: #ffffff;
-            border-radius: 24px;
-            padding: 36px 20px;
+            border-radius: 12px;
+            padding: 32px 16px;
             border: 1px solid #e2e8f0;
             text-align: center;
         }
         .closed-icon {
-            width: 64px;
-            height: 64px;
+            width: 48px;
+            height: 48px;
             background: #fef2f2;
-            color: #ef4444;
+            color: #dc2626;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 32px;
+            margin: 0 auto 12px;
+            font-size: 20px;
         }
         .footer-text {
             text-align: center;
             font-size: 11px;
             color: #94a3b8;
-            margin-top: 20px;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -243,7 +229,7 @@
     <div class="container">
         <!-- Class Banner -->
         <div class="header-card">
-            <div class="badge">Live Attendance</div>
+            <div class="badge">Lecture Attendance</div>
             <div class="course-code">{{ session.course.code }}</div>
             <div class="course-title">{{ session.course.title }}</div>
             <div class="meta-row">
@@ -258,22 +244,22 @@
             <!-- Closed State -->
             <div class="closed-card">
                 <div class="closed-icon">&#10006;</div>
-                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Check-In Window Closed</h2>
-                <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
-                    The lecturer has closed attendance for this lecture. If you are present, please notify your instructor in class.
+                <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Check-In Window Closed</h2>
+                <p style="font-size: 12px; color: #64748b; line-height: 1.5;">
+                    The lecturer has closed attendance for this session. If you are present, please notify your instructor in class.
                 </p>
             </div>
         {% else %}
             <!-- Open Form -->
             <div class="form-card">
                 {% if is_peer_mode %}
-                <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #92400e; display: flex; align-items: center; justify-content: space-between;">
-                    <span>&#128241; <strong>Peer Assistance Mode:</strong> Checking in for a classmate</span>
-                    <a href="{% url 'attendance:student_checkin' session.token %}" style="font-size: 11px; color: #b45309; text-decoration: underline; font-weight: bold;">Exit</a>
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 11px; color: #92400e; display: flex; align-items: center; justify-content: space-between;">
+                    <span><strong>Peer Assistance Mode:</strong> Checking in for a classmate</span>
+                    <a href="{% url 'attendance:student_checkin' session.token %}" style="color: #b45309; text-decoration: underline; font-weight: 600;">Exit</a>
                 </div>
                 {% endif %}
-                <div class="form-title">Student Check-In</div>
-                <div class="form-subtitle">Enter your Matric Number to confirm your attendance</div>
+                <div class="form-title">Student Verification</div>
+                <div class="form-subtitle">Enter your Matric Number to confirm presence</div>
 
                 {% if messages %}
                     {% for message in messages %}
@@ -282,9 +268,7 @@
                 {% endif %}
 
                 <form method="post" id="checkinForm" onsubmit="handleSubmit(this)">
-                    <!-- Hidden field populated automatically when student is identified -->
                     <input type="hidden" name="student_name" id="student_name" value="{{ student_name|default:'' }}">
-                    <!-- Hidden GPS Location fields -->
                     <input type="hidden" name="latitude" id="latitude" value="">
                     <input type="hidden" name="longitude" id="longitude" value="">
                     <input type="hidden" name="accuracy" id="accuracy" value="">
@@ -293,15 +277,15 @@
                     <input type="hidden" name="is_peer" value="1">
                     {% endif %}
 
-                    <!-- GPS Location Indicator Pill -->
-                    <div id="geoPill" style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; padding: 6px 12px; background: #f1f5f9; border-radius: 10px; margin-bottom: 14px; color: #64748b; font-weight: 600;">
-                        <span id="geoText">📍 Detecting classroom location...</span>
-                        <span id="geoDot" style="width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; transition: background 0.2s;"></span>
+                    <!-- Location Indicator -->
+                    <div id="geoPill" style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; padding: 5px 10px; background: #f1f5f9; border-radius: 6px; margin-bottom: 12px; color: #64748b; font-weight: 500;">
+                        <span id="geoText">Detecting location...</span>
+                        <span id="geoDot" style="width: 6px; height: 6px; border-radius: 50%; background: #94a3b8;"></span>
                     </div>
 
-                    <!-- Matriculation Number Input -->
+                    <!-- Matric Input -->
                     <div class="form-group">
-                        <label for="matric_number">Matric / Student ID <span>*</span></label>
+                        <label for="matric_number">Matric Number <span>*</span></label>
                         <div class="input-wrapper">
                             <input 
                                 type="text" 
@@ -321,22 +305,22 @@
                         </div>
                     </div>
 
-                    <!-- Identified Student Card (Revealed automatically) -->
+                    <!-- Identified Student Card -->
                     <div class="identity-card" id="identityCard">
                         <div class="identity-header">
-                            <span>&#10004;</span> Student Identified
+                            &check; Student Identified
                         </div>
                         <div class="student-name-display" id="displayName"></div>
                         <div class="student-dept-display" id="displayDept"></div>
                     </div>
 
-                    <!-- Fallback Name Box (Shown only if matric is not in roster) -->
+                    <!-- Fallback Name Input (only if not found in roster) -->
                     <div class="fallback-name-box" id="fallbackNameBox">
                         <label for="fallback_name" style="color: #92400e; margin-bottom: 4px;">
-                            Full Name <span style="color: #ef4444;">*</span>
+                            Full Name <span style="color: #dc2626;">*</span>
                         </label>
-                        <p style="font-size: 11px; color: #b45309; margin-bottom: 8px;">
-                            Your matric number was not found on the roster. Please type your full name:
+                        <p style="font-size: 11px; color: #b45309; margin-bottom: 6px;">
+                            Matric number not found on enrolled list. Please provide full name:
                         </p>
                         <input 
                             type="text" 
@@ -354,7 +338,7 @@
         {% endif %}
 
         <div class="footer-text">
-            Attendly Instant Verification &bull; Encrypted Session
+            Attendly Academic Verification &bull; Encrypted Session
         </div>
     </div>
 
@@ -370,7 +354,7 @@
                 document.getElementById('lookupSpinner').style.display = 'block';
                 debounceTimer = setTimeout(() => {
                     triggerLookup(clean);
-                }, 350);
+                }, 300);
             } else {
                 hideIdentity();
             }
@@ -401,7 +385,7 @@
         function showIdentity(name, dept) {
             document.getElementById('student_name').value = name;
             document.getElementById('displayName').innerText = name;
-            document.getElementById('displayDept').innerText = dept ? ('Dept: ' + dept) : 'Verified Student';
+            document.getElementById('displayDept').innerText = dept ? ('Department: ' + dept) : 'Verified Student';
             document.getElementById('identityCard').style.display = 'block';
             document.getElementById('fallbackNameBox').style.display = 'none';
 
@@ -414,7 +398,7 @@
             document.getElementById('identityCard').style.display = 'none';
             document.getElementById('fallbackNameBox').style.display = 'block';
             const btn = document.getElementById('submitBtn');
-            btn.innerText = 'Confirm & Submit Attendance';
+            btn.innerText = 'Submit Attendance';
             btn.classList.remove('btn-confirmed');
         }
 
@@ -430,11 +414,10 @@
         function handleSubmit(form) {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = 'Verifying Attendance...';
+            btn.innerText = 'Recording...';
             btn.style.opacity = '0.7';
         }
 
-        // On page load: request geolocation and check initial matric
         window.addEventListener('DOMContentLoaded', () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -448,13 +431,12 @@
                         const text = document.getElementById('geoText');
                         const dot = document.getElementById('geoDot');
                         if (pill && text && dot) {
-                            text.innerText = '📍 Resolving exact address...';
-                            pill.style.background = '#dcfce7';
+                            text.innerText = 'Resolving address...';
+                            pill.style.background = '#f0fdf4';
                             pill.style.color = '#15803d';
                             dot.style.background = '#22c55e';
                         }
 
-                        // Reverse geocode to exact human-readable address
                         fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon + '&zoom=18')
                             .then(r => r.json())
                             .then(geo => {
@@ -463,13 +445,13 @@
                                     const a = geo.address || {};
                                     const landmark = a.amenity || a.building || a.road || a.suburb || geo.display_name.split(',')[0];
                                     if (text) {
-                                        text.innerText = '📍 ' + landmark + ' (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
+                                        text.innerText = 'Location: ' + landmark + ' (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
                                     }
                                 }
                             })
                             .catch(() => {
                                 if (text) {
-                                    text.innerText = '📍 Location captured (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
+                                    text.innerText = 'Location captured (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
                                 }
                             });
                     },
@@ -478,13 +460,13 @@
                         const text = document.getElementById('geoText');
                         const dot = document.getElementById('geoDot');
                         if (pill && text && dot) {
-                            text.innerText = '📍 Location optional (skipped)';
+                            text.innerText = 'Location optional (skipped)';
                             pill.style.background = '#f8fafc';
                             pill.style.color = '#94a3b8';
                             dot.style.background = '#cbd5e1';
                         }
                     },
-                    { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
                 );
             }
 

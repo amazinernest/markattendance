@@ -1,53 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Semester Attendance Audit & Exam Eligibility – Attendly{% endblock %}
+{% block title %}Semester Attendance Audit – Attendly{% endblock %}
+{% block section_title %}Attendance & Exam Compliance Audit{% endblock %}
 {% block content %}
-<div class="space-y-8 max-w-7xl mx-auto">
+<div class="space-y-6 max-w-6xl mx-auto">
     <!-- Header & Export Actions -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
-        <div class="space-y-2">
-            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-700">
-                End-of-Semester Compliance
-            </span>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+    <div class="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-card flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                 Semester Attendance & Exam Eligibility Audit
             </h1>
-            <p class="text-sm text-slate-500">
-                Calculates total lecture attendance against course exam thresholds and automates academic exports.
+            <p class="text-xs text-slate-500">
+                Calculates cumulative lecture attendance against course exam thresholds and automates academic exports.
             </p>
         </div>
 
         <!-- Export Buttons -->
         {% if selected_course %}
-        <div class="flex flex-wrap items-center gap-3 shrink-0">
-            <a href="{% url 'reports:export_excel' selected_course.id %}?department={{ department_filter }}" class="inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/20 transition space-x-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <a href="{% url 'reports:export_excel' selected_course.id %}?department={{ department_filter }}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle space-x-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span>Export to Excel (.xlsx)</span>
+                <span>Export Excel (.xlsx)</span>
             </a>
-            <a href="{% url 'reports:export_csv' selected_course.id %}?department={{ department_filter }}" class="inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-xs text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition space-x-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{% url 'reports:export_csv' selected_course.id %}?department={{ department_filter }}" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition shadow-subtle space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
                 <span>CSV</span>
             </a>
-            <button type="button" onclick="window.print()" class="inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 transition space-x-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" onclick="window.print()" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
-                <span>Print Report</span>
+                <span>Print</span>
             </button>
         </div>
         {% endif %}
     </div>
 
     <!-- Filter Bar: Course and Department Selector -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <form method="get" class="flex flex-wrap items-center gap-4 w-full md:w-auto">
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-card flex flex-col md:flex-row items-center justify-between gap-3">
+        <form method="get" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <!-- Course Select -->
             <div class="flex items-center space-x-2">
-                <label for="course_id" class="text-xs font-bold text-slate-500 uppercase">Course:</label>
-                <select name="course_id" id="course_id" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500">
+                <label for="course_id" class="text-xs font-semibold text-slate-500 uppercase">Course:</label>
+                <select name="course_id" id="course_id" onchange="this.form.submit()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-800 bg-white focus:ring-1 focus:ring-slate-900 focus:border-slate-900">
                     {% for c in courses %}
                         <option value="{{ c.id }}" {% if selected_course and selected_course.id == c.id %}selected{% endif %}>
                             {{ c.code }} – {{ c.title }}
@@ -59,8 +57,8 @@
             <!-- Department Filter -->
             {% if all_departments %}
             <div class="flex items-center space-x-2">
-                <label for="department" class="text-xs font-bold text-slate-500 uppercase">Department:</label>
-                <select name="department" id="department" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500">
+                <label for="department" class="text-xs font-semibold text-slate-500 uppercase">Department:</label>
+                <select name="department" id="department" onchange="this.form.submit()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-800 bg-white focus:ring-1 focus:ring-slate-900 focus:border-slate-900">
                     <option value="ALL" {% if department_filter == 'ALL' %}selected{% endif %}>All Departments ({{ all_departments|length }})</option>
                     {% for dept in all_departments %}
                         <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
@@ -70,52 +68,52 @@
             {% endif %}
         </form>
 
-        <div class="text-xs text-slate-400">
-            Attendance Policy: <strong class="text-slate-700">{{ selected_course.attendance_threshold }}% Minimum Required</strong>
+        <div class="text-xs text-slate-500">
+            Institutional Rule: <strong class="text-slate-800">{{ selected_course.attendance_threshold }}% Minimum Required</strong>
         </div>
     </div>
 
     {% if selected_course and stats %}
-    <!-- Metric Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Enrolled</span>
-            <div class="text-3xl font-extrabold text-slate-900 mt-1">{{ stats.total_students }}</div>
-            <p class="text-xs text-slate-400 mt-1">Students on class roster</p>
+    <!-- Metric Cards: 5 Concise KPIs -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Enrolled</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{{ stats.total_students }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Students on roster</p>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lectures Held</span>
-            <div class="text-3xl font-extrabold text-blue-600 mt-1">{{ stats.total_sessions }}</div>
-            <p class="text-xs text-slate-400 mt-1">Live class sessions completed</p>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Lectures Held</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{{ stats.total_sessions }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Completed sessions</p>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Class Avg</span>
-            <div class="text-3xl font-extrabold text-slate-900 mt-1">{{ stats.avg_overall }}%</div>
-            <p class="text-xs text-slate-400 mt-1">Average turnout rate</p>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Turnout Pace</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{{ stats.avg_overall }}%</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Average attendance</p>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm bg-emerald-50/20 border-emerald-100">
-            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Exam Eligible</span>
-            <div class="text-3xl font-extrabold text-emerald-600 mt-1">{{ stats.eligible_count }}</div>
-            <p class="text-xs text-emerald-600 font-medium mt-1">Passed {{ selected_course.attendance_threshold }}% rule</p>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+            <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Exam Eligible</span>
+            <div class="text-2xl font-bold text-emerald-700 mt-1 tabular-nums">{{ stats.eligible_count }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">&ge; {{ selected_course.attendance_threshold }}% minimum</p>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm bg-rose-50/20 border-rose-100">
-            <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Barred / At Risk</span>
-            <div class="text-3xl font-extrabold text-rose-600 mt-1">{{ stats.not_eligible_count }}</div>
-            <p class="text-xs text-rose-600 font-medium mt-1">Below required threshold</p>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+            <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Barred / At Risk</span>
+            <div class="text-2xl font-bold text-rose-700 mt-1 tabular-nums">{{ stats.not_eligible_count }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Below required minimum</p>
         </div>
     </div>
 
     <!-- Multi-Department Breakdown Strip -->
     {% if stats.department_summary %}
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
-        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Department Participation Breakdown</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-3">
+        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Department Participation Breakdown</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {% for d in stats.department_summary %}
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
-                <div class="text-xs font-bold text-slate-800 truncate" title="{{ d.name }}">{{ d.name }}</div>
-                <div class="flex items-baseline justify-between text-xs">
-                    <span class="text-slate-500">{{ d.count }} students</span>
-                    <span class="font-bold text-blue-600">{{ d.avg_pct }}%</span>
+            <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-0.5">
+                <div class="text-xs font-medium text-slate-800 truncate" title="{{ d.name }}">{{ d.name }}</div>
+                <div class="flex items-baseline justify-between text-[11px]">
+                    <span class="text-slate-500 tabular-nums">{{ d.count }} students</span>
+                    <span class="font-bold text-slate-900 tabular-nums">{{ d.avg_pct }}%</span>
                 </div>
             </div>
             {% endfor %}
@@ -124,66 +122,69 @@
     {% endif %}
 
     <!-- Student Attendance Audit Table -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-                <h3 class="text-base font-bold text-slate-900">Official Student Attendance & Eligibility Register</h3>
-                <p class="text-xs text-slate-500">Sorted by Department and Matriculation Number</p>
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Official Student Compliance Register</h3>
+                <p class="text-[11px] text-slate-500">Sorted by Department and Matriculation Number</p>
             </div>
-            <span class="text-xs text-slate-400 font-medium">
-                Showing {{ stats.student_stats|length }} students
-            </span>
+            <div class="flex items-center space-x-2">
+                <input type="text" id="auditSearchInput" onkeyup="filterAuditTable()" placeholder="Search matric or name..." class="px-2.5 py-1 rounded-md border border-slate-300 text-xs text-slate-800 placeholder:text-slate-400 focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
+                <span class="text-xs text-slate-400 font-medium tabular-nums">
+                    {{ stats.student_stats|length }} students
+                </span>
+            </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-100 text-xs">
-                <thead class="bg-slate-50">
+            <table class="min-w-full divide-y divide-slate-200 text-xs" id="auditTable">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
-                        <th class="px-6 py-3.5 text-center font-bold text-slate-500 uppercase tracking-wider w-16">S/N</th>
-                        <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider">Matric Number</th>
-                        <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider">Student Full Name</th>
-                        <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider">Department</th>
-                        <th class="px-6 py-3.5 text-center font-bold text-slate-500 uppercase tracking-wider">Attended / Total</th>
-                        <th class="px-6 py-3.5 text-center font-bold text-slate-500 uppercase tracking-wider">Attendance Rate</th>
-                        <th class="px-6 py-3.5 text-center font-bold text-slate-500 uppercase tracking-wider">Exam Eligibility</th>
+                        <th class="px-4 py-2.5 text-center w-12">S/N</th>
+                        <th class="px-4 py-2.5 text-left">Matric Number</th>
+                        <th class="px-4 py-2.5 text-left">Student Full Name</th>
+                        <th class="px-4 py-2.5 text-left">Department</th>
+                        <th class="px-4 py-2.5 text-center">Attended / Total</th>
+                        <th class="px-4 py-2.5 text-center">Attendance Rate</th>
+                        <th class="px-4 py-2.5 text-center">Exam Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
                     {% for s in stats.student_stats %}
                     <tr class="hover:bg-slate-50/70 transition">
-                        <td class="px-6 py-3.5 text-center text-slate-400 font-mono">{{ forloop.counter }}</td>
-                        <td class="px-6 py-3.5 font-mono font-bold text-slate-900">{{ s.matric_number }}</td>
-                        <td class="px-6 py-3.5 font-medium text-slate-800">
+                        <td class="px-4 py-2.5 text-center text-slate-400 font-mono">{{ forloop.counter }}</td>
+                        <td class="px-4 py-2.5 font-mono font-semibold text-slate-900">{{ s.matric_number }}</td>
+                        <td class="px-4 py-2.5 font-medium text-slate-800">
                             {{ s.name }}
                             {% if s.email %}
-                                <div class="text-[11px] text-slate-400 font-mono">{{ s.email }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">{{ s.email }}</div>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-3.5 text-slate-600 font-medium">{{ s.department }}</td>
-                        <td class="px-6 py-3.5 text-center font-semibold text-slate-700">
+                        <td class="px-4 py-2.5 text-slate-600">{{ s.department }}</td>
+                        <td class="px-4 py-2.5 text-center font-medium text-slate-700 tabular-nums">
                             {{ s.attended_count }} / {{ s.total_sessions }}
                         </td>
-                        <td class="px-6 py-3.5 text-center">
-                            <span class="font-extrabold text-xs {% if s.is_eligible %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                        <td class="px-4 py-2.5 text-center tabular-nums">
+                            <span class="font-bold text-xs {% if s.is_eligible %}text-emerald-700{% else %}text-rose-700{% endif %}">
                                 {{ s.percentage }}%
                             </span>
                         </td>
-                        <td class="px-6 py-3.5 text-center">
+                        <td class="px-4 py-2.5 text-center">
                             {% if s.is_eligible %}
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                                     ELIGIBLE
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">
-                                    NOT ELIGIBLE
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                                    BARRED
                                 </span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-slate-400">
-                            No enrolled students found for this selection. Go to <a href="{% url 'imports:upload' %}" class="text-blue-600 font-bold hover:underline">Import Class List</a> to add your students.
+                        <td colspan="7" class="px-4 py-10 text-center text-slate-400 text-xs">
+                            No enrolled students found. Go to <a href="{% url 'imports:upload' %}" class="text-blue-600 font-semibold hover:underline">Import Class List</a> to add your roster.
                         </td>
                     </tr>
                     {% endfor %}
@@ -193,4 +194,15 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function filterAuditTable() {
+    const query = document.getElementById('auditSearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#auditTable tbody tr');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+</script>
 {% endblock %}
