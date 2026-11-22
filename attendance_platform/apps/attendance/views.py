@@ -265,10 +265,45 @@ def student_checkin(request, token):
         # Determine checkin method
         checkin_method = AttendanceRecord.CheckinMethod.PEER_SHARED if is_peer_mode else AttendanceRecord.CheckinMethod.QR_SELF
 
+        # Device Fingerprint & Multi-Account Proxy Prevention
+        raw_fingerprint = request.POST.get('device_fingerprint', '').strip()
+        ip = request.META.get('HTTP_X_FORWARDED_FOR')
+        if ip:
+            ip = ip.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR', '')
+        user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+
+        import hashlib
+        if raw_fingerprint:
+            device_fingerprint = hashlib.sha256(raw_fingerprint.encode()).hexdigest()[:48]
+        else:
+            device_fingerprint = hashlib.sha256(f"{ip}_{user_agent}".encode()).hexdigest()[:48]
+
+        # Anti-Cheating Rule 1: One Device per Student (Block Proxying on same phone)
+        if session.enforce_device_lock and device_fingerprint and not is_peer_mode:
+            prior_record = AttendanceRecord.objects.filter(
+                session=session,
+                device_fingerprint=device_fingerprint
+            ).exclude(matric_number=matric).first()
+
+            if prior_record:
+                messages.error(
+                    request,
+                    f"❌ Proxy Violation: This device has already confirmed attendance for {prior_record.student_name} ({prior_record.matric_number}) in this lecture. Each student must scan and submit using their own personal device. Signing for classmates is strictly prohibited."
+                )
+                return render(request, 'attendance/student_checkin.html', {
+                    'session': session,
+                    'matric_number': matric,
+                    'device_locked': True,
+                    'is_closed': False,
+                })
+
         # Parse GPS coordinates
         latitude = None
         longitude = None
         accuracy_meters = None
+        is_mock_reported = request.POST.get('is_mock') == '1'
         try:
             if lat and lon:
                 latitude = float(lat)
@@ -278,7 +313,7 @@ def student_checkin(request, token):
         except (ValueError, TypeError):
             pass
 
-        # Geofence enforcement
+        # Geofence & Anti-Spoofing enforcement
         distance_meters = None
         is_geofence_verified = True
         geofence_status = 'NOT_REQUIRED'
@@ -288,7 +323,7 @@ def student_checkin(request, token):
             if latitude is None or longitude is None:
                 messages.error(
                     request,
-                    f"📍 Location Verification Required: This lecture requires GPS proof that you are physically in {venue_desc}. Please allow location access on your phone and try again."
+                    f"📍 Classroom GPS Required: Physical attendance verification is enforced for {venue_desc}. Please turn on Location Services on your phone and tap 'Allow'."
                 )
                 return render(request, 'attendance/student_checkin.html', {
                     'session': session,
@@ -297,7 +332,42 @@ def student_checkin(request, token):
                     'geofence_error': 'GPS coordinates not provided. Please turn on location services on your device.',
                 })
 
-            # Calculate physical distance to venue
+            # Anti-Cheating Rule 2: Fake GPS & Mock Location Detection
+            if session.strict_anti_spoofing:
+                if is_mock_reported:
+                    messages.error(
+                        request,
+                        "❌ Fake GPS Detected: Mock or simulated location detected on your device. Please disable Fake GPS / location spoofer apps and use genuine satellite location."
+                    )
+                    return render(request, 'attendance/student_checkin.html', {
+                        'session': session,
+                        'matric_number': matric,
+                        'spoof_detected': True,
+                    })
+
+                if accuracy_meters is not None and accuracy_meters <= 0.05:
+                    messages.error(
+                        request,
+                        "❌ Synthetic Location Detected: Unrealistically static coordinates detected. Please ensure your device has a genuine GPS satellite lock."
+                    )
+                    return render(request, 'attendance/student_checkin.html', {
+                        'session': session,
+                        'matric_number': matric,
+                        'spoof_detected': True,
+                    })
+
+                if accuracy_meters is not None and accuracy_meters > 250:
+                    messages.error(
+                        request,
+                        f"⚠️ Inaccurate Location ({int(accuracy_meters)}m): GPS accuracy is too low to verify classroom presence. Please move closer to a window, turn on Wi-Fi/Bluetooth scanning for accuracy, and disable VPNs."
+                    )
+                    return render(request, 'attendance/student_checkin.html', {
+                        'session': session,
+                        'matric_number': matric,
+                        'low_accuracy': True,
+                    })
+
+            # Calculate physical distance to venue using Haversine formula
             distance_meters = calculate_haversine_distance(
                 session.venue_latitude,
                 session.venue_longitude,
@@ -314,12 +384,12 @@ def student_checkin(request, token):
                     'geofence_error': 'Invalid GPS coordinates received.',
                 })
 
-            # Check if within allowed radius
+            # Anti-Cheating Rule 3: Strict Radius Enforcement (Faraway Students Blocked)
             if distance_meters > session.geofence_radius_meters:
                 dist_str = f"{int(distance_meters):,}m" if distance_meters < 1000 else f"{(distance_meters/1000.0):.2f}km"
                 messages.error(
                     request,
-                    f"❌ Attendance Blocked: Location Out of Range. You are approximately {dist_str} away from {venue_desc} (allowed radius: {session.geofence_radius_meters}m). Proxy check-in attempts from outside class are strictly prohibited."
+                    f"❌ Attendance Blocked (Out of Range): You are approximately {dist_str} away from {venue_desc} (Allowed radius: {session.geofence_radius_meters}m). Remote attendance or proxy check-in from outside class is strictly prohibited."
                 )
                 return render(request, 'attendance/student_checkin.html', {
                     'session': session,
@@ -339,15 +409,6 @@ def student_checkin(request, token):
         if latitude and longitude and not loc_address:
             loc_address = reverse_geocode(latitude, longitude)
 
-        # Get client IP & User-Agent
-        ip = request.META.get('HTTP_X_FORWARDED_FOR')
-        if ip:
-            ip = ip.split(',')[0].strip()
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-
-        user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
-
         # Create attendance record
         record = AttendanceRecord.objects.create(
             session=session,
@@ -361,6 +422,8 @@ def student_checkin(request, token):
             accuracy_meters=accuracy_meters,
             location_address=loc_address,
             distance_from_venue_meters=round(distance_meters, 1) if distance_meters is not None else None,
+            device_fingerprint=device_fingerprint,
+            is_mock_location=is_mock_reported,
             is_geofence_verified=is_geofence_verified,
             geofence_status=geofence_status,
             status=AttendanceRecord.Status.PRESENT,
@@ -417,4 +480,44 @@ def manual_checkin(request, session_id):
         )
         messages.success(request, f"Successfully recorded {name} ({matric}) via manual roll-call.")
 
+    return redirect('attendance:session_detail', session_id=session.id)
+
+
+@login_required
+def update_session_venue(request, session_id):
+    """Allows lecturer to lock or update classroom GPS venue coordinates and radius on the fly."""
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    if request.method == 'POST':
+        lat = request.POST.get('venue_latitude')
+        lon = request.POST.get('venue_longitude')
+        radius = request.POST.get('geofence_radius_meters')
+        venue_name = request.POST.get('location_name', '').strip()
+
+        try:
+            if lat and lon:
+                session.venue_latitude = float(lat)
+                session.venue_longitude = float(lon)
+            if radius:
+                session.geofence_radius_meters = int(radius)
+            if venue_name:
+                session.location_name = venue_name
+            session.enable_geofence = True
+            session.save()
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+                return JsonResponse({
+                    'success': True,
+                    'message': f"Classroom location locked to {session.location_name or 'current GPS position'} ({session.geofence_radius_meters}m radius).",
+                    'venue_latitude': float(session.venue_latitude),
+                    'venue_longitude': float(session.venue_longitude),
+                    'radius': session.geofence_radius_meters,
+                    'location_name': session.location_name,
+                })
+            messages.success(request, f"Classroom location successfully updated ({session.geofence_radius_meters}m radius).")
+        except (ValueError, TypeError) as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': 'Invalid GPS coordinates.'}, status=400)
+            messages.error(request, "Invalid coordinates provided.")
+
+        return redirect('attendance:session_detail', session_id=session.id)
     return redirect('attendance:session_detail', session_id=session.id)

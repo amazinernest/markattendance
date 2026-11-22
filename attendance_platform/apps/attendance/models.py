@@ -20,10 +20,12 @@ class AttendanceSession(models.Model):
     end_time = models.TimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True, help_text='Whether students can currently check in')
     location_name = models.CharField(max_length=255, blank=True, default='', help_text='e.g. Science Lecture Theatre 2')
-    enable_geofence = models.BooleanField(default=False, help_text='Require students to be physically within classroom radius')
+    enable_geofence = models.BooleanField(default=True, help_text='Require students to be physically within classroom radius')
     venue_latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text='Classroom GPS Latitude')
     venue_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text='Classroom GPS Longitude')
-    geofence_radius_meters = models.PositiveIntegerField(default=150, help_text='Allowed radius in meters from classroom (e.g. 50m, 100m, 150m, 200m)')
+    geofence_radius_meters = models.PositiveIntegerField(default=100, help_text='Allowed radius in meters from classroom (e.g. 50m, 100m, 150m, 200m)')
+    enforce_device_lock = models.BooleanField(default=True, help_text='Block multiple check-ins from the same physical device in this session')
+    strict_anti_spoofing = models.BooleanField(default=True, help_text='Require fresh real-time satellite lock, reject mock location and synthetic coords')
     allow_late = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -89,6 +91,8 @@ class AttendanceRecord(models.Model):
     accuracy_meters = models.FloatField(null=True, blank=True, help_text="GPS Accuracy in meters")
     location_address = models.CharField(max_length=500, blank=True, help_text="Human-readable address or landmark")
     distance_from_venue_meters = models.FloatField(null=True, blank=True, help_text="Calculated distance in meters from classroom venue")
+    device_fingerprint = models.CharField(max_length=64, blank=True, db_index=True, help_text="Device signature preventing multi-account proxy marking")
+    is_mock_location = models.BooleanField(default=False, help_text="Detected synthetic or spoofed GPS")
     is_geofence_verified = models.BooleanField(default=True, help_text="Whether check-in passed venue proximity verification")
     geofence_status = models.CharField(
         max_length=30,

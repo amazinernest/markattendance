@@ -130,6 +130,102 @@
                     Check-in tokens prevent duplicate attendance submissions. Each student can verify once per session.
                 </div>
             </div>
+
+            <!-- Classroom Venue & Anti-Cheat Control Card -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card text-left space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#84cc16]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Classroom Geofence & Anti-Cheat
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Control where students must be located to sign</p>
+                    </div>
+                    {% if session.enable_geofence and session.has_venue_location %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse mr-1"></span>
+                            ACTIVE
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            NOT LOCKED
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Status details -->
+                <div id="venueStatusBox" class="p-3 rounded-lg border text-xs {% if session.enable_geofence and session.has_venue_location %}bg-slate-50 border-slate-200{% else %}bg-amber-50/70 border-amber-200 text-amber-900{% endif %}">
+                    {% if session.enable_geofence and session.has_venue_location %}
+                        <div class="space-y-1">
+                            <div class="font-semibold text-slate-800 flex items-center justify-between">
+                                <span>📍 {{ session.location_name|default:"Classroom Location Locked" }}</span>
+                                <span class="font-mono text-[11px] text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">Radius: {{ session.geofence_radius_meters }}m</span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 font-mono">
+                                Lat: {{ session.venue_latitude|floatformat:6 }}, Lon: {{ session.venue_longitude|floatformat:6 }}
+                            </div>
+                            <div class="pt-1 text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Students beyond {{ session.geofence_radius_meters }}m are blocked from submitting attendance.
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="space-y-1.5">
+                            <div class="font-bold text-amber-900 flex items-center gap-1">
+                                <span>⚠️ Classroom location is not locked yet!</span>
+                            </div>
+                            <p class="text-[11px] text-amber-800 leading-relaxed">
+                                Students anywhere can currently mark attendance. Click below to lock the classroom location to your current GPS position so students outside the hall are strictly blocked.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Update/Lock Form -->
+                <form id="venueUpdateForm" method="post" action="{% url 'attendance:update_session_venue' session.id %}" class="space-y-2.5">
+                    {% csrf_token %}
+                    <input type="hidden" name="venue_latitude" id="inputVenueLat" value="{{ session.venue_latitude|default:'' }}">
+                    <input type="hidden" name="venue_longitude" id="inputVenueLon" value="{{ session.venue_longitude|default:'' }}">
+                    
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-semibold text-slate-600">Verification Radius:</label>
+                        <select name="geofence_radius_meters" id="selectRadius" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-[#84cc16]">
+                            <option value="30" {% if session.geofence_radius_meters == 30 %}selected{% endif %}>30m – Small Seminar Room / Lab</option>
+                            <option value="60" {% if session.geofence_radius_meters == 60 %}selected{% endif %}>60m – Medium Lecture Hall</option>
+                            <option value="100" {% if session.geofence_radius_meters == 100 %}selected{% endif %}>100m – Large Lecture Complex (Recommended)</option>
+                            <option value="150" {% if session.geofence_radius_meters == 150 %}selected{% endif %}>150m – Amphitheatre / Multi-floor Block</option>
+                            <option value="250" {% if session.geofence_radius_meters == 250 %}selected{% endif %}>250m – Wide Faculty Quadrangle</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="btnLockVenue" onclick="acquireAndLockVenue()" class="w-full py-2 px-3 rounded-lg bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span id="btnLockVenueText">{% if session.has_venue_location %}📍 Re-capture / Update Current GPS{% else %}📍 Lock Classroom to My Current Location{% endif %}</span>
+                    </button>
+                    <p id="venueCaptureFeedback" class="text-[11px] text-center hidden"></p>
+                </form>
+
+                <!-- Anti-Cheat Status Badges -->
+                <div class="pt-3 border-t border-slate-100 space-y-1.5 text-[11px]">
+                    <div class="flex items-center justify-between text-slate-600">
+                        <span class="flex items-center gap-1.5 font-medium">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Device Hardware Lock
+                        </span>
+                        <span class="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">1 Phone / Student</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-600">
+                        <span class="flex items-center gap-1.5 font-medium">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            Mock GPS / Fake GPS Shield
+                        </span>
+                        <span class="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Active</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Right: Live Attendance Counter & Student Roster (7 cols) -->
@@ -242,13 +338,18 @@
                                 </td>
                                 <td class="px-4 py-2.5 whitespace-nowrap text-slate-500">
                                     <div>{{ record.checked_in_at|time:"g:i:s A" }}</div>
-                                    <div class="text-[10px] text-slate-400">
+                                    <div class="text-[10px] text-slate-400 flex flex-wrap items-center gap-1 mt-0.5">
                                         {% if record.checkin_method == 'LECTURER_MANUAL' %}
                                             <span class="text-indigo-600 font-medium">Roll-Call</span>
                                         {% elif record.checkin_method == 'PEER_SHARED' %}
                                             <span class="text-amber-600 font-medium">Classmate Device</span>
                                         {% else %}
-                                            <span>QR Scan</span>
+                                            <span class="text-slate-600">QR Scan</span>
+                                        {% endif %}
+                                        {% if record.device_fingerprint %}
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-mono text-[9px] border border-slate-200" title="Device Fingerprint: {{ record.device_fingerprint }}">
+                                                📱 Verified Phone
+                                            </span>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -324,6 +425,91 @@ function copyCheckinUrl() {
             text.innerText = 'Copy';
         }, 2000);
     });
+}
+
+function acquireAndLockVenue() {
+    const btn = document.getElementById('btnLockVenue');
+    const btnText = document.getElementById('btnLockVenueText');
+    const feedback = document.getElementById('venueCaptureFeedback');
+    const latInput = document.getElementById('inputVenueLat');
+    const lonInput = document.getElementById('inputVenueLon');
+    const radiusSelect = document.getElementById('selectRadius');
+
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('opacity-70');
+    btnText.textContent = 'Acquiring high-accuracy GPS...';
+    feedback.className = 'text-[11px] text-center text-slate-500 block';
+    feedback.textContent = 'Please allow location access if prompted...';
+
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const accuracy = Math.round(pos.coords.accuracy);
+
+            latInput.value = lat;
+            lonInput.value = lon;
+
+            btnText.textContent = 'Locking location on server...';
+            feedback.textContent = `Acquired: Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)} (±${accuracy}m). Saving...`;
+
+            const formData = new FormData();
+            formData.append('venue_latitude', lat);
+            formData.append('venue_longitude', lon);
+            formData.append('geofence_radius_meters', radiusSelect.value);
+            formData.append('csrfmiddlewaretoken', document.querySelector('#venueUpdateForm [name=csrfmiddlewaretoken]').value);
+
+            fetch("{% url 'attendance:update_session_venue' session.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
+                if (data.success) {
+                    btnText.textContent = '📍 Update Location';
+                    feedback.className = 'text-[11px] text-center text-emerald-600 font-semibold block';
+                    feedback.textContent = '✅ ' + data.message;
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 800);
+                } else {
+                    feedback.className = 'text-[11px] text-center text-rose-600 font-semibold block';
+                    feedback.textContent = 'Error: ' + (data.error || 'Failed to save location.');
+                    btnText.textContent = '📍 Retry GPS Lock';
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
+                document.getElementById('venueUpdateForm').submit();
+            });
+        },
+        function(err) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+            btnText.textContent = '📍 Retry GPS Lock';
+            feedback.className = 'text-[11px] text-center text-rose-600 font-semibold block';
+            if (err.code === err.PERMISSION_DENIED) {
+                feedback.textContent = 'Location permission was denied. Please allow location access in your browser settings.';
+            } else if (err.code === err.POSITION_UNAVAILABLE) {
+                feedback.textContent = 'GPS location unavailable. Ensure your device GPS/Location is switched on.';
+            } else {
+                feedback.textContent = 'GPS timed out. Please try again.';
+            }
+        },
+        { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 }
+    );
 }
 
 {% if session.is_active %}

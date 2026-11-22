@@ -100,7 +100,7 @@
             <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
                 <div class="flex items-start justify-between">
                     <div class="flex items-center space-x-2.5">
-                        <div class="p-1.5 rounded-md bg-blue-100 text-blue-800">
+                        <div class="p-1.5 rounded-md bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -109,10 +109,10 @@
                         <div>
                             <label for="{{ form.enable_geofence.id_for_label }}" class="text-xs font-bold text-slate-900 cursor-pointer flex items-center gap-1.5">
                                 {{ form.enable_geofence }}
-                                <span>Enforce GPS Classroom Geofence (Anti-Proxy)</span>
+                                <span>Enforce Classroom GPS Geofence (Anti-Proxy)</span>
                             </label>
                             <p class="text-[11px] text-slate-500 mt-0.5">
-                                Blocks students from checking in if they are outside the classroom radius (e.g. in hostels or off-campus).
+                                Rejects students who attempt to check in outside the lecture hall (e.g. from hostels or off-campus).
                             </p>
                         </div>
                     </div>
@@ -130,7 +130,7 @@
                                 {% if form.venue_latitude.value and form.venue_longitude.value %}
                                     Lat: {{ form.venue_latitude.value }}, Lon: {{ form.venue_longitude.value }}
                                 {% else %}
-                                    Coordinates not captured yet
+                                    Coordinates not captured yet (click below to lock now)
                                 {% endif %}
                             </div>
                         </div>
@@ -151,6 +151,24 @@
                         <p class="text-[11px] text-slate-400">
                             Students further than this distance from your captured location cannot submit attendance.
                         </p>
+                    </div>
+
+                    <!-- Advanced Anti-Cheating Suite -->
+                    <div class="pt-2 border-t border-slate-200 space-y-2">
+                        <div class="flex items-start space-x-2">
+                            <div class="pt-0.5">{{ form.enforce_device_lock }}</div>
+                            <label for="{{ form.enforce_device_lock.id_for_label }}" class="cursor-pointer">
+                                <span class="text-xs font-semibold text-slate-900">Enforce Device Lock (Anti-Proxy)</span>
+                                <span class="block text-[11px] text-slate-500">Each physical phone can only mark attendance once. Stops students from signing for absent friends on their phone.</span>
+                            </label>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <div class="pt-0.5">{{ form.strict_anti_spoofing }}</div>
+                            <label for="{{ form.strict_anti_spoofing.id_for_label }}" class="cursor-pointer">
+                                <span class="text-xs font-semibold text-slate-900">Strict Anti-Spoofing & Fake GPS Rejection</span>
+                                <span class="block text-[11px] text-slate-500">Detects and blocks Android mock location apps, synthetic GPS coordinates, emulator spoofs, and stale cached locations.</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>

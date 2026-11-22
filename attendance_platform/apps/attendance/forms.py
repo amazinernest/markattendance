@@ -4,30 +4,48 @@ from .models import AttendanceSession
 
 class AttendanceSessionForm(forms.ModelForm):
     RADIUS_CHOICES = [
-        (50, '50m – Compact Seminar Room / Lab'),
-        (100, '100m – Standard Lecture Hall'),
-        (150, '150m – Large Amphitheatre / Lecture Complex (Recommended)'),
-        (250, '250m – Multi-building Faculty Block'),
-        (500, '500m – Wide Campus Wing'),
+        (30, '30m – Small Seminar Room / Lab'),
+        (60, '60m – Medium Lecture Hall'),
+        (100, '100m – Large Lecture Complex (Recommended)'),
+        (150, '150m – Amphitheatre / Multi-floor Block'),
+        (250, '250m – Wide Faculty Quadrangle'),
     ]
 
     geofence_radius_meters = forms.ChoiceField(
         choices=RADIUS_CHOICES,
-        initial=150,
+        initial=100,
         required=False,
         label='Allowed Geofence Radius'
+    )
+
+    enable_geofence = forms.BooleanField(
+        initial=True,
+        required=False,
+        label='Enforce Classroom GPS Geofence (Anti-Proxy)'
+    )
+
+    enforce_device_lock = forms.BooleanField(
+        initial=True,
+        required=False,
+        label='Block Multiple Check-ins from Same Device'
+    )
+
+    strict_anti_spoofing = forms.BooleanField(
+        initial=True,
+        required=False,
+        label='Strict Anti-Spoofing & Fake GPS Detection'
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
-            if name == 'enable_geofence':
+            if name in ('enable_geofence', 'enforce_device_lock', 'strict_anti_spoofing'):
                 field.widget.attrs.update({
-                    'class': 'h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900'
+                    'class': 'h-4 w-4 rounded border-slate-300 text-[#84cc16] focus:ring-[#84cc16]'
                 })
             elif not isinstance(field.widget, forms.HiddenInput):
                 field.widget.attrs.update({
-                    'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs text-slate-900 transition'
+                    'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] text-xs text-slate-900 transition outline-none'
                 })
 
     class Meta:
@@ -39,6 +57,8 @@ class AttendanceSessionForm(forms.ModelForm):
             'start_time',
             'location_name',
             'enable_geofence',
+            'enforce_device_lock',
+            'strict_anti_spoofing',
             'venue_latitude',
             'venue_longitude',
             'geofence_radius_meters',
