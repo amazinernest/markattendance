@@ -17,7 +17,7 @@
             theme: {
                 extend: {
                     colors: {
-                        canvas: '#f8faf4',
+                        canvas: '#f7f9f3',
                         lime: {
                             DEFAULT: '#a3e635',
                             light: '#bef264',
@@ -32,7 +32,7 @@
                             deep: '#022c22',
                         },
                         tealAccent: '#0284c7',
-                        slateCard: '#131517',
+                        slateCard: '#121316',
                     },
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
@@ -77,13 +77,6 @@
             pointer-events: none;
         }
 
-        /* Glass blur cards */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
         /* Custom watermark pattern */
         .watermark-text {
             user-select: none;
@@ -119,19 +112,19 @@
             <nav class="hidden md:flex items-center space-x-7 text-[13px] font-medium text-slate-700">
                 <a href="#features" class="hover:text-black transition">Features</a>
                 <a href="#how-it-works" class="hover:text-black transition">How it Works</a>
-                <a href="#pricing" class="hover:text-black transition">Pricing</a>
-                <a href="#about" class="hover:text-black transition">About</a>
+                <a href="#geofence" class="hover:text-black transition">GPS Geofence</a>
+                <a href="#audit" class="hover:text-black transition">75% Exam Audit</a>
                 <a href="#testimonials" class="hover:text-black transition">Testimonials</a>
-                <a href="#contact" class="hover:text-black transition">Contact</a>
+                <a href="#pricing" class="hover:text-black transition">Access</a>
             </nav>
 
             <!-- Auth Buttons -->
             <div class="flex items-center space-x-4 text-[13px]">
                 <a href="{% url 'accounts:login' %}" class="font-medium text-slate-700 hover:text-black transition">
-                    Log in
+                    Faculty Login
                 </a>
                 <a href="{% url 'accounts:register' %}" class="px-4 py-1.5 rounded-full border border-slate-300 text-slate-800 font-medium hover:border-slate-800 hover:bg-white transition shadow-sm text-xs sm:text-[13px]">
-                    Get Started
+                    Get Started Free
                 </a>
             </div>
         </div>
@@ -149,45 +142,46 @@
                 <div class="space-y-1">
                     <h1 class="text-4xl sm:text-5xl lg:text-[58px] font-extrabold text-slate-900 tracking-tight leading-[1.12]">
                         Your Partner in<br>
-                        Smarter <span class="text-[#84cc16]">Financial</span><br>
+                        Smarter <span class="text-[#84cc16]">Attendance</span><br>
                         Decisions
                     </h1>
                 </div>
 
                 <p class="text-sm sm:text-[15px] text-slate-600 max-w-lg leading-relaxed font-normal">
-                    Take control of your money with tools designed to help you save more, invest wisely, and plan ahead — effortlessly.
+                    Take control of your lecture halls with tools designed to verify physical presence, eliminate proxy check-ins, and automate 75% exam compliance — effortlessly.
                 </p>
 
                 <!-- Dual Action Buttons -->
                 <div class="flex flex-wrap items-center gap-3.5 pt-1">
-                    <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-semibold text-xs sm:text-[13px] tracking-tight transition shadow-sm flex items-center justify-center">
-                        Talk to an Expert
+                    <a href="{% url 'accounts:login' %}" class="px-6 py-3 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-semibold text-xs sm:text-[13px] tracking-tight transition shadow-sm flex items-center justify-center space-x-1">
+                        <span>Launch Faculty Portal</span>
+                        <span>&rarr;</span>
                     </a>
-                    <a href="{% url 'accounts:login' %}" class="px-5 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-[13px] transition shadow-sm flex items-center space-x-2">
+                    <a href="#how-it-works" class="px-5 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-[13px] transition shadow-sm flex items-center space-x-2">
                         <div class="w-4 h-4 rounded-full bg-[#84cc16] text-black flex items-center justify-center text-[9px] font-bold">
                             ▶
                         </div>
-                        <span>Watch Video</span>
+                        <span>See How It Works</span>
                     </a>
                 </div>
 
-                <!-- Divider & Pill Tags -->
+                <!-- Divider & Attendance Pill Tags -->
                 <div class="pt-6 max-w-md space-y-2.5">
                     <div class="w-full h-px bg-slate-300/80"></div>
                     <div class="flex flex-wrap gap-2 pt-1 text-[11px] font-medium text-slate-700">
-                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Market Insights</span>
-                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Invest</span>
-                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Grow</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">GPS Geofence</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Dynamic QR</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Multi-Roster</span>
                     </div>
                     <div class="flex flex-wrap gap-2 text-[11px] font-medium text-slate-700">
-                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Plan</span>
-                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Budget</span>
-                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Expert Tips</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">75% Exam Audit</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Print Poster</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Zero App Installs</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Hero Visual: Concentric Rings + Floating Glossy Cards -->
+            <!-- Right Hero Visual: Concentric Rings + Floating Glossy Passes & Stats -->
             <div class="lg:col-span-6 relative flex items-center justify-center min-h-[420px] sm:min-h-[480px]">
                 
                 <!-- Concentric Orbit Background Rings -->
@@ -197,92 +191,93 @@
 
                 <!-- Floating Statistics Badge (Top Left of Orbit) -->
                 <div class="absolute -top-2 left-6 sm:left-12 z-30 bg-white rounded-xl shadow-lg border border-slate-200/90 p-3 sm:p-3.5 w-44">
-                    <div class="flex items-center justify-between text-[11px] font-semibold text-slate-700 mb-2">
-                        <span>Statistics</span>
-                        <span class="text-[9px] text-slate-400 font-mono">LIVE</span>
+                    <div class="flex items-center justify-between text-[11px] font-semibold text-slate-700 mb-1">
+                        <span>Class Attendance</span>
+                        <span class="text-[9px] text-emerald-600 font-mono font-bold animate-pulse">● LIVE</span>
                     </div>
+                    <div class="text-[10px] text-slate-400 mb-1.5 font-mono">CSC401 &bull; Lecture 4</div>
                     <!-- Mini Bar Chart -->
-                    <div class="flex items-end justify-between h-10 px-1 gap-1">
-                        <div class="w-2.5 bg-slate-200 rounded-t h-4"></div>
-                        <div class="w-2.5 bg-[#84cc16] rounded-t h-7"></div>
-                        <div class="w-2.5 bg-slate-200 rounded-t h-5"></div>
-                        <div class="w-2.5 bg-cyan-500 rounded-t h-8"></div>
-                        <div class="w-2.5 bg-[#84cc16] rounded-t h-10"></div>
-                        <div class="w-2.5 bg-slate-200 rounded-t h-6"></div>
+                    <div class="flex items-end justify-between h-9 px-1 gap-1">
+                        <div class="w-2.5 bg-slate-200 rounded-t h-4" title="Lecture 1: 72%"></div>
+                        <div class="w-2.5 bg-[#84cc16] rounded-t h-7" title="Lecture 2: 88%"></div>
+                        <div class="w-2.5 bg-slate-200 rounded-t h-5" title="Lecture 3: 78%"></div>
+                        <div class="w-2.5 bg-cyan-500 rounded-t h-8" title="Lecture 4: 91%"></div>
+                        <div class="w-2.5 bg-[#84cc16] rounded-t h-9" title="Lecture 5: 96%"></div>
+                        <div class="w-2.5 bg-slate-200 rounded-t h-6" title="Lecture 6: 82%"></div>
                     </div>
-                    <div class="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-mono">
-                        <span>$284</span>
-                        <span class="text-[#84cc16] font-bold">$478</span>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 font-mono">
+                        <span>84 / 88 Present</span>
+                        <span class="text-[#84cc16] font-bold">95.4%</span>
                     </div>
                 </div>
 
-                <!-- Card 1: Vibrant Lime Green Card (Top Overlapping) -->
+                <!-- Card 1: Vibrant Lime Green Student Digital Pass (Top Overlapping) -->
                 <div class="absolute top-10 sm:top-12 right-2 sm:right-6 z-20 w-64 sm:w-72 h-40 sm:h-44 rounded-2xl p-4 sm:p-5 text-white shadow-xl flex flex-col justify-between transform rotate-2 hover:rotate-0 transition duration-300"
                      style="background: linear-gradient(135deg, #a3e635 0%, #65a30d 100%);">
                     <div class="flex items-center justify-between">
-                        <span class="text-[9px] font-mono tracking-wider opacity-80 uppercase">Debit Card</span>
-                        <!-- Contactless icon -->
-                        <svg class="w-5 h-5 text-white opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 010-7.778M11.646 19.939a10.5 10.5 0 000-14.848M5.5 13.5a2 2 0 010-2.828"></path>
+                        <span class="text-[9px] font-mono tracking-wider text-slate-950 uppercase font-bold">Official Student Pass</span>
+                        <!-- Contactless NFC Wave Icon -->
+                        <svg class="w-5 h-5 text-slate-950 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8.111 16.404a5.5 5.5 0 010-7.778M11.646 19.939a10.5 10.5 0 000-14.848M5.5 13.5a2 2 0 010-2.828"></path>
                         </svg>
                     </div>
                     <div class="space-y-1">
-                        <div class="text-[8px] font-mono tracking-wider opacity-75">Credit card number</div>
+                        <div class="text-[8px] font-mono tracking-wider text-slate-900/80">Matriculation ID</div>
                         <div class="text-sm sm:text-base font-mono font-bold tracking-widest text-slate-950">
-                            5337 8662 4901 3294
+                            2503 8662 4901 3294
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[10px]">
                         <div>
-                            <span class="opacity-70 text-[8px] block">Name</span>
-                            <span class="font-bold text-slate-950">Bianca Taylor</span>
+                            <span class="text-slate-900/70 text-[8px] block font-medium">Student Name</span>
+                            <span class="font-bold text-slate-950">Chioma G. Okafor</span>
                         </div>
                         <div>
-                            <span class="opacity-70 text-[8px] block">Exp. Date</span>
-                            <span class="font-bold text-slate-950">03/28</span>
+                            <span class="text-slate-900/70 text-[8px] block font-medium">Faculty</span>
+                            <span class="font-bold text-slate-950">Comp. Science</span>
                         </div>
-                        <!-- Mastercard Overlapping Circles -->
-                        <div class="flex -space-x-2">
-                            <div class="w-5 h-5 rounded-full bg-white/70"></div>
-                            <div class="w-5 h-5 rounded-full bg-white/90"></div>
+                        <!-- Academic Verification Check Badge -->
+                        <div class="w-6 h-6 rounded-full bg-slate-950 text-[#bef264] flex items-center justify-center font-bold text-xs">
+                            &check;
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 2: Deep Emerald Teal Card (Bottom Overlapping) -->
+                <!-- Card 2: Deep Emerald Teal Session Verification Pass (Bottom Overlapping) -->
                 <div class="absolute bottom-6 sm:bottom-8 left-4 sm:left-10 z-10 w-64 sm:w-72 h-40 sm:h-44 rounded-2xl p-4 sm:p-5 text-white shadow-2xl flex flex-col justify-between transform -rotate-3 hover:rotate-0 transition duration-300"
                      style="background: linear-gradient(135deg, #065f46 0%, #0f172a 100%);">
                     <div class="flex items-center justify-between">
-                        <!-- VISA Logo -->
-                        <span class="text-base sm:text-lg font-black tracking-tighter italic">VISA</span>
-                        <div class="w-6 h-4 bg-amber-400/80 rounded flex items-center justify-center">
-                            <span class="text-[7px] text-slate-950 font-bold">CHIP</span>
+                        <!-- Course Code -->
+                        <span class="text-base sm:text-lg font-black tracking-tighter text-[#bef264]">CSC 401</span>
+                        <div class="px-2 py-0.5 rounded bg-emerald-900/80 border border-emerald-700/80 text-[8px] font-mono text-emerald-200">
+                            GPS ENFORCED
                         </div>
                     </div>
-                    <div class="space-y-1">
-                        <div class="text-xs sm:text-sm font-mono font-bold tracking-widest text-white/90">
-                            5337 8662 4901 3294
+                    <div class="space-y-0.5">
+                        <div class="text-[8px] font-mono text-slate-400">Lecture Topic</div>
+                        <div class="text-xs sm:text-sm font-sans font-bold tracking-tight text-white leading-tight">
+                            Memory Virtualization & Paging
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[10px] text-white/80">
                         <div>
-                            <span class="text-[8px] block opacity-60">Holder</span>
-                            <span class="font-medium text-white">Maria Smith</span>
+                            <span class="text-[8px] block opacity-60">Venue</span>
+                            <span class="font-medium text-white">Science LT-2</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-[8px] block opacity-60">Expires</span>
-                            <span class="font-medium text-white">10/31</span>
+                            <span class="text-[8px] block opacity-60">Compliance</span>
+                            <span class="font-medium text-[#bef264]">&gt; 75% Eligible</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Orbit Mini Badges: Income Tag & Wallet Icon -->
-                <div class="absolute bottom-16 right-10 z-30 bg-white/90 backdrop-blur rounded-full px-2.5 py-1 shadow-md border border-slate-200 flex items-center space-x-1.5 text-[10px] font-semibold text-slate-800">
+                <!-- Orbit Mini Badges: Verified In-Venue Pill & Academic Cap -->
+                <div class="absolute bottom-16 right-10 z-30 bg-white/95 backdrop-blur rounded-full px-2.5 py-1 shadow-md border border-slate-200 flex items-center space-x-1.5 text-[10px] font-semibold text-slate-800">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16]"></span>
-                    <span>Income</span>
+                    <span>📍 14m In-Venue</span>
                 </div>
                 <div class="absolute bottom-6 right-16 z-30 w-8 h-8 rounded-full bg-[#84cc16] text-black shadow-md flex items-center justify-center text-xs">
-                    💼
+                    🎓
                 </div>
             </div>
         </div>
@@ -290,31 +285,40 @@
 
 
     <!-- ========================================================================= -->
-    <!-- 3. PARTNER COMPANIES LOGO STRIP                                           -->
+    <!-- 3. PARTNER ACADEMIC INSTITUTIONS LOGO STRIP                               -->
     <!-- ========================================================================= -->
     <section class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-8 border-t border-slate-300/60">
         <div class="text-center mb-5">
-            <span class="text-[11px] font-medium text-cyan-700 tracking-wide">Partner Companies</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-cyan-800">
+                Trusted by Leading Academic Institutions & Faculties
+            </span>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-70 grayscale hover:grayscale-0 transition duration-300 text-slate-700">
-            <!-- VISA -->
-            <span class="text-xl sm:text-2xl font-black italic tracking-tighter">VISA</span>
-            <!-- Mastercard Symbol -->
-            <div class="flex items-center space-x-1">
-                <div class="w-6 h-6 rounded-full bg-slate-800"></div>
-                <div class="w-6 h-6 rounded-full bg-slate-500 -ml-3"></div>
+        <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-75 grayscale hover:grayscale-0 transition duration-300 text-slate-700">
+            <!-- UNILAG -->
+            <div class="flex items-center space-x-1.5 font-bold tracking-tight text-sm sm:text-base">
+                <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">U</span>
+                <span>UNIVERSITY OF LAGOS</span>
             </div>
-            <!-- PLAID -->
-            <div class="flex items-center space-x-1 font-extrabold tracking-wider text-sm sm:text-base">
-                <svg class="w-4 h-4 mr-0.5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L2 12h5v8h10v-8h5L12 2z"/>
-                </svg>
-                PLAID
+            <!-- UNIVERSITY OF IBADAN -->
+            <div class="flex items-center space-x-1.5 font-bold tracking-tight text-sm sm:text-base">
+                <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">UI</span>
+                <span>UNIVERSITY OF IBADAN</span>
             </div>
-            <!-- Forbes -->
-            <span class="text-lg sm:text-xl font-serif font-black tracking-tight">Forbes</span>
-            <!-- Deloitte -->
-            <span class="text-base sm:text-lg font-bold tracking-tight">Deloitte<span class="text-[#84cc16]">.</span></span>
+            <!-- COVENANT UNIVERSITY -->
+            <div class="flex items-center space-x-1.5 font-bold tracking-tight text-sm sm:text-base">
+                <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">CU</span>
+                <span>COVENANT UNIVERSITY</span>
+            </div>
+            <!-- OBAFEMI AWOLOWO UNIVERSITY -->
+            <div class="flex items-center space-x-1.5 font-bold tracking-tight text-sm sm:text-base">
+                <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">OAU</span>
+                <span>OBAFEMI AWOLOWO</span>
+            </div>
+            <!-- AHMADU BELLO UNIVERSITY -->
+            <div class="flex items-center space-x-1.5 font-bold tracking-tight text-sm sm:text-base">
+                <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">ABU</span>
+                <span>AHMADU BELLO<span class="text-[#84cc16]">.</span></span>
+            </div>
         </div>
     </section>
 
@@ -328,95 +332,104 @@
                 Features
             </span>
             <span class="text-xs text-slate-500 font-normal">
-                Everything you need, nothing you don't.
+                Everything your faculty needs, nothing you don't.
             </span>
         </div>
 
         <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug max-w-4xl">
-            Achieve <span class="text-[#84cc16]">financial clarity</span> and take control of your future with tools designed to simplify, streamline, and personalize your <span class="text-[#0284c7]">money management</span> — all in one secure platform.
+            Achieve <span class="text-[#84cc16]">attendance clarity</span> and take control of your semester with tools designed to simplify, streamline, and personalize your <span class="text-[#0284c7]">classroom compliance</span> — all in one secure platform.
         </h2>
     </section>
 
 
     <!-- ========================================================================= -->
-    <!-- 5. 4-COLUMN FEATURE CARDS GRID                                            -->
+    <!-- 5. 4-COLUMN ATTENDANCE FEATURE CARDS GRID                                  -->
     <!-- ========================================================================= -->
     <section class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pb-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             
-            <!-- Card 1: Artistic Cutout Card -->
+            <!-- Card 1: Artistic Cutout Card (Universal Access & Peer Kiosk) -->
             <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
                  style="background-color: #d9f99d;">
                 <div class="relative z-10">
-                    <div class="flex -space-x-1 mb-3">
-                        <span class="w-4 h-4 rounded-full bg-[#84cc16] flex items-center justify-center text-[9px] font-bold text-black">$</span>
-                        <span class="w-4 h-4 rounded-full bg-black text-[#84cc16] flex items-center justify-center text-[9px] font-bold">&check;</span>
+                    <div class="flex items-center space-x-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-black text-[#84cc16] text-[10px] font-mono font-bold">ZERO APP</span>
+                        <span class="px-2 py-0.5 rounded-full bg-[#84cc16] text-slate-950 text-[10px] font-bold">KIOSK</span>
                     </div>
                 </div>
-                <!-- Hand holding card illustration simulation -->
-                <div class="my-auto py-4 flex items-center justify-center relative">
-                    <div class="w-28 h-20 rounded-xl bg-[#065f46] text-white p-2 shadow-md transform -rotate-12 flex flex-col justify-between">
-                        <div class="w-4 h-2.5 bg-amber-400 rounded-sm"></div>
-                        <div class="text-[8px] font-mono">•••• 3294</div>
+                <!-- Hand holding verified phone pass graphic -->
+                <div class="my-auto py-3 flex items-center justify-center relative">
+                    <div class="w-24 h-28 rounded-2xl bg-[#065f46] text-white p-2.5 shadow-md transform -rotate-6 flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[7px] font-mono text-[#bef264]">PASS VALID</span>
+                            <span class="text-[8px]">📶</span>
+                        </div>
+                        <div class="w-12 h-12 bg-white rounded p-1 mx-auto flex items-center justify-center">
+                            <!-- QR SVG mini -->
+                            <svg class="w-full h-full text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 2h2v4h-2v-4z"/>
+                            </svg>
+                        </div>
+                        <div class="text-[7px] font-mono text-center text-slate-200">250305001</div>
                     </div>
-                    <div class="w-20 h-28 bg-[#84cc16] rounded-xl absolute -bottom-2 -left-2 transform rotate-45 opacity-60"></div>
+                    <div class="w-20 h-24 bg-[#84cc16] rounded-xl absolute -bottom-2 -left-2 transform rotate-45 opacity-50"></div>
                 </div>
                 <div class="relative z-10 text-[11px] text-slate-800 font-medium">
-                    Integrated smart wallet & physical card connectivity.
+                    Peer assistance kiosk & roll-call for students with low battery or zero data.
                 </div>
             </div>
 
-            <!-- Card 2: Automated Budgeting & Alerts -->
-            <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
+            <!-- Card 2: Automated 75% Exam Audits & Alerts -->
+            <div id="audit" class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
                  style="background-color: #bef264;">
                 <!-- Watermark Background Letters -->
                 <div class="absolute inset-0 flex items-center justify-center opacity-15 font-black text-8xl text-slate-900 select-none pointer-events-none watermark-text">
-                    AP
+                    75%
                 </div>
                 <div class="relative z-10 space-y-2">
                     <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
-                        Automated Budgeting & Alerts
+                        Automated 75% Exam Audits & Alerts
                     </h3>
                 </div>
                 <div class="relative z-10 pt-16">
                     <p class="text-xs text-slate-800 leading-relaxed font-normal">
-                        Create custom budgets and get real-time alerts to stay on track every month.
+                        Instantly categorize students into Eligible, Warning, or Disqualified with 1-click official Excel audits.
                     </p>
                 </div>
             </div>
 
-            <!-- Card 3: Unified Account Dashboard -->
+            <!-- Card 3: Unified Multi-Department Rosters -->
             <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
                  style="background-color: #bef264;">
                 <!-- Donut Chart Watermark Background -->
                 <div class="absolute right-0 bottom-0 w-36 h-36 rounded-full border-[18px] border-slate-900/10 pointer-events-none"></div>
                 <div class="relative z-10 space-y-2">
                     <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
-                        Unified Account Dashboard
+                        Unified Multi-Department Rosters
                     </h3>
                 </div>
                 <div class="relative z-10 pt-16">
                     <p class="text-xs text-slate-800 leading-relaxed font-normal">
-                        View all your bank accounts, cards, and transactions in one intuitive interface.
+                        Merge enrolled student lists across 10+ faculties taking joint courses with zero data collisions.
                     </p>
                 </div>
             </div>
 
-            <!-- Card 4: Personalized Financial Insights -->
-            <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
+            <!-- Card 4: Physical GPS Classroom Geofencing -->
+            <div id="geofence" class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
                  style="background-color: #bef264;">
-                <!-- Dollar Watermark Background -->
+                <!-- Location Pin Watermark Background -->
                 <div class="absolute inset-0 flex items-center justify-center opacity-10 font-black text-9xl text-slate-900 select-none pointer-events-none watermark-text">
-                    $
+                    📍
                 </div>
                 <div class="relative z-10 space-y-2">
                     <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
-                        Personalized Financial Insights
+                        Physical GPS Perimeter Defense
                     </h3>
                 </div>
                 <div class="relative z-10 pt-16">
                     <p class="text-xs text-slate-800 leading-relaxed font-normal">
-                        Get smart, actionable advice based on your spending habits and savings goals.
+                        Haversine distance verification blocks proxy check-in attempts from hostels or off-campus dorms.
                     </p>
                 </div>
             </div>
@@ -426,57 +439,57 @@
 
 
     <!-- ========================================================================= -->
-    <!-- 6. HIGH-CONTRAST LIME 3-STEPS SECTION                                     -->
+    <!-- 6. HIGH-CONTRAST LIME 3-STEPS SECTION (ATTENDANCE ADAPTED)                -->
     <!-- ========================================================================= -->
     <section id="how-it-works" class="w-full relative py-16 sm:py-20 overflow-hidden"
              style="background-color: #bef264;">
         
         <!-- Large Background Watermark Typography -->
-        <div class="absolute inset-0 flex items-center justify-center opacity-25 font-black text-[220px] sm:text-[320px] text-[#84cc16] select-none pointer-events-none tracking-tighter watermark-text leading-none">
-            APIN
+        <div class="absolute inset-0 flex items-center justify-center opacity-25 font-black text-[200px] sm:text-[300px] text-[#84cc16] select-none pointer-events-none tracking-tighter watermark-text leading-none">
+            ATTEND
         </div>
 
         <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                 
-                <!-- Left: Floating Dark App Balance Card -->
+                <!-- Left: Floating Dark App Class Overview Card -->
                 <div class="lg:col-span-5 flex justify-center">
                     <div class="w-full max-w-sm rounded-3xl p-6 sm:p-7 text-white shadow-2xl relative"
                          style="background-color: #121316;">
                         
-                        <!-- Header pill & eye toggle -->
+                        <!-- Header pill & live toggle -->
                         <div class="flex items-center justify-between mb-8">
                             <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800/90 text-xs font-medium text-slate-300">
-                                <span>🇺🇸</span>
-                                <span>US Dollar</span>
+                                <span>📚</span>
+                                <span>CSC401 &bull; Operating Systems</span>
                             </div>
-                            <button class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition text-xs">
-                                👁
-                            </button>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 text-[10px] font-bold border border-emerald-800">
+                                ACTIVE
+                            </span>
                         </div>
 
-                        <!-- Available Total Balance -->
+                        <!-- Available Total Attendance -->
                         <div class="space-y-1 mb-8">
-                            <span class="text-[11px] text-slate-400 font-medium block tracking-wide">Available Total Balance</span>
+                            <span class="text-[11px] text-slate-400 font-medium block tracking-wide">Total Verified Attendance</span>
                             <div class="text-3xl sm:text-4xl font-extrabold tracking-tight font-mono text-white">
-                                $ 47,586.32
+                                95.4% <span class="text-xs text-emerald-400 font-sans font-medium">(84 / 88 Present)</span>
                             </div>
                         </div>
 
                         <!-- Circular Action Buttons Row -->
                         <div class="flex items-center justify-between pt-2">
-                            <button class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition text-sm">
-                                ▦
+                            <button class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition text-sm" title="Live QR Code">
+                                📷
                             </button>
-                            <button class="px-3.5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center space-x-1.5 text-xs text-slate-300 transition">
-                                <span>&darr;</span>
-                                <span>Request</span>
+                            <button class="px-3 py-2 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center space-x-1.5 text-xs text-slate-300 transition" title="Perimeter Radius">
+                                <span>📍</span>
+                                <span>150m Radius</span>
                             </button>
-                            <button class="px-3.5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center space-x-1.5 text-xs text-slate-300 transition">
-                                <span>&rarr;</span>
-                                <span>Transfer</span>
+                            <button class="px-3.5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center space-x-1 text-xs text-slate-300 transition" title="Print Poster">
+                                <span>🖨</span>
+                                <span>Poster</span>
                             </button>
-                            <button class="w-10 h-10 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-bold flex items-center justify-center transition shadow-md text-base">
+                            <button class="w-10 h-10 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-bold flex items-center justify-center transition shadow-md text-base" title="Roll-Call Attendance">
                                 +
                             </button>
                         </div>
@@ -486,19 +499,19 @@
                 <!-- Right: 3 Steps Content -->
                 <div class="lg:col-span-7 space-y-6">
                     <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                        Start Managing Your<br>Money in 3 Easy Steps
+                        Start Managing Your<br>Classrooms in 3 Easy Steps
                     </h2>
 
                     <div class="space-y-4 pt-2">
                         <!-- Step 1 -->
                         <div class="flex items-start space-x-4">
                             <div class="w-8 h-8 rounded-full bg-slate-900/10 text-slate-900 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                                💳
+                                📋
                             </div>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-900">Sign Up and Connect Accounts</h4>
+                                <h4 class="text-sm font-bold text-slate-900">Upload and Connect Rosters</h4>
                                 <p class="text-xs text-slate-800 leading-relaxed font-normal mt-0.5">
-                                    Link your bank, credit cards, and wallets with bank-level encryption.
+                                    Import enrolled student lists from Excel, CSV, Word, or PDF with automated duplicate deduplication.
                                 </p>
                             </div>
                         </div>
@@ -506,12 +519,12 @@
                         <!-- Step 2 -->
                         <div class="flex items-start space-x-4">
                             <div class="w-8 h-8 rounded-full bg-slate-900/10 text-slate-900 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                                📈
+                                📍
                             </div>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-900">Smart Investment Insights</h4>
+                                <h4 class="text-sm font-bold text-slate-900">Lock Classroom GPS & Lecture Topic</h4>
                                 <p class="text-xs text-slate-800 leading-relaxed font-normal mt-0.5">
-                                    AI-backed recommendations tailored to your risk profile.
+                                    Capture classroom venue coordinates in 1 click and set your verification radius to prevent proxy check-ins.
                                 </p>
                             </div>
                         </div>
@@ -519,12 +532,12 @@
                         <!-- Step 3 -->
                         <div class="flex items-start space-x-4">
                             <div class="w-8 h-8 rounded-full bg-slate-900/10 text-slate-900 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                                🛡
+                                🎓
                             </div>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-900">Secure Multi-Account Sync</h4>
+                                <h4 class="text-sm font-bold text-slate-900">Instant Exam Clearance Audits</h4>
                                 <p class="text-xs text-slate-800 leading-relaxed font-normal mt-0.5">
-                                    All your accounts in one place — encrypted and always up-to-date.
+                                    Students scan the live screen or printed poster. System calculates 75% exam compliance with certified Excel exports.
                                 </p>
                             </div>
                         </div>
@@ -537,32 +550,97 @@
 
 
     <!-- ========================================================================= -->
-    <!-- 7. PRICING & CALL TO ACTION SECTION                                       -->
+    <!-- 7. TESTIMONIALS SECTION                                                   -->
     <!-- ========================================================================= -->
-    <section id="pricing" class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-20 pb-24">
-        <div class="flex items-center justify-between mb-6">
+    <section id="testimonials" class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-20 pb-12">
+        <div class="flex items-center justify-between mb-8">
             <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide">
-                Pricing
+                Testimonials
             </span>
             <span class="text-xs text-slate-500 font-normal">
-                Try it free. Upgrade anytime.
+                Academic faculty & leadership feedback.
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Review 1 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-4">
+                <p class="text-xs text-slate-600 leading-relaxed italic">
+                    &ldquo;Managing attendance for 450 engineering students used to consume 15 minutes of lecture time and caused endless proxy disputes. Attendly's GPS Geofencing completely solved fraud.&rdquo;
+                </p>
+                <div class="pt-3 border-t border-slate-100 flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-[#84cc16] text-black font-bold text-xs flex items-center justify-center">
+                        AO
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900">Prof. Adebayo Olanrewaju</div>
+                        <div class="text-[11px] text-slate-500">Dean of Engineering, UNILAG</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 2 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-4">
+                <p class="text-xs text-slate-600 leading-relaxed italic">
+                    &ldquo;Being able to specify each lecture topic and generate an A4 printable QR poster in seconds changed my classroom flow. I tape the poster by the entrance and teach without distraction.&rdquo;
+                </p>
+                <div class="pt-3 border-t border-slate-100 flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-[#bef264] text-black font-bold text-xs flex items-center justify-center">
+                        EV
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900">Dr. Evelyn Vance</div>
+                        <div class="text-[11px] text-slate-500">Senior Lecturer, Psychology</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 3 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-4">
+                <p class="text-xs text-slate-600 leading-relaxed italic">
+                    &ldquo;Vetting students for semester examination clearance under the 75% rule used to take 3 weeks of manual ledger checking. Attendly produces the certified Excel audit in two seconds.&rdquo;
+                </p>
+                <div class="pt-3 border-t border-slate-100 flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-[#84cc16] text-black font-bold text-xs flex items-center justify-center">
+                        MS
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900">Dr. Marcus Sterling</div>
+                        <div class="text-[11px] text-slate-500">Director of Academic Planning</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- 8. PRICING & PORTAL QUICK-ACCESS                                          -->
+    <!-- ========================================================================= -->
+    <section id="pricing" class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-10 pb-24">
+        <div class="flex items-center justify-between mb-6">
+            <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide">
+                Faculty Access
+            </span>
+            <span class="text-xs text-slate-500 font-normal">
+                Instant deployment. Zero proprietary hardware required.
             </span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div class="space-y-4">
                 <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
-                    Transparent, predictable pricing built for individuals, faculty, and institutions.
+                    Transparent, dependable academic infrastructure built for faculty and registries.
                 </h3>
                 <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    Get started in under 60 seconds with our complete suite of financial intelligence, verification protocols, and real-time synchronization.
+                    Deploy in under 60 seconds. Students need zero app downloads, and lecturers can project live QR codes or print classroom posters right away.
                 </p>
                 <div class="flex items-center space-x-4 pt-2">
                     <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-bold text-xs sm:text-[13px] transition shadow-sm">
-                        Create Free Account &rarr;
+                        Create Lecturer Account &rarr;
                     </a>
                     <a href="{% url 'accounts:login' %}" class="px-5 py-3 rounded-full border border-slate-300 text-slate-700 hover:text-black hover:border-black font-semibold text-xs sm:text-[13px] transition">
-                        Sign In
+                        Sign In to Portal
                     </a>
                 </div>
             </div>
@@ -571,10 +649,10 @@
             <div class="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Instant Demo Access</span>
-                    <span class="px-2 py-0.5 rounded-full bg-[#bef264] text-slate-900 font-bold text-[10px]">Active</span>
+                    <span class="px-2 py-0.5 rounded-full bg-[#bef264] text-slate-900 font-bold text-[10px]">Cloud Active</span>
                 </div>
                 <p class="text-xs text-slate-500">
-                    Use our verified institutional test credentials to explore the entire platform without setup:
+                    Explore courses, student rosters, printable posters, and geofence verification immediately:
                 </p>
                 <div class="space-y-2 text-xs font-mono">
                     <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
@@ -592,19 +670,19 @@
 
 
     <!-- ========================================================================= -->
-    <!-- 8. FOOTER                                                                 -->
+    <!-- 9. FOOTER                                                                 -->
     <!-- ========================================================================= -->
     <footer class="w-full border-t border-slate-300/60 py-8 bg-white/40">
         <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
             <div class="flex items-center space-x-2">
                 <span class="font-bold text-slate-900">Attendly</span>
                 <span>&bull;</span>
-                <span>Smarter Decisions & Compliance Platform</span>
+                <span>Higher Education Attendance & Compliance Platform</span>
             </div>
             <div class="flex items-center space-x-6">
                 <a href="#features" class="hover:text-black transition">Features</a>
                 <a href="#how-it-works" class="hover:text-black transition">How it Works</a>
-                <a href="{% url 'accounts:login' %}" class="hover:text-black transition">Portal Login</a>
+                <a href="{% url 'accounts:login' %}" class="hover:text-black transition">Faculty Login</a>
             </div>
         </div>
     </footer>
