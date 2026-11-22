@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Course Detail{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">{{ course.title }} ({{ course.code }})</h1>
+<p><strong>Institution:</strong> {{ course.institution.name }}</p>
+<p><strong>Faculty:</strong> {{ course.faculty }}</p>
+<p><strong>Department:</strong> {{ course.department }}</p>
+<p><strong>Academic Session:</strong> {{ course.academic_session.name }}</p>
+<p><strong>Semester:</strong> {{ course.semester.name }}</p>
+<p><strong>Level:</strong> {{ course.level }}</p>
+<p><strong>Lecturer:</strong> {{ course.lecturer.email }}</p>
+<p><strong>Expected Population:</strong> {{ course.expected_population }}</p>
+<p><strong>Attendance Threshold:</strong> {{ course.attendance_threshold }}%</p>
+<p><strong>Schedule:</strong> {{ course.schedule }}</p>
+<p><strong>Archived:</strong> {{ course.is_archived }}</p>
+<a href="{% url 'courses:course_update' course.pk %}" class="bg-primary text-white px-4 py-2 rounded mt-4 inline-block">Edit Course</a>
+{% endblock %}

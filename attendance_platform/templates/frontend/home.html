@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Attendly{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <h1 class="text-3xl font-bold text-navy mb-2">Welcome to Attendly</h1>
+        <p class="text-gray-600">Lecturer Attendance Management System</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+            <h2 class="text-xl font-semibold text-navy mb-2">Courses</h2>
+            <p class="text-gray-600 text-sm mb-4">View, create, and manage course offerings and allocations.</p>
+            <a href="{% url 'courses:course_list' %}" class="text-primary hover:underline font-medium text-sm">&rarr; Go to Courses</a>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+            <h2 class="text-xl font-semibold text-navy mb-2">Academic Sessions</h2>
+            <p class="text-gray-600 text-sm mb-4">Manage academic years, calendars, and semesters.</p>
+            <a href="{% url 'academics:session_list' %}" class="text-primary hover:underline font-medium text-sm">&rarr; Go to Academics</a>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+            <h2 class="text-xl font-semibold text-navy mb-2">Admin Portal</h2>
+            <p class="text-gray-600 text-sm mb-4">Administrative settings, user management, and audit logs.</p>
+            <a href="/admin/" class="text-primary hover:underline font-medium text-sm">&rarr; Go to Admin</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

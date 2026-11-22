@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Add Semester to {{ session.name }} – Attendly{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow">
+    <a href="{% url 'academics:semester_list' session.id %}" class="text-primary hover:underline text-sm mb-2 inline-block">&larr; Back to Semesters</a>
+    <h1 class="text-2xl font-bold text-navy mb-6">Add Semester to {{ session.name }}</h1>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="flex items-center space-x-4 pt-4">
+            <button type="submit" class="bg-primary hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded shadow transition">
+                Save Semester
+            </button>
+            <a href="{% url 'academics:semester_list' session.id %}" class="text-gray-600 hover:text-navy">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

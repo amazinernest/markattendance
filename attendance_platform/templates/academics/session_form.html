@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Create Academic Session – Attendly{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow">
+    <h1 class="text-2xl font-bold text-navy mb-6">Create Academic Session</h1>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="flex items-center space-x-4 pt-4">
+            <button type="submit" class="bg-primary hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded shadow transition">
+                Create Session
+            </button>
+            <a href="{% url 'academics:session_list' %}" class="text-gray-600 hover:text-navy">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

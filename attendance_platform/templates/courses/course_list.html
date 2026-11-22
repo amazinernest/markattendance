@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Courses</h1>
+<a href="{% url 'courses:course_create' %}" class="bg-primary text-white px-4 py-2 rounded mb-4 inline-block">Create New Course</a>
+<table class="min-w-full bg-white border">
+  <thead>
+    <tr>
+      <th class="px-4 py-2 border">Code</th>
+      <th class="px-4 py-2 border">Title</th>
+      <th class="px-4 py-2 border">Institution</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for course in courses %}
+    <tr class="hover:bg-gray-100">
+      <td class="px-4 py-2 border"><a href="{% url 'courses:course_detail' course.pk %}" class="text-primary hover:underline">{{ course.code }}</a></td>
+      <td class="px-4 py-2 border">{{ course.title }}</td>
+      <td class="px-4 py-2 border">{{ course.institution.name }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3" class="px-4 py-2 text-center">No courses available.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

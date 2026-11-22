@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Attendly{% endblock %}</title>
+    <!-- Tailwind via CDN (production should use compiled CSS) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#14243A',
+              primary: '#2457A7',
+              success: '#16845B',
+              warning: '#C58A24',
+              error: '#C34444',
+              muted: '#748094',
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full flex flex-col">
+    <!-- Header -->
+    <header class="bg-navy text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+            <div class="flex items-center space-x-8">
+                <a href="/" class="text-xl font-bold tracking-tight">Attendly</a>
+                <nav class="hidden md:flex space-x-6 text-sm">
+                    <a href="/" class="hover:text-blue-300 transition">Dashboard</a>
+                    <a href="{% url 'courses:course_list' %}" class="hover:text-blue-300 transition">Courses</a>
+                    <a href="{% url 'academics:session_list' %}" class="hover:text-blue-300 transition">Academics</a>
+                    <a href="/admin/" class="hover:text-blue-300 transition">Admin</a>
+                </nav>
+            </div>
+            <nav class="flex items-center space-x-4 text-sm">
+                {% if request.user.is_authenticated %}
+                    <span class="text-gray-300">{{ request.user.email }}</span>
+                    <a href="{% url 'accounts:logout' %}" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded transition">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="bg-primary hover:bg-blue-700 px-3 py-1.5 rounded transition">Login</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-light text-muted py-4 mt-8">
+        <div class="max-w-7xl mx-auto text-center text-sm">
+            © {{ now|date:"Y" }} Attendly – Academic Attendance Management
+        </div>
+    </footer>
+</body>
+</html>
