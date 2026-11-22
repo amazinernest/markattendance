@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Create Lecturer Account – Attendly{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto my-6 sm:my-10">
+    <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10 space-y-6">
+        <!-- Header -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 items-center justify-center shadow-inner mb-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Create Faculty Account</h1>
+            <p class="text-xs text-slate-500">Register as a lecturer to manage your courses, live QR attendance, and reports</p>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm space-y-1">
+            {% for error in form.non_field_errors %}
+                <p class="font-medium">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:register' %}" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- First Name -->
+                <div class="space-y-1">
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        {{ form.first_name.label }} <span class="text-rose-500">*</span>
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-xs text-rose-600">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Last Name -->
+                <div class="space-y-1">
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        {{ form.last_name.label }} <span class="text-rose-500">*</span>
+                    </label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="text-xs text-rose-600">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-1">
+                <label for="{{ form.email.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    {{ form.email.label }} <span class="text-rose-500">*</span>
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-xs text-rose-600">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Password -->
+            <div class="space-y-1">
+                <label for="{{ form.password.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    {{ form.password.label }} <span class="text-rose-500">*</span>
+                </label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <p class="text-xs text-rose-600">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="space-y-1">
+                <label for="{{ form.confirm_password.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    {{ form.confirm_password.label }} <span class="text-rose-500">*</span>
+                </label>
+                {{ form.confirm_password }}
+                {% if form.confirm_password.errors %}
+                    <p class="text-xs text-rose-600">{{ form.confirm_password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 mt-2">
+                Register & Start Setting Up Course &rarr;
+            </button>
+        </form>
+
+        <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+            Already have an account? 
+            <a href="{% url 'accounts:login' %}" class="font-bold text-blue-600 hover:text-blue-500 underline ml-1">
+                Sign In
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

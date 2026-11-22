@@ -4,9 +4,40 @@ from django.contrib.auth import login, logout, get_user_model
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from .forms import LoginForm
+from .forms import LoginForm, LecturerRegistrationForm
+from attendance_platform.apps.institutions.models import Institution
 
 User = get_user_model()
+
+
+@never_cache
+@csrf_protect
+def register_view(request):
+    """Allows any new lecturer to self-register an account."""
+    if request.user.is_authenticated:
+        return redirect('frontend:dashboard')
+
+    if request.method == 'POST':
+        form = LecturerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = User.Role.LECTURER
+            user.set_password(form.cleaned_data['password'])
+            
+            # Link to default institution if available
+            default_inst = Institution.objects.first()
+            if default_inst:
+                user.institution = default_inst
+
+            user.save()
+            login(request, user)
+            messages.success(request, f"Welcome to Attendly, {user.first_name or 'Professor'}! Your account is active. Let's create your first course.")
+            return redirect('courses:course_create')
+    else:
+        form = LecturerRegistrationForm()
+
+    return render(request, 'accounts/register.html', {'form': form})
+
 
 @never_cache
 @csrf_protect
