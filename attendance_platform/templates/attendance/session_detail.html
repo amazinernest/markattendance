@@ -170,6 +170,7 @@
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Student Name</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Matric Number</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">GPS Location</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Time</th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                             </tr>
@@ -186,6 +187,18 @@
                                 <td class="px-6 py-3.5 whitespace-nowrap text-sm font-mono font-medium text-slate-700">
                                     {{ record.matric_number }}
                                 </td>
+                                <td class="px-6 py-3.5 whitespace-nowrap text-xs">
+                                    {% if record.has_location %}
+                                        <a href="{{ record.google_maps_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium space-x-1" title="Open in Google Maps">
+                                            <span>📍 {{ record.location_display }}</span>
+                                            {% if record.accuracy_meters %}
+                                                <span class="text-[10px] text-slate-400 font-normal">(&plusmn;{{ record.accuracy_meters|floatformat:0 }}m)</span>
+                                            {% endif %}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-slate-400 font-mono">No GPS</span>
+                                    {% endif %}
+                                </td>
                                 <td class="px-6 py-3.5 whitespace-nowrap text-xs text-slate-500">
                                     {{ record.checked_in_at|time:"g:i:s A" }}
                                 </td>
@@ -197,7 +210,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-400">
                                     <div class="max-w-xs mx-auto space-y-2">
                                         <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

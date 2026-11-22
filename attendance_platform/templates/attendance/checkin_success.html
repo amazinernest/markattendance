@@ -142,6 +142,12 @@
                     <span class="receipt-label">Time</span>
                     <span class="receipt-val" style="font-size: 12px;">{{ record.checked_in_at|date:"M d, Y • g:i:s A" }}</span>
                 </div>
+                {% if record.has_location %}
+                <div class="receipt-row">
+                    <span class="receipt-label">Location</span>
+                    <span class="receipt-val" style="color: #15803d; font-size: 12px; font-weight: 700;">📍 {{ record.location_display }} {% if record.accuracy_meters %}(&plusmn;{{ record.accuracy_meters|floatformat:0 }}m){% endif %}</span>
+                </div>
+                {% endif %}
                 <div class="receipt-row">
                     <span class="receipt-label">Status</span>
                     <span class="status-pill">Present & Verified</span>

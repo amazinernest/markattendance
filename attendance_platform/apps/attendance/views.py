@@ -197,6 +197,24 @@ def student_checkin(request, token):
 
         user_agent = request.META.get('HTTP_USER_AGENT', '')
 
+        # Extract student GPS coordinates if provided
+        lat_val = request.POST.get('latitude', '').strip()
+        lng_val = request.POST.get('longitude', '').strip()
+        acc_val = request.POST.get('accuracy', '').strip()
+
+        latitude = None
+        longitude = None
+        accuracy_meters = None
+
+        if lat_val and lng_val:
+            try:
+                latitude = float(lat_val)
+                longitude = float(lng_val)
+                if acc_val:
+                    accuracy_meters = float(acc_val)
+            except (ValueError, TypeError):
+                pass
+
         record = AttendanceRecord.objects.create(
             session=session,
             student_name=student_name,
@@ -204,6 +222,9 @@ def student_checkin(request, token):
             student_email=student_email,
             ip_address=ip,
             user_agent=user_agent,
+            latitude=latitude,
+            longitude=longitude,
+            accuracy_meters=accuracy_meters,
             status=AttendanceRecord.Status.PRESENT,
         )
 

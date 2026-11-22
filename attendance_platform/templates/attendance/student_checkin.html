@@ -278,6 +278,16 @@
                 <form method="post" id="checkinForm" onsubmit="handleSubmit(this)">
                     <!-- Hidden field populated automatically when student is identified -->
                     <input type="hidden" name="student_name" id="student_name" value="{{ student_name|default:'' }}">
+                    <!-- Hidden GPS Location fields -->
+                    <input type="hidden" name="latitude" id="latitude" value="">
+                    <input type="hidden" name="longitude" id="longitude" value="">
+                    <input type="hidden" name="accuracy" id="accuracy" value="">
+
+                    <!-- GPS Location Indicator Pill -->
+                    <div id="geoPill" style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; padding: 6px 12px; background: #f1f5f9; border-radius: 10px; margin-bottom: 14px; color: #64748b; font-weight: 600;">
+                        <span id="geoText">📍 Detecting classroom location...</span>
+                        <span id="geoDot" style="width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; transition: background 0.2s;"></span>
+                    </div>
 
                     <!-- Matriculation Number Input -->
                     <div class="form-group">
@@ -414,8 +424,39 @@
             btn.style.opacity = '0.7';
         }
 
-        // On page load, if matric was already filled
+        // On page load: request geolocation and check initial matric
         window.addEventListener('DOMContentLoaded', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        document.getElementById('latitude').value = pos.coords.latitude;
+                        document.getElementById('longitude').value = pos.coords.longitude;
+                        document.getElementById('accuracy').value = pos.coords.accuracy;
+                        const pill = document.getElementById('geoPill');
+                        const text = document.getElementById('geoText');
+                        const dot = document.getElementById('geoDot');
+                        if (pill && text && dot) {
+                            text.innerText = '📍 Location captured (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
+                            pill.style.background = '#dcfce7';
+                            pill.style.color = '#15803d';
+                            dot.style.background = '#22c55e';
+                        }
+                    },
+                    function(err) {
+                        const pill = document.getElementById('geoPill');
+                        const text = document.getElementById('geoText');
+                        const dot = document.getElementById('geoDot');
+                        if (pill && text && dot) {
+                            text.innerText = '📍 Location skipped';
+                            pill.style.background = '#f8fafc';
+                            pill.style.color = '#94a3b8';
+                            dot.style.background = '#cbd5e1';
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+                );
+            }
+
             const initialMatric = document.getElementById('matric_number')?.value;
             if (initialMatric) {
                 triggerLookup(initialMatric);

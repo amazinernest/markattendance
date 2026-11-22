@@ -69,6 +69,9 @@ class AttendanceRecord(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PRESENT)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text="GPS Latitude")
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text="GPS Longitude")
+    accuracy_meters = models.FloatField(null=True, blank=True, help_text="GPS Accuracy in meters")
     checked_in_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -77,3 +80,19 @@ class AttendanceRecord(models.Model):
 
     def __str__(self):
         return f"{self.student_name} ({self.matric_number}) - {self.session.course.code}"
+
+    @property
+    def has_location(self):
+        return self.latitude is not None and self.longitude is not None
+
+    @property
+    def location_display(self):
+        if self.has_location:
+            return f"{float(self.latitude):.5f}, {float(self.longitude):.5f}"
+        return "No GPS"
+
+    @property
+    def google_maps_url(self):
+        if self.has_location:
+            return f"https://www.google.com/maps?q={self.latitude},{self.longitude}"
+        return None
