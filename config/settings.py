@@ -164,10 +164,18 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Security headers (Whitenoise already handles static compression)
+# Security headers & Reverse Proxy support for Vercel
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+# CSRF & Session Cookie configuration
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
 
 # CSRF trusted origins – defaults to vercel and localhost, can be extended via env var
 _csrf_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
@@ -175,6 +183,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in _csrf_env.split() if origin.strip()
 ] or [
     'https://*.vercel.app',
+    'https://*.now.sh',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]

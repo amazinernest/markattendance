@@ -2,10 +2,14 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib import messages
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
 from .forms import LoginForm
 
 User = get_user_model()
 
+@never_cache
+@csrf_protect
 def login_view(request):
     redirect_to = request.POST.get('next') or request.GET.get('next') or '/'
     # If already logged in, redirect to dashboard/home
