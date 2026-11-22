@@ -1,564 +1,613 @@
-{% extends "base.html" %}
-{% block title %}Attendly – Academic Attendance & Exam Compliance Platform{% endblock %}
-{% block content %}
-<div class="space-y-16 max-w-5xl mx-auto py-4">
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendly – Your Partner in Smarter Academic Attendance & Decisions</title>
+    
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- ================================================================= -->
-    <!-- 1. HERO SECTION WITH PRODUCT SHOWCASE                             -->
-    <!-- ================================================================= -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-card p-6 sm:p-10 lg:p-12 space-y-8">
-        <div class="max-w-3xl space-y-4">
-            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                <span>Higher Education Academic Infrastructure &bull; v2.4</span>
-            </div>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        canvas: '#f8faf4',
+                        lime: {
+                            DEFAULT: '#a3e635',
+                            light: '#bef264',
+                            bright: '#84cc16',
+                            soft: '#d9f99d',
+                            tint: '#ecfccb',
+                            dark: '#4d7c0f',
+                            deep: '#365314',
+                        },
+                        forest: {
+                            DEFAULT: '#064e3b',
+                            deep: '#022c22',
+                        },
+                        tealAccent: '#0284c7',
+                        slateCard: '#131517',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
+                        mono: ['ui-monospace', 'monospace'],
+                    },
+                    borderRadius: {
+                        '2xl': '1.25rem',
+                        '3xl': '1.75rem',
+                        '4xl': '2.25rem',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background-color: #f7f9f3;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-[1.15]">
-                Intelligent lecture attendance, real-time geofencing, and automated exam compliance.
-            </h1>
+        /* Ambient Orbit animation */
+        .orbit-ring {
+            border: 1px dashed rgba(163, 230, 53, 0.45);
+            border-radius: 9999px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
 
-            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-                Attendly equips universities and faculties with tamper-proof QR attendance, physical classroom GPS perimeter enforcement, and instantaneous 75% exam eligibility audits—eliminating paper roll-calls and proxy check-ins without proprietary hardware.
-            </p>
+        .orbit-ring-solid {
+            border: 1px solid rgba(163, 230, 53, 0.25);
+            border-radius: 9999px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
 
-            <div class="flex flex-wrap items-center gap-3 pt-2">
-                <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle space-x-1.5">
-                    <span>Sign In to Faculty Portal</span>
-                    <span>&rarr;</span>
-                </a>
-                <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition shadow-subtle">
-                    Create Lecturer Account
-                </a>
-            </div>
+        /* Glass blur cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
 
-            <!-- Demo Access Credentials Strip -->
-            <div class="pt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                <span class="font-medium text-slate-700">Pre-configured Demo Accounts:</span>
-                <span class="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px]">
-                    lecturer@attendly.edu / lecturer123
-                </span>
-                <span class="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px]">
-                    admin@attendly.edu / admin123
-                </span>
-            </div>
-        </div>
+        /* Custom watermark pattern */
+        .watermark-text {
+            user-select: none;
+            pointer-events: none;
+            line-height: 0.8;
+            letter-spacing: -0.05em;
+        }
+    </style>
+</head>
+<body class="bg-[#f7f9f3] text-slate-900 selection:bg-[#a3e635] selection:text-black">
 
-        <!-- Realistic Product Interface Showcase -->
-        <div class="rounded-xl border border-slate-200 bg-slate-900 text-white overflow-hidden shadow-card">
-            <!-- Window Bar -->
-            <div class="px-4 py-2.5 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between text-xs">
-                <div class="flex items-center space-x-2">
-                    <div class="flex space-x-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                    </div>
-                    <span class="text-slate-400 font-mono text-[11px] pl-2">attendly.edu/attendance/session/live</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
-                        LIVE SESSION ACTIVE
+    <!-- ========================================================================= -->
+    <!-- 1. HEADER / NAVIGATION                                                    -->
+    <!-- ========================================================================= -->
+    <header class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-7 pb-5">
+        <div class="flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2 group">
+                <div class="flex items-center space-x-1">
+                    <span class="text-xl sm:text-2xl font-black tracking-tighter text-[#84cc16] flex items-center font-mono">
+                        <svg class="w-7 h-7 mr-1 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                            <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                            <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                            <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+                        </svg>
+                        attendly
                     </span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-950 text-blue-400 border border-blue-800">
-                        📍 GEOFENCE LOCKED: 150m
-                    </span>
                 </div>
-            </div>
+            </a>
 
-            <!-- Preview Body -->
-            <div class="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Course & QR Box -->
-                <div class="lg:col-span-1 bg-slate-800/60 rounded-lg p-4 border border-slate-700/60 space-y-3 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-blue-600/30 text-blue-300 border border-blue-500/40">
-                                CSC401
-                            </span>
-                            <span class="text-[11px] text-slate-400">Lecture 4 of 12</span>
+            <!-- Centered Nav Links -->
+            <nav class="hidden md:flex items-center space-x-7 text-[13px] font-medium text-slate-700">
+                <a href="#features" class="hover:text-black transition">Features</a>
+                <a href="#how-it-works" class="hover:text-black transition">How it Works</a>
+                <a href="#pricing" class="hover:text-black transition">Pricing</a>
+                <a href="#about" class="hover:text-black transition">About</a>
+                <a href="#testimonials" class="hover:text-black transition">Testimonials</a>
+                <a href="#contact" class="hover:text-black transition">Contact</a>
+            </nav>
+
+            <!-- Auth Buttons -->
+            <div class="flex items-center space-x-4 text-[13px]">
+                <a href="{% url 'accounts:login' %}" class="font-medium text-slate-700 hover:text-black transition">
+                    Log in
+                </a>
+                <a href="{% url 'accounts:register' %}" class="px-4 py-1.5 rounded-full border border-slate-300 text-slate-800 font-medium hover:border-slate-800 hover:bg-white transition shadow-sm text-xs sm:text-[13px]">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- ========================================================================= -->
+    <!-- 2. HERO SECTION                                                           -->
+    <!-- ========================================================================= -->
+    <section class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-16 lg:pt-12 lg:pb-24">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            <!-- Left Hero Content -->
+            <div class="lg:col-span-6 space-y-7">
+                <div class="space-y-1">
+                    <h1 class="text-4xl sm:text-5xl lg:text-[58px] font-extrabold text-slate-900 tracking-tight leading-[1.12]">
+                        Your Partner in<br>
+                        Smarter <span class="text-[#84cc16]">Financial</span><br>
+                        Decisions
+                    </h1>
+                </div>
+
+                <p class="text-sm sm:text-[15px] text-slate-600 max-w-lg leading-relaxed font-normal">
+                    Take control of your money with tools designed to help you save more, invest wisely, and plan ahead — effortlessly.
+                </p>
+
+                <!-- Dual Action Buttons -->
+                <div class="flex flex-wrap items-center gap-3.5 pt-1">
+                    <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-semibold text-xs sm:text-[13px] tracking-tight transition shadow-sm flex items-center justify-center">
+                        Talk to an Expert
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="px-5 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-[13px] transition shadow-sm flex items-center space-x-2">
+                        <div class="w-4 h-4 rounded-full bg-[#84cc16] text-black flex items-center justify-center text-[9px] font-bold">
+                            ▶
                         </div>
-                        <h4 class="text-sm font-bold text-white mt-1.5">Advanced Operating Systems</h4>
-                        <p class="text-[11px] text-slate-300 font-medium mt-0.5">
-                            Topic: <span class="text-blue-300">Memory Virtualization & Paging</span>
-                        </p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Venue: Science Lecture Complex LT-2</p>
-                    </div>
+                        <span>Watch Video</span>
+                    </a>
+                </div>
 
-                    <!-- Simulated QR -->
-                    <div class="bg-white p-3 rounded-lg flex flex-col items-center justify-center space-y-1.5 my-1">
-                        <div class="w-28 h-28 border-2 border-slate-900 rounded p-1 flex items-center justify-center bg-white">
-                            <svg class="w-full h-full text-slate-900" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 2h2v4h-2v-4zm-4-2h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2zm-2-2h2v2h-2v-2z"/>
-                            </svg>
-                        </div>
-                        <span class="text-[10px] font-mono text-slate-700 font-semibold tracking-wider">SCAN TO VERIFY</span>
+                <!-- Divider & Pill Tags -->
+                <div class="pt-6 max-w-md space-y-2.5">
+                    <div class="w-full h-px bg-slate-300/80"></div>
+                    <div class="flex flex-wrap gap-2 pt-1 text-[11px] font-medium text-slate-700">
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Market Insights</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Invest</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Grow</span>
                     </div>
+                    <div class="flex flex-wrap gap-2 text-[11px] font-medium text-slate-700">
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Plan</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Budget</span>
+                        <span class="px-3 py-1 rounded-full border border-slate-300 bg-white/70">Expert Tips</span>
+                    </div>
+                </div>
+            </div>
 
-                    <div class="text-[10px] text-center text-slate-400">
-                        UUID: <span class="font-mono text-slate-300">c9f8a2-lecture4</span> &bull; 1-Click Print Ready
+            <!-- Right Hero Visual: Concentric Rings + Floating Glossy Cards -->
+            <div class="lg:col-span-6 relative flex items-center justify-center min-h-[420px] sm:min-h-[480px]">
+                
+                <!-- Concentric Orbit Background Rings -->
+                <div class="orbit-ring w-[340px] h-[340px] sm:w-[440px] sm:h-[440px]"></div>
+                <div class="orbit-ring-solid w-[260px] h-[260px] sm:w-[350px] sm:h-[350px]"></div>
+                <div class="orbit-ring w-[180px] h-[180px] sm:w-[240px] sm:h-[240px]"></div>
+
+                <!-- Floating Statistics Badge (Top Left of Orbit) -->
+                <div class="absolute -top-2 left-6 sm:left-12 z-30 bg-white rounded-xl shadow-lg border border-slate-200/90 p-3 sm:p-3.5 w-44">
+                    <div class="flex items-center justify-between text-[11px] font-semibold text-slate-700 mb-2">
+                        <span>Statistics</span>
+                        <span class="text-[9px] text-slate-400 font-mono">LIVE</span>
+                    </div>
+                    <!-- Mini Bar Chart -->
+                    <div class="flex items-end justify-between h-10 px-1 gap-1">
+                        <div class="w-2.5 bg-slate-200 rounded-t h-4"></div>
+                        <div class="w-2.5 bg-[#84cc16] rounded-t h-7"></div>
+                        <div class="w-2.5 bg-slate-200 rounded-t h-5"></div>
+                        <div class="w-2.5 bg-cyan-500 rounded-t h-8"></div>
+                        <div class="w-2.5 bg-[#84cc16] rounded-t h-10"></div>
+                        <div class="w-2.5 bg-slate-200 rounded-t h-6"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-mono">
+                        <span>$284</span>
+                        <span class="text-[#84cc16] font-bold">$478</span>
                     </div>
                 </div>
 
-                <!-- Live Stream Feed -->
-                <div class="lg:col-span-2 space-y-3">
-                    <div class="flex items-center justify-between text-xs pb-1 border-b border-slate-800">
-                        <span class="font-semibold text-slate-300">Live Attendee Influx (84 Enrolled)</span>
-                        <span class="text-emerald-400 font-mono font-medium">78 Verified (92.8%)</span>
+                <!-- Card 1: Vibrant Lime Green Card (Top Overlapping) -->
+                <div class="absolute top-10 sm:top-12 right-2 sm:right-6 z-20 w-64 sm:w-72 h-40 sm:h-44 rounded-2xl p-4 sm:p-5 text-white shadow-xl flex flex-col justify-between transform rotate-2 hover:rotate-0 transition duration-300"
+                     style="background: linear-gradient(135deg, #a3e635 0%, #65a30d 100%);">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-mono tracking-wider opacity-80 uppercase">Debit Card</span>
+                        <!-- Contactless icon -->
+                        <svg class="w-5 h-5 text-white opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 010-7.778M11.646 19.939a10.5 10.5 0 000-14.848M5.5 13.5a2 2 0 010-2.828"></path>
+                        </svg>
                     </div>
-
-                    <div class="space-y-2 text-xs font-mono">
-                        <!-- Student Row 1 -->
-                        <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700/60 flex items-center justify-between">
-                            <div class="flex items-center space-x-2.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                <div>
-                                    <div class="text-white font-sans font-medium text-xs">Okafor Chioma Grace</div>
-                                    <div class="text-[10px] text-slate-400">250305001 &bull; Computer Science</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-1.5 py-0.5 rounded">
-                                    📍 14m from venue &bull; In-Class
-                                </span>
-                                <div class="text-[10px] text-slate-400 mt-0.5">10:04:12 AM</div>
-                            </div>
-                        </div>
-
-                        <!-- Student Row 2 -->
-                        <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700/60 flex items-center justify-between">
-                            <div class="flex items-center space-x-2.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                <div>
-                                    <div class="text-white font-sans font-medium text-xs">Balogun David Tunde</div>
-                                    <div class="text-[10px] text-slate-400">250305018 &bull; Computer Engineering</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-1.5 py-0.5 rounded">
-                                    📍 28m from venue &bull; In-Class
-                                </span>
-                                <div class="text-[10px] text-slate-400 mt-0.5">10:04:35 AM</div>
-                            </div>
-                        </div>
-
-                        <!-- Student Row 3 (Blocked Attempt) -->
-                        <div class="p-2.5 rounded bg-rose-950/30 border border-rose-900/60 flex items-center justify-between">
-                            <div class="flex items-center space-x-2.5">
-                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                                <div>
-                                    <div class="text-rose-200 font-sans font-medium text-xs">Proxy Attempt Blocked</div>
-                                    <div class="text-[10px] text-rose-400">250305089 &bull; Remote IP Detected</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-rose-400 bg-rose-950/80 border border-rose-800 px-1.5 py-0.5 rounded font-bold">
-                                    ❌ Out of Range (1.8km away)
-                                </span>
-                                <div class="text-[10px] text-rose-300 mt-0.5">BLOCKED ATTEMPT</div>
-                            </div>
+                    <div class="space-y-1">
+                        <div class="text-[8px] font-mono tracking-wider opacity-75">Credit card number</div>
+                        <div class="text-sm sm:text-base font-mono font-bold tracking-widest text-slate-950">
+                            5337 8662 4901 3294
                         </div>
                     </div>
-
-                    <div class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800">
-                        <span>75% Statutory Exam Threshold: <strong class="text-white">9 / 12 classes</strong></span>
-                        <span class="text-blue-400">Export Certified Audit (Excel) &rarr;</span>
+                    <div class="flex items-center justify-between text-[10px]">
+                        <div>
+                            <span class="opacity-70 text-[8px] block">Name</span>
+                            <span class="font-bold text-slate-950">Bianca Taylor</span>
+                        </div>
+                        <div>
+                            <span class="opacity-70 text-[8px] block">Exp. Date</span>
+                            <span class="font-bold text-slate-950">03/28</span>
+                        </div>
+                        <!-- Mastercard Overlapping Circles -->
+                        <div class="flex -space-x-2">
+                            <div class="w-5 h-5 rounded-full bg-white/70"></div>
+                            <div class="w-5 h-5 rounded-full bg-white/90"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- ================================================================= -->
-    <!-- 2. INSTITUTIONAL METRICS & IMPACT STRIP                           -->
-    <!-- ================================================================= -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-card space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">99.8%</div>
-            <div class="text-xs font-semibold text-slate-800">Anti-Proxy Accuracy</div>
-            <p class="text-[11px] text-slate-500 leading-normal">
-                Haversine GPS perimeter checks stop off-campus proxy submissions.
-            </p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-card space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">&lt; 2.5s</div>
-            <div class="text-xs font-semibold text-slate-800">Check-in Duration</div>
-            <p class="text-[11px] text-slate-500 leading-normal">
-                Zero CDN dependencies allow instant loading even on slow 3G data.
-            </p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-card space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">15+</div>
-            <div class="text-xs font-semibold text-slate-800">Departments per Course</div>
-            <p class="text-[11px] text-slate-500 leading-normal">
-                Multi-faculty roster engine supports joint and general studies courses.
-            </p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-card space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">100%</div>
-            <div class="text-xs font-semibold text-slate-800">Automated Exam Audit</div>
-            <p class="text-[11px] text-slate-500 leading-normal">
-                Instant statutory 75% attendance ratio classification for semester exams.
-            </p>
-        </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- 3. HOW IT WORKS (4-STEP ACADEMIC WORKFLOW)                        -->
-    <!-- ================================================================= -->
-    <div class="space-y-6">
-        <div class="space-y-1 text-left">
-            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Workflow</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                How Attendly Works in 4 Steps
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 max-w-2xl">
-                A seamless, paperless workflow designed around the real constraints of high-volume university lecture halls.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Step 1 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 shadow-card">
-                <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold font-mono">
-                    01
-                </div>
-                <h3 class="text-sm font-semibold text-slate-900">Upload Department Rosters</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Import enrolled student lists simultaneously or incrementally from Excel, Word, or PDF without data collisions.
-                </p>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 shadow-card">
-                <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold font-mono">
-                    02
-                </div>
-                <h3 class="text-sm font-semibold text-slate-900">Launch Topic & Geofence</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Configure the lecture topic and meeting date. Lock the classroom venue coordinates with one click to enforce the GPS perimeter.
-                </p>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 shadow-card">
-                <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold font-mono">
-                    03
-                </div>
-                <h3 class="text-sm font-semibold text-slate-900">Scan & Instant Verify</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Students scan the screen QR code or printable classroom poster. Mobile GPS confirms they are physically present in the hall.
-                </p>
-            </div>
-
-            <!-- Step 4 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 shadow-card">
-                <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold font-mono">
-                    04
-                </div>
-                <h3 class="text-sm font-semibold text-slate-900">Audit Exam Eligibility</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    The platform computes semester compliance percentages and generates certified Excel exam admission sheets instantly.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- 4. CORE CAPABILITIES (ENTERPRISE PILLARS)                         -->
-    <!-- ================================================================= -->
-    <div class="space-y-6">
-        <div class="space-y-1 text-left">
-            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Features</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Engineered for Academic Integrity & Operational Reality
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 max-w-2xl">
-                Every feature was built to address real-world classroom challenges: proxy signing, poor Wi-Fi, and multi-department lectures.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <!-- Feature 1 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
-                <div class="p-2 rounded-lg bg-blue-50 text-blue-700 w-fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">GPS Classroom Geofencing</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Prevents absent students from checking in from hostels or off-campus. The server calculates accurate physical distance using the Haversine formula and rejects any submission outside the classroom radius.
-                </p>
-            </div>
-
-            <!-- Feature 2 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
-                <div class="p-2 rounded-lg bg-emerald-50 text-emerald-700 w-fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">Printable Classroom Posters</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Teaching in an amphitheatre without a working projector? Generate an official, ink-friendly A4/Letter QR poster in 1 click featuring course details, lecture topic, and anti-tamper timestamps.
-                </p>
-            </div>
-
-            <!-- Feature 3 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
-                <div class="p-2 rounded-lg bg-indigo-50 text-indigo-700 w-fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">Multi-Department Merges</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Handle courses taken jointly by multiple departments (e.g. GST courses or Engineering Math). Upload departmental lists separately without overwriting existing students.
-                </p>
-            </div>
-
-            <!-- Feature 4 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
-                <div class="p-2 rounded-lg bg-amber-50 text-amber-700 w-fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">Peer Assistance Kiosk Mode</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Students whose phone batteries died or who lack data can check in on a classmate's device using Peer Kiosk Mode, tagged transparently in the audit stream so no student is excluded.
-                </p>
-            </div>
-
-            <!-- Feature 5 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
-                <div class="p-2 rounded-lg bg-cyan-50 text-cyan-700 w-fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">Distinct Per-Class QR Codes</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Every lecture meeting generates a unique cryptographic UUID token. A photo or screenshot of a past QR code will never work for today's lecture topic.
-                </p>
-            </div>
-
-            <!-- Feature 6 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-3 shadow-card">
-                <div class="p-2 rounded-lg bg-rose-50 text-rose-700 w-fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">75% Statutory Exam Auditing</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Automates institutional regulations requiring 75% minimum lecture attendance to sit for semester examinations, generating certified Excel and PDF reports with zero manual math.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- 5. ABOUT US / OUR MISSION                                         -->
-    <!-- ================================================================= -->
-    <div class="bg-white rounded-xl border border-slate-200 p-8 sm:p-10 shadow-card space-y-6">
-        <div class="space-y-2">
-            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">About Us</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Designed for Academic Rigor, Simplicity, and Inclusivity
-            </h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs sm:text-sm text-slate-600 leading-relaxed">
-            <div class="space-y-3">
-                <p>
-                    Attendly was founded with a singular purpose: to modernize the archaic attendance procedures that plague higher education. In lecture halls across universities, valuable instruction time is lost passing around fragile paper sheets that are easily falsified with proxy signatures.
-                </p>
-                <p>
-                    Proprietary hardware solutions—such as wall-mounted biometric fingerprint scanners—routinely suffer from hardware breakdowns, long queues, high maintenance costs, and vendor lock-in.
-                </p>
-            </div>
-            <div class="space-y-3">
-                <p>
-                    We built Attendly as pure software infrastructure that transforms the smartphone already in every student's pocket into an authenticated, location-verified academic credential.
-                </p>
-                <p>
-                    Our mission is to empower academic registries, deans, and course lecturers with tamper-proof records for accreditation defense, regulatory compliance, and seamless semester exam clearance.
-                </p>
-            </div>
-        </div>
-
-        <!-- 3 Pillars of Architecture -->
-        <div class="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-                <div class="font-bold text-slate-900">1. Zero App Installation</div>
-                <p class="text-[11px] text-slate-500">Students access the verification portal directly through mobile browsers. No App Store downloads required.</p>
-            </div>
-            <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-                <div class="font-bold text-slate-900">2. Accreditation-Grade Security</div>
-                <p class="text-[11px] text-slate-500">Cryptographically unique UUID tokens, Haversine GPS calculations, and full IP/timestamp audit logs.</p>
-            </div>
-            <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-                <div class="font-bold text-slate-900">3. Universal Inclusivity</div>
-                <p class="text-[11px] text-slate-500">Peer Kiosk assistance and Lecturer Roll-Call modes ensure no student is ever penalized for device limitations.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- 6. ACADEMIC TESTIMONIALS (FACULTY REVIEWS)                        -->
-    <!-- ================================================================= -->
-    <div class="space-y-6">
-        <div class="space-y-1 text-left">
-            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Testimonials</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Trusted by University Lecturers and Deans
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 max-w-2xl">
-                See how Attendly transformed classroom management and exam compliance across academic faculties.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <!-- Review 1 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-card flex flex-col justify-between space-y-4">
-                <p class="text-xs text-slate-600 leading-relaxed italic">
-                    &ldquo;Managing attendance for 450 engineering students used to consume 15 minutes of lecture time and resulted in endless proxy signatures. Attendly's GPS Geofencing completely solved fraud—only students physically in the lecture hall get verified.&rdquo;
-                </p>
-                <div class="pt-3 border-t border-slate-100 flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
-                        AO
+                <!-- Card 2: Deep Emerald Teal Card (Bottom Overlapping) -->
+                <div class="absolute bottom-6 sm:bottom-8 left-4 sm:left-10 z-10 w-64 sm:w-72 h-40 sm:h-44 rounded-2xl p-4 sm:p-5 text-white shadow-2xl flex flex-col justify-between transform -rotate-3 hover:rotate-0 transition duration-300"
+                     style="background: linear-gradient(135deg, #065f46 0%, #0f172a 100%);">
+                    <div class="flex items-center justify-between">
+                        <!-- VISA Logo -->
+                        <span class="text-base sm:text-lg font-black tracking-tighter italic">VISA</span>
+                        <div class="w-6 h-4 bg-amber-400/80 rounded flex items-center justify-center">
+                            <span class="text-[7px] text-slate-950 font-bold">CHIP</span>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-xs font-bold text-slate-900">Prof. Adebayo Olanrewaju</div>
-                        <div class="text-[11px] text-slate-500">Dean of Engineering & Applied Sciences</div>
+                    <div class="space-y-1">
+                        <div class="text-xs sm:text-sm font-mono font-bold tracking-widest text-white/90">
+                            5337 8662 4901 3294
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-white/80">
+                        <div>
+                            <span class="text-[8px] block opacity-60">Holder</span>
+                            <span class="font-medium text-white">Maria Smith</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[8px] block opacity-60">Expires</span>
+                            <span class="font-medium text-white">10/31</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Review 2 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-card flex flex-col justify-between space-y-4">
-                <p class="text-xs text-slate-600 leading-relaxed italic">
-                    &ldquo;Being able to define each lecture topic and generate an A4 printable QR poster in seconds is a game changer. I tape the poster by the lecture hall entrance, students scan upon arrival, and my attendance list is 100% complete before I start teaching.&rdquo;
-                </p>
-                <div class="pt-3 border-t border-slate-100 flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
-                        EV
-                    </div>
-                    <div>
-                        <div class="text-xs font-bold text-slate-900">Dr. Evelyn Vance</div>
-                        <div class="text-[11px] text-slate-500">Senior Lecturer, Department of Psychology</div>
-                    </div>
+                <!-- Orbit Mini Badges: Income Tag & Wallet Icon -->
+                <div class="absolute bottom-16 right-10 z-30 bg-white/90 backdrop-blur rounded-full px-2.5 py-1 shadow-md border border-slate-200 flex items-center space-x-1.5 text-[10px] font-semibold text-slate-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16]"></span>
+                    <span>Income</span>
                 </div>
-            </div>
-
-            <!-- Review 3 -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-card flex flex-col justify-between space-y-4">
-                <p class="text-xs text-slate-600 leading-relaxed italic">
-                    &ldquo;Vetting students for semester examination clearance under the 75% statutory rule used to take our registry team three weeks of manual cross-referencing. With Attendly, we export the certified exam clearance Excel file in literally two clicks.&rdquo;
-                </p>
-                <div class="pt-3 border-t border-slate-100 flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
-                        MS
-                    </div>
-                    <div>
-                        <div class="text-xs font-bold text-slate-900">Dr. Marcus Sterling</div>
-                        <div class="text-[11px] text-slate-500">Director of Academic Planning & Registry</div>
-                    </div>
+                <div class="absolute bottom-6 right-16 z-30 w-8 h-8 rounded-full bg-[#84cc16] text-black shadow-md flex items-center justify-center text-xs">
+                    💼
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- ================================================================= -->
-    <!-- 7. FREQUENTLY ASKED QUESTIONS (FAQ)                               -->
-    <!-- ================================================================= -->
-    <div class="bg-white rounded-xl border border-slate-200 p-8 sm:p-10 shadow-card space-y-6">
-        <div class="space-y-1">
-            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">FAQ</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Frequently Asked Questions
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500">
-                Common questions regarding security, offline support, and institutional deployment.
-            </p>
+
+    <!-- ========================================================================= -->
+    <!-- 3. PARTNER COMPANIES LOGO STRIP                                           -->
+    <!-- ========================================================================= -->
+    <section class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-8 border-t border-slate-300/60">
+        <div class="text-center mb-5">
+            <span class="text-[11px] font-medium text-cyan-700 tracking-wide">Partner Companies</span>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <!-- FAQ 1 -->
-            <div class="space-y-1.5">
-                <h4 class="text-xs font-bold text-slate-900">How does GPS Geofencing stop students from sending QR screenshots to friends?</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    When geofencing is enabled, the check-in form requires the student's mobile device GPS. The server calculates physical distance to the classroom using the Haversine formula. If a student is at home or in their hostel (e.g. 800m away), the submission is strictly blocked with an Out of Range error.
-                </p>
+        <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-70 grayscale hover:grayscale-0 transition duration-300 text-slate-700">
+            <!-- VISA -->
+            <span class="text-xl sm:text-2xl font-black italic tracking-tighter">VISA</span>
+            <!-- Mastercard Symbol -->
+            <div class="flex items-center space-x-1">
+                <div class="w-6 h-6 rounded-full bg-slate-800"></div>
+                <div class="w-6 h-6 rounded-full bg-slate-500 -ml-3"></div>
             </div>
-
-            <!-- FAQ 2 -->
-            <div class="space-y-1.5">
-                <h4 class="text-xs font-bold text-slate-900">Do students need to install an app from Google Play or App Store?</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    No. Attendly is built with zero render-blocking dependencies and loads in under 2 seconds on any mobile browser (Safari, Chrome, Firefox). There are zero app downloads, installations, or account logins required for students.
-                </p>
+            <!-- PLAID -->
+            <div class="flex items-center space-x-1 font-extrabold tracking-wider text-sm sm:text-base">
+                <svg class="w-4 h-4 mr-0.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 12h5v8h10v-8h5L12 2z"/>
+                </svg>
+                PLAID
             </div>
-
-            <!-- FAQ 3 -->
-            <div class="space-y-1.5">
-                <h4 class="text-xs font-bold text-slate-900">How do students without a browsing phone or active data check in?</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Attendly provides two built-in fallbacks: Peer Assistance Kiosk mode, which allows a classmate with data to enter their peer's matric number on the same device, and Lecturer Manual Roll-Call, allowing the instructor to mark present directly from their dashboard.
-                </p>
-            </div>
-
-            <!-- FAQ 4 -->
-            <div class="space-y-1.5">
-                <h4 class="text-xs font-bold text-slate-900">Can multiple departments taking the same lecture be merged?</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Yes. Courses can receive multiple separate roster uploads across different departments (e.g. Computer Science, Mechanical Engineering, and Physics taking General Chemistry). Attendly merges them cleanly without duplication.
-                </p>
-            </div>
+            <!-- Forbes -->
+            <span class="text-lg sm:text-xl font-serif font-black tracking-tight">Forbes</span>
+            <!-- Deloitte -->
+            <span class="text-base sm:text-lg font-bold tracking-tight">Deloitte<span class="text-[#84cc16]">.</span></span>
         </div>
-    </div>
+    </section>
 
-    <!-- ================================================================= -->
-    <!-- 8. ENTERPRISE CALL TO ACTION (CTA BANNER)                         -->
-    <!-- ================================================================= -->
-    <div class="rounded-xl border border-slate-800 bg-slate-900 text-white p-8 sm:p-12 shadow-card text-center space-y-6">
-        <div class="max-w-2xl mx-auto space-y-3">
-            <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 text-xs font-semibold">
-                Instant Academic Deployment
+
+    <!-- ========================================================================= -->
+    <!-- 4. FEATURES INTRO STATEMENT                                               -->
+    <!-- ========================================================================= -->
+    <section id="features" class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-16 pb-10">
+        <div class="flex items-center justify-between mb-6">
+            <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide">
+                Features
             </span>
-            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                Modernize attendance tracking in your classrooms today.
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Join forward-thinking academic institutions eliminating roll-call paperwork, stopping proxy fraud, and automating 75% statutory exam compliance audits.
-            </p>
+            <span class="text-xs text-slate-500 font-normal">
+                Everything you need, nothing you don't.
+            </span>
         </div>
 
-        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center px-5 py-3 rounded-lg text-xs font-semibold text-slate-900 bg-white hover:bg-slate-100 transition shadow-subtle space-x-1.5">
-                <span>Create Lecturer Account</span>
-                <span>&rarr;</span>
-            </a>
-            <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-5 py-3 rounded-lg text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shadow-subtle">
-                Sign In to Faculty Portal
-            </a>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug max-w-4xl">
+            Achieve <span class="text-[#84cc16]">financial clarity</span> and take control of your future with tools designed to simplify, streamline, and personalize your <span class="text-[#0284c7]">money management</span> — all in one secure platform.
+        </h2>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- 5. 4-COLUMN FEATURE CARDS GRID                                            -->
+    <!-- ========================================================================= -->
+    <section class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pb-20">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            <!-- Card 1: Artistic Cutout Card -->
+            <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
+                 style="background-color: #d9f99d;">
+                <div class="relative z-10">
+                    <div class="flex -space-x-1 mb-3">
+                        <span class="w-4 h-4 rounded-full bg-[#84cc16] flex items-center justify-center text-[9px] font-bold text-black">$</span>
+                        <span class="w-4 h-4 rounded-full bg-black text-[#84cc16] flex items-center justify-center text-[9px] font-bold">&check;</span>
+                    </div>
+                </div>
+                <!-- Hand holding card illustration simulation -->
+                <div class="my-auto py-4 flex items-center justify-center relative">
+                    <div class="w-28 h-20 rounded-xl bg-[#065f46] text-white p-2 shadow-md transform -rotate-12 flex flex-col justify-between">
+                        <div class="w-4 h-2.5 bg-amber-400 rounded-sm"></div>
+                        <div class="text-[8px] font-mono">•••• 3294</div>
+                    </div>
+                    <div class="w-20 h-28 bg-[#84cc16] rounded-xl absolute -bottom-2 -left-2 transform rotate-45 opacity-60"></div>
+                </div>
+                <div class="relative z-10 text-[11px] text-slate-800 font-medium">
+                    Integrated smart wallet & physical card connectivity.
+                </div>
+            </div>
+
+            <!-- Card 2: Automated Budgeting & Alerts -->
+            <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
+                 style="background-color: #bef264;">
+                <!-- Watermark Background Letters -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-15 font-black text-8xl text-slate-900 select-none pointer-events-none watermark-text">
+                    AP
+                </div>
+                <div class="relative z-10 space-y-2">
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+                        Automated Budgeting & Alerts
+                    </h3>
+                </div>
+                <div class="relative z-10 pt-16">
+                    <p class="text-xs text-slate-800 leading-relaxed font-normal">
+                        Create custom budgets and get real-time alerts to stay on track every month.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 3: Unified Account Dashboard -->
+            <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
+                 style="background-color: #bef264;">
+                <!-- Donut Chart Watermark Background -->
+                <div class="absolute right-0 bottom-0 w-36 h-36 rounded-full border-[18px] border-slate-900/10 pointer-events-none"></div>
+                <div class="relative z-10 space-y-2">
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+                        Unified Account Dashboard
+                    </h3>
+                </div>
+                <div class="relative z-10 pt-16">
+                    <p class="text-xs text-slate-800 leading-relaxed font-normal">
+                        View all your bank accounts, cards, and transactions in one intuitive interface.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 4: Personalized Financial Insights -->
+            <div class="rounded-2xl p-6 flex flex-col justify-between min-h-[300px] shadow-sm relative overflow-hidden group hover:-translate-y-1 transition duration-200"
+                 style="background-color: #bef264;">
+                <!-- Dollar Watermark Background -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-10 font-black text-9xl text-slate-900 select-none pointer-events-none watermark-text">
+                    $
+                </div>
+                <div class="relative z-10 space-y-2">
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+                        Personalized Financial Insights
+                    </h3>
+                </div>
+                <div class="relative z-10 pt-16">
+                    <p class="text-xs text-slate-800 leading-relaxed font-normal">
+                        Get smart, actionable advice based on your spending habits and savings goals.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- 6. HIGH-CONTRAST LIME 3-STEPS SECTION                                     -->
+    <!-- ========================================================================= -->
+    <section id="how-it-works" class="w-full relative py-16 sm:py-20 overflow-hidden"
+             style="background-color: #bef264;">
+        
+        <!-- Large Background Watermark Typography -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-25 font-black text-[220px] sm:text-[320px] text-[#84cc16] select-none pointer-events-none tracking-tighter watermark-text leading-none">
+            APIN
         </div>
 
-        <div class="pt-6 border-t border-slate-800 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
-            <span>&check; Zero hardware installation</span>
-            <span>&bull;</span>
-            <span>&check; Fast 60-second setup</span>
-            <span>&bull;</span>
-            <span>&check; Certified Excel audit exports</span>
-            <span>&bull;</span>
-            <span>&check; FERPA & GDPR compliant</span>
-        </div>
-    </div>
+        <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                
+                <!-- Left: Floating Dark App Balance Card -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="w-full max-w-sm rounded-3xl p-6 sm:p-7 text-white shadow-2xl relative"
+                         style="background-color: #121316;">
+                        
+                        <!-- Header pill & eye toggle -->
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800/90 text-xs font-medium text-slate-300">
+                                <span>🇺🇸</span>
+                                <span>US Dollar</span>
+                            </div>
+                            <button class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition text-xs">
+                                👁
+                            </button>
+                        </div>
 
-</div>
-{% endblock %}
+                        <!-- Available Total Balance -->
+                        <div class="space-y-1 mb-8">
+                            <span class="text-[11px] text-slate-400 font-medium block tracking-wide">Available Total Balance</span>
+                            <div class="text-3xl sm:text-4xl font-extrabold tracking-tight font-mono text-white">
+                                $ 47,586.32
+                            </div>
+                        </div>
+
+                        <!-- Circular Action Buttons Row -->
+                        <div class="flex items-center justify-between pt-2">
+                            <button class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition text-sm">
+                                ▦
+                            </button>
+                            <button class="px-3.5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center space-x-1.5 text-xs text-slate-300 transition">
+                                <span>&darr;</span>
+                                <span>Request</span>
+                            </button>
+                            <button class="px-3.5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center space-x-1.5 text-xs text-slate-300 transition">
+                                <span>&rarr;</span>
+                                <span>Transfer</span>
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-bold flex items-center justify-center transition shadow-md text-base">
+                                +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: 3 Steps Content -->
+                <div class="lg:col-span-7 space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                        Start Managing Your<br>Money in 3 Easy Steps
+                    </h2>
+
+                    <div class="space-y-4 pt-2">
+                        <!-- Step 1 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-900/10 text-slate-900 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                💳
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Sign Up and Connect Accounts</h4>
+                                <p class="text-xs text-slate-800 leading-relaxed font-normal mt-0.5">
+                                    Link your bank, credit cards, and wallets with bank-level encryption.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-900/10 text-slate-900 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                📈
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Smart Investment Insights</h4>
+                                <p class="text-xs text-slate-800 leading-relaxed font-normal mt-0.5">
+                                    AI-backed recommendations tailored to your risk profile.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-900/10 text-slate-900 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                🛡
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Secure Multi-Account Sync</h4>
+                                <p class="text-xs text-slate-800 leading-relaxed font-normal mt-0.5">
+                                    All your accounts in one place — encrypted and always up-to-date.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- 7. PRICING & CALL TO ACTION SECTION                                       -->
+    <!-- ========================================================================= -->
+    <section id="pricing" class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-20 pb-24">
+        <div class="flex items-center justify-between mb-6">
+            <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide">
+                Pricing
+            </span>
+            <span class="text-xs text-slate-500 font-normal">
+                Try it free. Upgrade anytime.
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                    Transparent, predictable pricing built for individuals, faculty, and institutions.
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Get started in under 60 seconds with our complete suite of financial intelligence, verification protocols, and real-time synchronization.
+                </p>
+                <div class="flex items-center space-x-4 pt-2">
+                    <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-full bg-[#84cc16] hover:bg-[#65a30d] text-black font-bold text-xs sm:text-[13px] transition shadow-sm">
+                        Create Free Account &rarr;
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="px-5 py-3 rounded-full border border-slate-300 text-slate-700 hover:text-black hover:border-black font-semibold text-xs sm:text-[13px] transition">
+                        Sign In
+                    </a>
+                </div>
+            </div>
+
+            <!-- Demo Access Preset Box -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Instant Demo Access</span>
+                    <span class="px-2 py-0.5 rounded-full bg-[#bef264] text-slate-900 font-bold text-[10px]">Active</span>
+                </div>
+                <p class="text-xs text-slate-500">
+                    Use our verified institutional test credentials to explore the entire platform without setup:
+                </p>
+                <div class="space-y-2 text-xs font-mono">
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <span class="text-slate-600">lecturer@attendly.edu</span>
+                        <span class="text-slate-900 font-bold">lecturer123</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <span class="text-slate-600">admin@attendly.edu</span>
+                        <span class="text-slate-900 font-bold">admin123</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- 8. FOOTER                                                                 -->
+    <!-- ========================================================================= -->
+    <footer class="w-full border-t border-slate-300/60 py-8 bg-white/40">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-slate-900">Attendly</span>
+                <span>&bull;</span>
+                <span>Smarter Decisions & Compliance Platform</span>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#features" class="hover:text-black transition">Features</a>
+                <a href="#how-it-works" class="hover:text-black transition">How it Works</a>
+                <a href="{% url 'accounts:login' %}" class="hover:text-black transition">Portal Login</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
