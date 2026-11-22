@@ -310,11 +310,26 @@
             {% block content %}{% endblock %}
         </main>
 
-        <!-- Footer -->
-        <footer class="no-print bg-white border-t border-slate-200 mt-auto py-4 px-4 sm:px-6">
-            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-                <span>ClassMarker &bull; Higher Education Attendance & Compliance Platform</span>
-                <span class="text-slate-400">Institutional Multi-Tenant Architecture</span>
+        <!-- Standard Footer -->
+        <footer class="no-print bg-white border-t border-slate-200 mt-auto py-5 px-4 sm:px-6">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-800">ClassMarker</span>
+                    <span>&bull;</span>
+                    <span>Higher Education Attendance & Compliance Platform</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 text-[11px]">
+                    <a href="{% url 'frontend:privacy' %}" class="hover:text-slate-900 transition">Privacy Policy</a>
+                    <span>&bull;</span>
+                    <a href="{% url 'frontend:terms' %}" class="hover:text-slate-900 transition">Terms & Conditions</a>
+                    <span>&bull;</span>
+                    <span class="text-slate-700">
+                        Web Developer: 
+                        <a href="https://e65web.com.ng" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-950 hover:text-[#84cc16] transition underline decoration-[#84cc16] underline-offset-4">
+                            e65web.com.ng
+                        </a>
+                    </span>
+                </div>
             </div>
         </footer>
     </div>

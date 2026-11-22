@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth h-full bg-[#f7f9f3]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ClassMarker – Smarter Academic Attendance & 75% Exam Compliance{% endblock %}</title>
+    
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        canvas: '#f7f9f3',
+                        lime: {
+                            DEFAULT: '#a3e635',
+                            light: '#bef264',
+                            bright: '#84cc16',
+                            soft: '#d9f99d',
+                            tint: '#ecfccb',
+                            dark: '#4d7c0f',
+                            deep: '#365314',
+                        },
+                        forest: {
+                            DEFAULT: '#064e3b',
+                            deep: '#022c22',
+                        },
+                        tealAccent: '#0284c7',
+                        slateCard: '#121316',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
+                        mono: ['ui-monospace', 'monospace'],
+                    },
+                    borderRadius: {
+                        '2xl': '1.25rem',
+                        '3xl': '1.75rem',
+                        '4xl': '2.25rem',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background-color: #f7f9f3;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .orbit-ring {
+            border: 1px dashed rgba(163, 230, 53, 0.45);
+            border-radius: 9999px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .orbit-ring-solid {
+            border: 1px solid rgba(163, 230, 53, 0.25);
+            border-radius: 9999px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .watermark-text {
+            user-select: none;
+            pointer-events: none;
+            line-height: 0.8;
+            letter-spacing: -0.05em;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full flex flex-col bg-[#f7f9f3] text-slate-900 selection:bg-[#a3e635] selection:text-black">
+
+    <!-- ========================================================================= -->
+    <!-- 1. STREAMLINED TOP NAVIGATION HEADER                                      -->
+    <!-- ========================================================================= -->
+    <header class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-6 pb-4 sticky top-0 z-40 bg-[#f7f9f3]/90 backdrop-blur-md transition-all border-b border-slate-200/50">
+        <div class="flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2 group">
+                <div class="flex items-center space-x-1">
+                    <span class="text-xl sm:text-2xl font-black tracking-tighter text-[#84cc16] flex items-center font-mono">
+                        <svg class="w-7 h-7 mr-1 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                            <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                            <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                            <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+                        </svg>
+                        classmarker
+                    </span>
+                </div>
+            </a>
+
+            <!-- Streamlined Desktop Nav Links (Clean 4 Core Items) -->
+            <nav class="hidden md:flex items-center space-x-8 text-[13px] font-medium text-slate-700">
+                <a href="{% url 'frontend:features' %}" class="hover:text-black transition {% if request.resolver_match.view_name == 'frontend:features' %}font-bold text-slate-950 border-b-2 border-[#84cc16] pb-0.5{% endif %}">
+                    Features
+                </a>
+                <a href="{% url 'frontend:how_it_works' %}" class="hover:text-black transition {% if request.resolver_match.view_name == 'frontend:how_it_works' %}font-bold text-slate-950 border-b-2 border-[#84cc16] pb-0.5{% endif %}">
+                    How it Works
+                </a>
+                <a href="{% url 'frontend:exam_compliance' %}" class="hover:text-black transition {% if request.resolver_match.view_name == 'frontend:exam_compliance' %}font-bold text-slate-950 border-b-2 border-[#84cc16] pb-0.5{% endif %}">
+                    75% Exam Audit
+                </a>
+                <a href="{% url 'frontend:pricing' %}" class="hover:text-black transition {% if request.resolver_match.view_name == 'frontend:pricing' %}font-bold text-slate-950 border-b-2 border-[#84cc16] pb-0.5{% endif %}">
+                    Faculty Access
+                </a>
+            </nav>
+
+            <!-- Desktop Auth Action Buttons -->
+            <div class="hidden md:flex items-center space-x-3 text-[13px]">
+                <a href="{% url 'accounts:login' %}" class="font-medium text-slate-700 hover:text-black transition px-3 py-1.5">
+                    Faculty Login
+                </a>
+                <a href="{% url 'accounts:register' %}" class="px-4 py-2 rounded-full font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm text-xs sm:text-[13px]">
+                    Get Started Free &rarr;
+                </a>
+            </div>
+
+            <!-- Mobile Controls: Quick Login & Hamburger Button -->
+            <div class="flex items-center space-x-2 md:hidden">
+                <a href="{% url 'accounts:login' %}" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
+                    Login
+                </a>
+                <button type="button" onclick="togglePublicNav()" id="publicNavBtn" aria-label="Toggle navigation menu" class="p-2 rounded-xl text-slate-800 bg-white border border-slate-200/90 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#84cc16] transition">
+                    <svg id="publicBurgerIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg id="publicCloseIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="publicMobileNavMenu" class="hidden md:hidden mt-3 p-4 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-lg space-y-3 transition-all duration-200">
+            <nav class="flex flex-col space-y-1 text-xs font-semibold text-slate-700">
+                <a href="{% url 'frontend:features' %}" class="px-3 py-2.5 rounded-xl hover:bg-[#f7f9f3] transition {% if request.resolver_match.view_name == 'frontend:features' %}bg-[#f7f9f3] text-black font-bold{% endif %}">
+                    Features
+                </a>
+                <a href="{% url 'frontend:how_it_works' %}" class="px-3 py-2.5 rounded-xl hover:bg-[#f7f9f3] transition {% if request.resolver_match.view_name == 'frontend:how_it_works' %}bg-[#f7f9f3] text-black font-bold{% endif %}">
+                    How it Works
+                </a>
+                <a href="{% url 'frontend:exam_compliance' %}" class="px-3 py-2.5 rounded-xl hover:bg-[#f7f9f3] transition {% if request.resolver_match.view_name == 'frontend:exam_compliance' %}bg-[#f7f9f3] text-black font-bold{% endif %}">
+                    75% Exam Audit
+                </a>
+                <a href="{% url 'frontend:pricing' %}" class="px-3 py-2.5 rounded-xl hover:bg-[#f7f9f3] transition {% if request.resolver_match.view_name == 'frontend:pricing' %}bg-[#f7f9f3] text-black font-bold{% endif %}">
+                    Faculty Access & Pricing
+                </a>
+            </nav>
+            <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                <a href="{% url 'accounts:login' %}" class="w-full text-center py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 hover:bg-slate-50 transition">
+                    Faculty Login
+                </a>
+                <a href="{% url 'accounts:register' %}" class="w-full text-center py-2.5 rounded-xl bg-[#84cc16] hover:bg-[#65a30d] text-xs font-bold text-slate-950 transition shadow-sm">
+                    Get Started Free &rarr;
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Slot -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- STANDARD PROFESSIONAL FOOTER                                              -->
+    <!-- ========================================================================= -->
+    <footer class="w-full border-t border-slate-300/70 bg-white pt-14 pb-8 mt-16 text-slate-600 text-xs">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+            <!-- 4-Column Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-200">
+                <!-- Col 1 & 2: Brand & Mission -->
+                <div class="lg:col-span-2 space-y-4">
+                    <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2">
+                        <svg class="w-7 h-7 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
+                            <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
+                            <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
+                            <circle cx="24" cy="24" r="6" fill="#84cc16"/>
+                        </svg>
+                        <span class="text-xl font-black tracking-tight text-slate-900 font-mono">classmarker</span>
+                    </a>
+                    <p class="text-xs text-slate-600 leading-relaxed max-w-sm">
+                        ClassMarker is the comprehensive higher education attendance management and 75% exam compliance platform. Built for university faculties, polytechnics, and academic registries to eliminate proxy cheating with precision GPS geofencing.
+                    </p>
+                    <div class="pt-1 flex items-center space-x-2 text-[11px] text-slate-500">
+                        <span class="w-2 h-2 rounded-full bg-[#84cc16]"></span>
+                        <span>Institutional Multi-Tenant Architecture &bull; Zero App Installs</span>
+                    </div>
+                </div>
+
+                <!-- Col 3: Solutions & Core Features -->
+                <div class="space-y-3">
+                    <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">Solutions</div>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'frontend:features' %}" class="hover:text-black transition">Platform Features</a></li>
+                        <li><a href="{% url 'frontend:how_it_works' %}" class="hover:text-black transition">How It Works</a></li>
+                        <li><a href="{% url 'frontend:exam_compliance' %}" class="hover:text-black transition">75% Exam Compliance</a></li>
+                        <li><a href="{% url 'frontend:features' %}#geofence" class="hover:text-black transition">GPS Geofencing & Anti-Cheat</a></li>
+                        <li><a href="{% url 'frontend:features' %}#rosters" class="hover:text-black transition">Multi-Department Rosters</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Faculty & Portal -->
+                <div class="space-y-3">
+                    <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">Faculty Portal</div>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'accounts:login' %}" class="hover:text-black transition">Faculty Sign In</a></li>
+                        <li><a href="{% url 'accounts:register' %}" class="hover:text-black transition">Create Faculty Account</a></li>
+                        <li><a href="{% url 'frontend:pricing' %}" class="hover:text-black transition">Access Plans & Pricing</a></li>
+                        <li><a href="{% url 'frontend:how_it_works' %}#poster" class="hover:text-black transition">Classroom QR Posters</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 5: Legal & Developer -->
+                <div class="space-y-3">
+                    <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">Governance & Trust</div>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'frontend:privacy' %}" class="hover:text-black transition font-medium text-slate-800">Privacy Policy</a></li>
+                        <li><a href="{% url 'frontend:terms' %}" class="hover:text-black transition font-medium text-slate-800">Terms & Conditions</a></li>
+                        <li><span class="text-slate-400">NDPR & GDPR Compliant</span></li>
+                        <li><span class="text-slate-400">Data Integrity Protected</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Sub-Footer Bar -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
+                <div>
+                    &copy; 2026 ClassMarker. All rights reserved. Built for modern universities and academic registries.
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'frontend:privacy' %}" class="hover:text-slate-800 transition">Privacy</a>
+                    <span>&bull;</span>
+                    <a href="{% url 'frontend:terms' %}" class="hover:text-slate-800 transition">Terms</a>
+                    <span>&bull;</span>
+                    <span class="text-slate-700">
+                        Web Developer: 
+                        <a href="https://e65web.com.ng" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-950 hover:text-[#84cc16] transition underline decoration-[#84cc16] underline-offset-4">
+                            e65web.com.ng
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    function togglePublicNav() {
+        const menu = document.getElementById('publicMobileNavMenu');
+        const burger = document.getElementById('publicBurgerIcon');
+        const close = document.getElementById('publicCloseIcon');
+        if (menu) {
+            menu.classList.toggle('hidden');
+            if (burger && close) {
+                burger.classList.toggle('hidden');
+                close.classList.toggle('hidden');
+            }
+        }
+    }
+    </script>
+</body>
+</html>

@@ -8,10 +8,27 @@ def home(request):
         return redirect('frontend:dashboard')
     return render(request, 'frontend/landing.html')
 
+def features(request):
+    return render(request, 'frontend/features.html')
+
+def how_it_works(request):
+    return render(request, 'frontend/how_it_works.html')
+
+def exam_compliance(request):
+    return render(request, 'frontend/exam_compliance.html')
+
+def pricing(request):
+    return render(request, 'frontend/pricing.html')
+
+def privacy_policy(request):
+    return render(request, 'frontend/privacy.html')
+
+def terms_and_conditions(request):
+    return render(request, 'frontend/terms.html')
+
 @login_required
 def dashboard(request):
     user = request.user
-    # If user is lecturer, show their courses; if admin/superadmin, show all
     if hasattr(user, 'role') and user.role == user.Role.LECTURER:
         courses = Course.objects.filter(lecturer=user)
     else:

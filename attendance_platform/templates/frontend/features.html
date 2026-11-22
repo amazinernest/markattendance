@@ -1,0 +1,170 @@
+{% extends "frontend/public_base.html" %}
+{% block title %}Platform Features – ClassMarker Academic Attendance System{% endblock %}
+{% block content %}
+<div class="space-y-16 py-10">
+    <!-- Header Hero -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 text-center space-y-4">
+        <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide inline-block">
+            Comprehensive Platform Capabilities
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight">
+            Designed for Classroom Reality.<br>Engineered for <span class="text-[#84cc16]">Zero Fraud</span>.
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            From 400-student engineering halls to intimate postgraduate seminars, ClassMarker gives faculty members the exact tools needed to eliminate proxy attendance and automate exam clearance.
+        </p>
+    </section>
+
+    <!-- Key Features Deep Dive Grid -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Feature 1: GPS Geofencing -->
+            <div id="geofence" class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-[#ecfccb] border border-[#d9f99d] text-[#365314] flex items-center justify-center text-xl font-bold">
+                    📍
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Precision GPS Classroom Geofencing</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Lecturers lock their classroom location in 1-click. Haversine distance verification automatically blocks check-ins from students situated in hostels, cafeterias, or off-campus. Configurable from 30m to 250m.
+                </p>
+                <div class="pt-2 text-[11px] text-[#4d7c0f] font-mono font-medium">
+                    ✓ 30m &bull; 60m &bull; 100m &bull; 150m &bull; 250m Radius
+                </div>
+            </div>
+
+            <!-- Feature 2: Anti-Spoofing & Fake GPS Shield -->
+            <div class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xl font-bold">
+                    🛡️
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Mock Location & Fake GPS Shield</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Detects and rejects Android mock location providers, developer fake GPS apps, desktop emulators, and synthetic telemetry. Requires active, fresh satellite lock directly from hardware sensors.
+                </p>
+                <div class="pt-2 text-[11px] text-blue-700 font-mono font-medium">
+                    ✓ Synthetic Precision & Timestamp Staleness Check
+                </div>
+            </div>
+
+            <!-- Feature 3: Hardware Device Lock (Anti-Proxy) -->
+            <div class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center text-xl font-bold">
+                    🔒
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Hardware Device Lock (Anti-Proxy)</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Generates an encrypted persistent hardware fingerprint for each student device. Once a physical phone signs in a student, it is locked — preventing absent friends from having a classmate sign for them.
+                </p>
+                <div class="pt-2 text-[11px] text-purple-700 font-mono font-medium">
+                    ✓ Strict 1 Phone = 1 Student per Session Rule
+                </div>
+            </div>
+
+            <!-- Feature 4: 75% Statutory Exam Audit -->
+            <div id="audit" class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-[#bef264] text-slate-950 flex items-center justify-center text-xl font-bold font-mono">
+                    75%
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Statutory 75% Exam Clearance Audits</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Automates university attendance compliance. Color-codes enrolled students into Eligible (Green), Warning (Amber), and Disqualified (Red). Export official certified Excel sheets for exams and registry.
+                </p>
+                <div class="pt-2 text-[11px] text-[#365314] font-mono font-medium">
+                    ✓ 1-Click Excel Clearance Export & Statistics
+                </div>
+            </div>
+
+            <!-- Feature 5: Multi-Department Rosters -->
+            <div id="rosters" class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center text-xl font-bold">
+                    👥
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Multi-Department Joint Rosters</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Teach large faculty courses attended by Computer Science, Electrical, and Mechanical students together? Upload multiple rosters from Excel, CSV, PDF, or Word with automatic deduplication.
+                </p>
+                <div class="pt-2 text-[11px] text-amber-800 font-mono font-medium">
+                    ✓ Cross-Faculty Cohort Management
+                </div>
+            </div>
+
+            <!-- Feature 6: Zero Student App Installation -->
+            <div class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xl font-bold">
+                    ⚡
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Zero App Installs Required</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Runs 100% on standard mobile browsers (Chrome, Safari, Firefox). Students simply point their camera, enter their matric number, verify GPS proximity, and receive their attendance receipt in 4 seconds.
+                </p>
+                <div class="pt-2 text-[11px] text-emerald-800 font-mono font-medium">
+                    ✓ Instant Mobile Web Speed & No App Store Friction
+                </div>
+            </div>
+
+            <!-- Feature 7: Printable Offline A4 Posters -->
+            <div class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center text-xl font-bold">
+                    🖨️
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Printable Offline Classroom Posters</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    No projector in your lecture theatre? Click "Print QR Poster" to generate an official, formatted A4 session poster. Tape it by the hall door so arriving students verify attendance seamlessly.
+                </p>
+                <div class="pt-2 text-[11px] text-slate-700 font-mono font-medium">
+                    ✓ High-Resolution A4 PDF Layout
+                </div>
+            </div>
+
+            <!-- Feature 8: Dynamic Cryptographic Tokens -->
+            <div class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center text-xl font-bold">
+                    🔑
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Encrypted Token Architecture</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Each lecture session generates a distinct cryptographic token. Old session links cannot be reused, and check-in links expired immediately when the lecturer ends the session.
+                </p>
+                <div class="pt-2 text-[11px] text-rose-700 font-mono font-medium">
+                    ✓ Anti-Replay Cryptographic Hashes
+                </div>
+            </div>
+
+            <!-- Feature 9: Manual Roll-Call Fallback -->
+            <div class="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#84cc16] transition">
+                <div class="w-12 h-12 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-xl font-bold">
+                    ✍️
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Emergency Roll-Call Fallback</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    If a student has a flat phone battery or no mobile browser, the lecturer can type their matric number in the live monitor bar to mark them present with a dedicated "Roll-Call" audit badge.
+                </p>
+                <div class="pt-2 text-[11px] text-teal-800 font-mono font-medium">
+                    ✓ 100% Inclusive for All Students
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Bottom CTA Card -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div class="rounded-3xl p-8 sm:p-12 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl"
+             style="background: linear-gradient(135deg, #a3e635 0%, #65a30d 100%);">
+            <div class="space-y-2 max-w-xl text-center md:text-left">
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready to modernize your classroom attendance?</h2>
+                <p class="text-xs sm:text-sm text-slate-900 font-medium">Join faculty members across leading universities simplifying academic compliance today.</p>
+            </div>
+            <div class="flex items-center space-x-3 shrink-0">
+                <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-full bg-slate-950 text-white hover:bg-slate-900 font-bold text-xs sm:text-sm transition shadow-sm">
+                    Create Faculty Account &rarr;
+                </a>
+                <a href="{% url 'accounts:login' %}" class="px-5 py-3 rounded-full bg-white/80 hover:bg-white text-slate-950 font-bold text-xs sm:text-sm transition shadow-sm">
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

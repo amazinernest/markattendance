@@ -1,173 +1,6 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassMarker – Your Partner in Smarter Academic Attendance & Decisions</title>
-    
-    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        canvas: '#f7f9f3',
-                        lime: {
-                            DEFAULT: '#a3e635',
-                            light: '#bef264',
-                            bright: '#84cc16',
-                            soft: '#d9f99d',
-                            tint: '#ecfccb',
-                            dark: '#4d7c0f',
-                            deep: '#365314',
-                        },
-                        forest: {
-                            DEFAULT: '#064e3b',
-                            deep: '#022c22',
-                        },
-                        tealAccent: '#0284c7',
-                        slateCard: '#121316',
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
-                        mono: ['ui-monospace', 'monospace'],
-                    },
-                    borderRadius: {
-                        '2xl': '1.25rem',
-                        '3xl': '1.75rem',
-                        '4xl': '2.25rem',
-                    }
-                }
-            }
-        };
-    </script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-            background-color: #f7f9f3;
-            color: #0f172a;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        /* Ambient Orbit animation */
-        .orbit-ring {
-            border: 1px dashed rgba(163, 230, 53, 0.45);
-            border-radius: 9999px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-
-        .orbit-ring-solid {
-            border: 1px solid rgba(163, 230, 53, 0.25);
-            border-radius: 9999px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-
-        /* Custom watermark pattern */
-        .watermark-text {
-            user-select: none;
-            pointer-events: none;
-            line-height: 0.8;
-            letter-spacing: -0.05em;
-        }
-    </style>
-</head>
-<body class="bg-[#f7f9f3] text-slate-900 selection:bg-[#a3e635] selection:text-black">
-
-    <!-- ========================================================================= -->
-    <!-- 1. HEADER / NAVIGATION                                                    -->
-    <!-- ========================================================================= -->
-    <header class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-6 pb-4 sticky top-0 z-40 bg-[#f7f9f3]/90 backdrop-blur-md transition-all">
-        <div class="flex items-center justify-between">
-            <!-- Brand Logo -->
-            <a href="{% url 'frontend:home' %}" class="flex items-center space-x-2 group">
-                <div class="flex items-center space-x-1">
-                    <span class="text-xl sm:text-2xl font-black tracking-tighter text-[#84cc16] flex items-center font-mono">
-                        <svg class="w-7 h-7 mr-1 text-[#84cc16]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="2" y="2" width="12" height="12" rx="3" fill="#84cc16"/>
-                            <rect x="18" y="2" width="12" height="12" rx="3" fill="#bef264"/>
-                            <rect x="2" y="18" width="12" height="12" rx="3" fill="#bef264"/>
-                            <circle cx="24" cy="24" r="6" fill="#84cc16"/>
-                        </svg>
-                        classmarker
-                    </span>
-                </div>
-            </a>
-
-            <!-- Centered Desktop Nav Links -->
-            <nav class="hidden md:flex items-center space-x-7 text-[13px] font-medium text-slate-700">
-                <a href="#features" class="hover:text-black transition">Features</a>
-                <a href="#how-it-works" class="hover:text-black transition">How it Works</a>
-                <a href="#geofence" class="hover:text-black transition">GPS Geofence</a>
-                <a href="#audit" class="hover:text-black transition">75% Exam Audit</a>
-                <a href="#testimonials" class="hover:text-black transition">Testimonials</a>
-                <a href="#pricing" class="hover:text-black transition">Access</a>
-            </nav>
-
-            <!-- Desktop Auth Buttons -->
-            <div class="hidden md:flex items-center space-x-4 text-[13px]">
-                <a href="{% url 'accounts:login' %}" class="font-medium text-slate-700 hover:text-black transition">
-                    Faculty Login
-                </a>
-                <a href="{% url 'accounts:register' %}" class="px-4 py-1.5 rounded-full border border-slate-300 text-slate-800 font-medium hover:border-slate-800 hover:bg-white transition shadow-sm text-xs sm:text-[13px]">
-                    Get Started Free
-                </a>
-            </div>
-
-            <!-- Mobile Controls: Quick Login & Hamburger Button -->
-            <div class="flex items-center space-x-2 md:hidden">
-                <a href="{% url 'accounts:login' %}" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
-                    Login
-                </a>
-                <button type="button" onclick="toggleLandingNav()" id="landingNavBtn" aria-label="Toggle navigation menu" class="p-2 rounded-xl text-slate-800 bg-white border border-slate-200/90 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#84cc16] transition">
-                    <!-- Hamburger icon -->
-                    <svg id="landingBurgerIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                    <!-- Close X icon -->
-                    <svg id="landingCloseIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Drawer / Dropdown Navigation -->
-        <div id="landingMobileMenu" class="hidden md:hidden mt-3 p-4 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-lg space-y-3 transition-all duration-200">
-            <nav class="flex flex-col space-y-1 text-xs font-semibold text-slate-700">
-                <a href="#features" onclick="toggleLandingNav()" class="px-3 py-2 rounded-xl hover:bg-[#f7f9f3] transition">Features</a>
-                <a href="#how-it-works" onclick="toggleLandingNav()" class="px-3 py-2 rounded-xl hover:bg-[#f7f9f3] transition">How it Works</a>
-                <a href="#geofence" onclick="toggleLandingNav()" class="px-3 py-2 rounded-xl hover:bg-[#f7f9f3] transition">GPS Geofence</a>
-                <a href="#audit" onclick="toggleLandingNav()" class="px-3 py-2 rounded-xl hover:bg-[#f7f9f3] transition">75% Exam Audit</a>
-                <a href="#testimonials" onclick="toggleLandingNav()" class="px-3 py-2 rounded-xl hover:bg-[#f7f9f3] transition">Testimonials</a>
-                <a href="#pricing" onclick="toggleLandingNav()" class="px-3 py-2 rounded-xl hover:bg-[#f7f9f3] transition">Access</a>
-            </nav>
-            <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                <a href="{% url 'accounts:login' %}" class="w-full text-center py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 hover:bg-slate-50 transition">
-                    Faculty Login
-                </a>
-                <a href="{% url 'accounts:register' %}" class="w-full text-center py-2.5 rounded-xl bg-[#84cc16] hover:bg-[#65a30d] text-xs font-bold text-slate-950 transition shadow-sm">
-                    Get Started Free &rarr;
-                </a>
-            </div>
-        </div>
-    </header>
-
-
+{% extends "frontend/public_base.html" %}
+{% block title %}ClassMarker – Your Partner in Smarter Academic Attendance & Decisions{% endblock %}
+{% block content %}
     <!-- ========================================================================= -->
     <!-- 2. HERO SECTION                                                           -->
     <!-- ========================================================================= -->
@@ -194,7 +27,7 @@
                         <span>Launch Faculty Portal</span>
                         <span>&rarr;</span>
                     </a>
-                    <a href="#how-it-works" class="px-5 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-[13px] transition shadow-sm flex items-center space-x-2">
+                    <a href="{% url 'frontend:how_it_works' %}" class="px-5 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-[13px] transition shadow-sm flex items-center space-x-2">
                         <div class="w-4 h-4 rounded-full bg-[#84cc16] text-black flex items-center justify-center text-[9px] font-bold">
                             ▶
                         </div>
@@ -366,11 +199,12 @@
     <section id="features" class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-16 pb-10">
         <div class="flex items-center justify-between mb-6">
             <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide">
-                Features
+                Features Overview
             </span>
-            <span class="text-xs text-slate-500 font-normal">
-                Everything your faculty needs, nothing you don't.
-            </span>
+            <a href="{% url 'frontend:features' %}" class="text-xs text-slate-800 font-bold hover:text-[#4d7c0f] hover:underline flex items-center space-x-1">
+                <span>View Full Features Directory</span>
+                <span>&rarr;</span>
+            </a>
         </div>
 
         <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug max-w-4xl">
@@ -704,39 +538,4 @@
             </div>
         </div>
     </section>
-
-
-    <!-- ========================================================================= -->
-    <!-- 9. FOOTER                                                                 -->
-    <!-- ========================================================================= -->
-    <footer class="w-full border-t border-slate-300/60 py-8 bg-white/40">
-        <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-            <div class="flex items-center space-x-2">
-                <span class="font-bold text-slate-900">ClassMarker</span>
-                <span>&bull;</span>
-                <span>Higher Education Attendance & Compliance Platform</span>
-            </div>
-            <div class="flex items-center space-x-6">
-                <a href="#features" class="hover:text-black transition">Features</a>
-                <a href="#how-it-works" class="hover:text-black transition">How it Works</a>
-                <a href="{% url 'accounts:login' %}" class="hover:text-black transition">Faculty Login</a>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-    function toggleLandingNav() {
-        const menu = document.getElementById('landingMobileMenu');
-        const burger = document.getElementById('landingBurgerIcon');
-        const close = document.getElementById('landingCloseIcon');
-        if (menu) {
-            menu.classList.toggle('hidden');
-            if (burger && close) {
-                burger.classList.toggle('hidden');
-                close.classList.toggle('hidden');
-            }
-        }
-    }
-    </script>
-</body>
-</html>
+{% endblock %}

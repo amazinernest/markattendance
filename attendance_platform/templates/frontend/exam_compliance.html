@@ -1,0 +1,150 @@
+{% extends "frontend/public_base.html" %}
+{% block title %}75% Exam Compliance & Semester Audit – ClassMarker{% endblock %}
+{% block content %}
+<div class="space-y-16 py-10">
+    <!-- Header Hero -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 text-center space-y-4">
+        <span class="px-3.5 py-1 rounded-full bg-[#064e3b] text-[#84cc16] text-[11px] font-semibold tracking-wide inline-block font-mono">
+            NUC & Senate Regulatory Standard
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight">
+            The Statutory <span class="text-[#84cc16]">75% Exam Attendance</span> Clearance Engine
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Eliminate end-of-semester ledger checking, proxy controversies, and exam hall disputes. ClassMarker produces certified audit sheets in 1 click.
+        </p>
+    </section>
+
+    <!-- Why 75% Matters & The Traditional Challenge -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+                <span class="text-xs font-bold uppercase text-[#4d7c0f] tracking-wider">The Academic Dilemma</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                    Paper attendance sheets are broken, forged, and impossible to audit before exams.
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Most universities enforce a statutory 70% or 75% lecture attendance requirement for students to sit for semester examinations. Yet, paper sign-in sheets suffer from:
+                </p>
+                <ul class="space-y-2 text-xs text-slate-700">
+                    <li class="flex items-start space-x-2">
+                        <span class="text-rose-500 font-bold shrink-0">✕</span>
+                        <span><strong>Rampant proxy signing:</strong> Friends signing signatures for absent roommates.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-rose-500 font-bold shrink-0">✕</span>
+                        <span><strong>Manual counting errors:</strong> Lecturers spending days manually calculating percentages across hundreds of students.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-rose-500 font-bold shrink-0">✕</span>
+                        <span><strong>Exam day chaos:</strong> Ineligibility disputes occurring right outside the examination hall doors.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Visual Audit Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-card space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="space-y-0.5">
+                        <div class="text-sm font-bold text-slate-900 font-mono">CSC401 &bull; SEMESTER AUDIT</div>
+                        <div class="text-[11px] text-slate-500">Total Lectures Held: 14 &bull; Threshold: 75%</div>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-full bg-[#ecfccb] text-[#365314] text-[10px] font-bold border border-[#d9f99d]">
+                        CERTIFIED
+                    </span>
+                </div>
+
+                <!-- Sample Roster Table -->
+                <div class="overflow-hidden rounded-xl border border-slate-200 text-xs">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold text-[11px]">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Student</th>
+                                <th class="px-3 py-2 text-center">Attended</th>
+                                <th class="px-3 py-2 text-center">% Score</th>
+                                <th class="px-3 py-2 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="bg-white">
+                                <td class="px-3 py-2 text-slate-900">Chioma Okafor (250305001)</td>
+                                <td class="px-3 py-2 text-center text-slate-600 font-mono">13 / 14</td>
+                                <td class="px-3 py-2 text-center text-[#4d7c0f] font-mono font-bold">92.8%</td>
+                                <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">CLEARED</span></td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="px-3 py-2 text-slate-900">David Adeleke (250305014)</td>
+                                <td class="px-3 py-2 text-center text-slate-600 font-mono">11 / 14</td>
+                                <td class="px-3 py-2 text-center text-[#4d7c0f] font-mono font-bold">78.5%</td>
+                                <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">CLEARED</span></td>
+                            </tr>
+                            <tr class="bg-amber-50/40">
+                                <td class="px-3 py-2 text-slate-900">Fatima Bello (250305022)</td>
+                                <td class="px-3 py-2 text-center text-slate-600 font-mono">10 / 14</td>
+                                <td class="px-3 py-2 text-center text-amber-700 font-mono font-bold">71.4%</td>
+                                <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">WARNING</span></td>
+                            </tr>
+                            <tr class="bg-rose-50/40">
+                                <td class="px-3 py-2 text-slate-900">Tunde Bakare (250305045)</td>
+                                <td class="px-3 py-2 text-center text-slate-600 font-mono">6 / 14</td>
+                                <td class="px-3 py-2 text-center text-rose-700 font-mono font-bold">42.8%</td>
+                                <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-bold">DISQUALIFIED</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-[11px] text-slate-500 flex items-center justify-between">
+                    <span>Exportable to official Excel (.xlsx)</span>
+                    <span class="text-[#4d7c0f] font-semibold">100% Audit Precision</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Audit Features -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 space-y-3">
+                <div class="text-2xl">📊 Real-Time Student Tiers</div>
+                <h3 class="text-sm font-bold text-slate-900">Automatic Color-Coded Tiers</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Students are dynamically categorized: Green (Cleared for Exams), Amber (Borderline / Warning), and Red (Defaulter). Lecturers can issue early warning advisories before mid-semester.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 space-y-3">
+                <div class="text-2xl">📑 Official Registry Export</div>
+                <h3 class="text-sm font-bold text-slate-900">1-Click Certified Excel Spreadsheets</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Generate an official university-standard attendance roster with columns for Matriculation Number, Department, Total Classes, Attended Count, Percentage, and Official Clearance Signature lines.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 space-y-3">
+                <div class="text-2xl">🛡️ Indisputable Proof</div>
+                <h3 class="text-sm font-bold text-slate-900">Forensic Audit Trail</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    If a student contests their attendance record, faculty can review the exact timestamp, GPS coordinates, and device fingerprint associated with every single verified presence.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom CTA Card -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div class="rounded-3xl p-8 sm:p-12 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl"
+             style="background: linear-gradient(135deg, #a3e635 0%, #65a30d 100%);">
+            <div class="space-y-2 max-w-xl text-center md:text-left">
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Protect academic standards in your institution</h2>
+                <p class="text-xs sm:text-sm text-slate-900 font-medium">Deploy automated exam clearance audits for your faculty in minutes.</p>
+            </div>
+            <div class="flex items-center space-x-3 shrink-0">
+                <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-full bg-slate-950 text-white hover:bg-slate-900 font-bold text-xs sm:text-sm transition shadow-sm">
+                    Register as Faculty &rarr;
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "frontend/public_base.html" %}
+{% block title %}Privacy Policy – ClassMarker{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 py-12 space-y-10">
+    <!-- Header -->
+    <div class="space-y-3 border-b border-slate-200 pb-6">
+        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-[11px] font-bold uppercase tracking-wider">Legal & Compliance</span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Privacy Policy</h1>
+        <p class="text-xs text-slate-500 font-mono">Last Updated & Effective Date: November 22, 2026</p>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="space-y-8 text-xs text-slate-700 leading-relaxed font-normal">
+        <section class="space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">1. Institutional Scope & Commitment</h2>
+            <p>
+                ClassMarker ("we", "our", or "the Platform") provides attendance verification, academic roster management, and statutory exam compliance services to higher education institutions, academic faculty members, and enrolled students. We are committed to safeguarding the privacy and digital rights of our institutional users and students under applicable data protection frameworks, including the Nigeria Data Protection Regulation (NDPR) and international standards.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">2. Information We Collect</h2>
+            <p>To provide reliable academic record-keeping, the Platform collects the following limited categories of information:</p>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li><strong>Student Identity Data:</strong> Full Name, Matriculation / Student Registration Number, Academic Department, Course Enrolment, and Institutional Email address (where provided).</li>
+                <li><strong>Class Attendance Records:</strong> Timestamps of check-in, course session identifiers, lecture topics, and attendance verification status.</li>
+                <li><strong>Geolocation & Satellite Telemetry:</strong> Physical geographic coordinates (Latitude, Longitude) and satellite accuracy estimates captured strictly at the moment a student submits attendance.</li>
+                <li><strong>Device Telemetry & Fingerprint:</strong> Browser User-Agent, screen dimensions, client timestamp, and a cryptographic hardware hash generated locally on the device to prevent proxy check-in fraud.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">3. Strict GPS Geolocation Privacy Standards</h2>
+            <p>
+                We recognize that student location data is sensitive. ClassMarker enforces the following strict safeguards:
+            </p>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li><strong>Zero Continuous Tracking:</strong> GPS coordinates are queried <em>strictly once</em> when the student clicks "Submit Attendance". The platform NEVER monitors or tracks location before or after check-in.</li>
+                <li><strong>Distance-Only Storage:</strong> Coordinates are evaluated in real-time against the lecturer's lecture hall perimeter to calculate proximity distance.</li>
+                <li><strong>No Commercial Monetization:</strong> Location data is never sold, shared with advertising networks, or used for behavioral profiling.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">4. How We Use Academic Information</h2>
+            <p>Collected information is used exclusively to:</p>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li>Verify genuine physical presence in designated university lecture venues.</li>
+                <li>Prevent proxy attendance, mock location spoofing, and duplicate submissions.</li>
+                <li>Calculate student semester attendance percentages under the statutory 75% exam compliance standard.</li>
+                <li>Generate certified academic attendance rosters for departmental heads, deans, and university registries.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">5. Data Retention & Security</h2>
+            <p>
+                All student records and attendance logs are encrypted in transit via SSL/TLS (HTTPS) and stored in secure cloud infrastructure with automated database backups. Academic records are maintained for the duration of the institutional semester and academic session as mandated by university senate retention guidelines.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">6. Platform Development & Contact</h2>
+            <p>
+                ClassMarker is engineered and maintained by <strong><a href="https://e65web.com.ng" target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-900 hover:text-[#84cc16] underline">e65web.com.ng</a></strong>. For privacy inquiries, institutional compliance requests, or data rectification, please contact our data governance desk at <a href="mailto:privacy@e65web.com.ng" class="text-[#4d7c0f] font-semibold hover:underline">privacy@e65web.com.ng</a>.
+            </p>
+        </section>
+    </div>
+</div>
+{% endblock %}
