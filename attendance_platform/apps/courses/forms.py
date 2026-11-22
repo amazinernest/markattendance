@@ -23,6 +23,7 @@ class CourseForm(forms.ModelForm):
             "institution",
             "faculty",
             "department",
+            "participating_departments",
             "academic_session",
             "semester",
             "level",
