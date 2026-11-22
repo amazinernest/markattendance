@@ -266,6 +266,12 @@
         {% else %}
             <!-- Open Form -->
             <div class="form-card">
+                {% if is_peer_mode %}
+                <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #92400e; display: flex; align-items: center; justify-content: space-between;">
+                    <span>&#128241; <strong>Peer Assistance Mode:</strong> Checking in for a classmate</span>
+                    <a href="{% url 'attendance:student_checkin' session.token %}" style="font-size: 11px; color: #b45309; text-decoration: underline; font-weight: bold;">Exit</a>
+                </div>
+                {% endif %}
                 <div class="form-title">Student Check-In</div>
                 <div class="form-subtitle">Enter your Matric Number to confirm your attendance</div>
 
@@ -282,6 +288,10 @@
                     <input type="hidden" name="latitude" id="latitude" value="">
                     <input type="hidden" name="longitude" id="longitude" value="">
                     <input type="hidden" name="accuracy" id="accuracy" value="">
+                    <input type="hidden" name="location_address" id="location_address" value="">
+                    {% if is_peer_mode %}
+                    <input type="hidden" name="is_peer" value="1">
+                    {% endif %}
 
                     <!-- GPS Location Indicator Pill -->
                     <div id="geoPill" style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; padding: 6px 12px; background: #f1f5f9; border-radius: 10px; margin-bottom: 14px; color: #64748b; font-weight: 600;">
@@ -429,25 +439,46 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(pos) {
-                        document.getElementById('latitude').value = pos.coords.latitude;
-                        document.getElementById('longitude').value = pos.coords.longitude;
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lon;
                         document.getElementById('accuracy').value = pos.coords.accuracy;
                         const pill = document.getElementById('geoPill');
                         const text = document.getElementById('geoText');
                         const dot = document.getElementById('geoDot');
                         if (pill && text && dot) {
-                            text.innerText = '📍 Location captured (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
+                            text.innerText = '📍 Resolving exact address...';
                             pill.style.background = '#dcfce7';
                             pill.style.color = '#15803d';
                             dot.style.background = '#22c55e';
                         }
+
+                        // Reverse geocode to exact human-readable address
+                        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon + '&zoom=18')
+                            .then(r => r.json())
+                            .then(geo => {
+                                if (geo && geo.display_name) {
+                                    document.getElementById('location_address').value = geo.display_name;
+                                    const a = geo.address || {};
+                                    const landmark = a.amenity || a.building || a.road || a.suburb || geo.display_name.split(',')[0];
+                                    if (text) {
+                                        text.innerText = '📍 ' + landmark + ' (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
+                                    }
+                                }
+                            })
+                            .catch(() => {
+                                if (text) {
+                                    text.innerText = '📍 Location captured (\u00b1' + Math.round(pos.coords.accuracy) + 'm)';
+                                }
+                            });
                     },
                     function(err) {
                         const pill = document.getElementById('geoPill');
                         const text = document.getElementById('geoText');
                         const dot = document.getElementById('geoDot');
                         if (pill && text && dot) {
-                            text.innerText = '📍 Location skipped';
+                            text.innerText = '📍 Location optional (skipped)';
                             pill.style.background = '#f8fafc';
                             pill.style.color = '#94a3b8';
                             dot.style.background = '#cbd5e1';

@@ -131,6 +131,27 @@ def student_lookup(request, token):
     return JsonResponse({'found': False})
 
 
+def reverse_geocode(lat, lon):
+    """Resolve latitude/longitude into a human-readable location address."""
+    try:
+        import urllib.request, json
+        url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom=18"
+        req = urllib.request.Request(url, headers={'User-Agent': 'AttendlyAcademicPlatform/1.0'})
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            addr = data.get('address', {})
+            parts = []
+            for k in ['amenity', 'building', 'road', 'suburb', 'city', 'state']:
+                val = addr.get(k)
+                if val and val not in parts:
+                    parts.append(val)
+            if parts:
+                return ", ".join(parts[:3])
+            return data.get('display_name', '')[:120]
+    except Exception:
+        return ''
+
+
 @csrf_exempt
 @never_cache
 def student_checkin(request, token):
@@ -148,6 +169,7 @@ def student_checkin(request, token):
         matric_number = request.POST.get('matric_number', '').strip().upper()
         student_name = request.POST.get('student_name', '').strip()
         student_email = request.POST.get('student_email', '').strip().lower()
+        is_peer = request.POST.get('is_peer') == '1'
 
         if not matric_number:
             messages.error(request, "Please enter your matriculation number.")
@@ -197,10 +219,11 @@ def student_checkin(request, token):
 
         user_agent = request.META.get('HTTP_USER_AGENT', '')
 
-        # Extract student GPS coordinates if provided
+        # Extract student GPS coordinates & address if provided
         lat_val = request.POST.get('latitude', '').strip()
         lng_val = request.POST.get('longitude', '').strip()
         acc_val = request.POST.get('accuracy', '').strip()
+        location_address = request.POST.get('location_address', '').strip()
 
         latitude = None
         longitude = None
@@ -212,8 +235,13 @@ def student_checkin(request, token):
                 longitude = float(lng_val)
                 if acc_val:
                     accuracy_meters = float(acc_val)
+                # If frontend didn't supply reverse geocode, resolve it on server
+                if not location_address:
+                    location_address = reverse_geocode(latitude, longitude)
             except (ValueError, TypeError):
                 pass
+
+        checkin_method = AttendanceRecord.CheckinMethod.PEER_SHARED if is_peer else AttendanceRecord.CheckinMethod.QR_SELF
 
         record = AttendanceRecord.objects.create(
             session=session,
@@ -225,6 +253,8 @@ def student_checkin(request, token):
             latitude=latitude,
             longitude=longitude,
             accuracy_meters=accuracy_meters,
+            location_address=location_address,
+            checkin_method=checkin_method,
             status=AttendanceRecord.Status.PRESENT,
         )
 
@@ -234,7 +264,56 @@ def student_checkin(request, token):
             'already_recorded': False,
         })
 
+    is_peer_mode = request.GET.get('peer') == '1'
     return render(request, 'attendance/student_checkin.html', {
         'session': session,
         'is_closed': False,
+        'is_peer_mode': is_peer_mode,
     })
+
+
+@login_required
+def manual_checkin(request, session_id):
+    """Allows lecturer to manually mark a student present (for students without phones/data)."""
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    if request.method == 'POST':
+        matric = request.POST.get('matric_number', '').strip().upper()
+        student_name = request.POST.get('student_name', '').strip()
+
+        if not matric:
+            messages.error(request, "Please enter a matriculation number to mark present.")
+            return redirect('attendance:session_detail', session_id=session.id)
+
+        # Auto-resolve name from enrolled students
+        if not student_name:
+            enr = session.course.enrolments.filter(
+                student__matric_number__iexact=matric
+            ).select_related('student').first()
+            if enr:
+                student_name = enr.student.name
+            else:
+                stu = Student.objects.filter(
+                    institution=session.course.institution,
+                    matric_number__iexact=matric
+                ).first()
+                if stu:
+                    student_name = stu.name
+                else:
+                    student_name = matric
+
+        existing = AttendanceRecord.objects.filter(session=session, matric_number=matric).first()
+        if existing:
+            messages.info(request, f"Student {student_name} ({matric}) is already marked present.")
+        else:
+            loc = session.location_name or "In Classroom (Manual Roll-Call)"
+            AttendanceRecord.objects.create(
+                session=session,
+                student_name=student_name,
+                matric_number=matric,
+                status=AttendanceRecord.Status.PRESENT,
+                checkin_method=AttendanceRecord.CheckinMethod.LECTURER_MANUAL,
+                location_address=f"In Classroom: {loc}"
+            )
+            messages.success(request, f"Marked present: {student_name} ({matric})")
+
+    return redirect('attendance:session_detail', session_id=session.id)

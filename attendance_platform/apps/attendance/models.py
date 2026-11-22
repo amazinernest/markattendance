@@ -61,17 +61,24 @@ class AttendanceRecord(models.Model):
         LATE = 'LATE', 'Late'
         EXCUSED = 'EXCUSED', 'Excused'
 
+    class CheckinMethod(models.TextChoices):
+        QR_SELF = 'QR_SELF', 'QR Code (Self)'
+        LECTURER_MANUAL = 'LECTURER_MANUAL', 'Lecturer Manual Roll-Call'
+        PEER_SHARED = 'PEER_SHARED', 'Classmate Device'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name='records')
     student_name = models.CharField(max_length=255)
     matric_number = models.CharField(max_length=100)
     student_email = models.EmailField(blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PRESENT)
+    checkin_method = models.CharField(max_length=30, choices=CheckinMethod.choices, default=CheckinMethod.QR_SELF)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text="GPS Latitude")
     longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True, help_text="GPS Longitude")
     accuracy_meters = models.FloatField(null=True, blank=True, help_text="GPS Accuracy in meters")
+    location_address = models.CharField(max_length=500, blank=True, help_text="Human-readable address or landmark")
     checked_in_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -87,6 +94,8 @@ class AttendanceRecord(models.Model):
 
     @property
     def location_display(self):
+        if self.location_address:
+            return self.location_address
         if self.has_location:
             return f"{float(self.latitude):.5f}, {float(self.longitude):.5f}"
         return "No GPS"
