@@ -33,28 +33,79 @@
     </div>
 
     <!-- Quick Stat KPI Summary -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Files Processed</span>
+            <div class="text-2xl font-extrabold text-blue-600 mt-1">{{ total_files|default:1 }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Uploaded in this batch</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Processed Records</span>
-            <div class="text-3xl font-extrabold text-slate-900 mt-1">{{ total_extracted }}</div>
-            <p class="text-xs text-slate-400 mt-1">Total student entries identified</p>
+            <div class="text-2xl font-extrabold text-slate-900 mt-1">{{ total_extracted }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Student rows parsed</p>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Enrolled in Class</span>
-            <div class="text-3xl font-extrabold text-emerald-600 mt-1">{{ course.enrolled_count }}</div>
-            <p class="text-xs text-slate-400 mt-1">Expected class roster size</p>
+            <div class="text-2xl font-extrabold text-emerald-600 mt-1">{{ course.enrolled_count }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Cumulative roster size</p>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Departments Enrolled</span>
-            <div class="text-3xl font-extrabold text-indigo-600 mt-1">{{ departments|length }}</div>
-            <p class="text-xs text-slate-400 mt-1">Participating academic departments</p>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Departments</span>
+            <div class="text-2xl font-extrabold text-indigo-600 mt-1">{{ departments|length }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Participating cohorts</p>
         </div>
     </div>
 
+    <!-- Per-File Breakdown (When multiple files or detailed breakdown is available) -->
+    {% if file_summaries %}
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900">Uploaded Files Breakdown ({{ file_summaries|length }})</h3>
+            <span class="text-xs text-slate-500">All students merged into {{ course.code }}</span>
+        </div>
+        <div class="space-y-2.5">
+            {% for item in file_summaries %}
+            <div class="p-3.5 rounded-2xl border {% if item.status == 'success' %}border-emerald-100 bg-emerald-50/30{% elif item.status == 'warning' %}border-amber-100 bg-amber-50/30{% else %}border-rose-100 bg-rose-50/30{% endif %} flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-slate-900">{{ item.name }}</span>
+                        {% if item.status == 'success' %}
+                            <span class="px-2 py-0.5 rounded-md font-bold text-[10px] bg-emerald-100 text-emerald-800">SUCCESS</span>
+                        {% elif item.status == 'warning' %}
+                            <span class="px-2 py-0.5 rounded-md font-bold text-[10px] bg-amber-100 text-amber-800">WARNING</span>
+                        {% else %}
+                            <span class="px-2 py-0.5 rounded-md font-bold text-[10px] bg-rose-100 text-rose-800">FAILED</span>
+                        {% endif %}
+                    </div>
+                    {% if item.departments %}
+                        <div class="text-slate-500">
+                            Department(s): <strong class="text-indigo-700">{{ item.departments|join:", " }}</strong>
+                        </div>
+                    {% endif %}
+                    {% if item.error %}
+                        <div class="text-rose-600 font-medium">{{ item.error }}</div>
+                    {% endif %}
+                </div>
+                <div class="flex items-center space-x-4 shrink-0 font-medium text-slate-600">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase">Parsed</span>
+                        <span class="font-bold text-slate-800">{{ item.total_parsed }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase">New Enrolled</span>
+                        <span class="font-bold text-emerald-700">+{{ item.new_enrolled }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Participating Departments Badges -->
     {% if departments %}
-    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Enrolled Departments ({{ departments|length }})</h3>
+    <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
+        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">All Enrolled Departments in {{ course.code }} ({{ departments|length }})</h3>
         <div class="flex flex-wrap gap-2">
             {% for dept in departments %}
                 <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
@@ -72,8 +123,8 @@
                 <h3 class="text-base font-bold text-slate-900">Enrolled Students Roster Preview</h3>
                 <p class="text-xs text-slate-500">Previewing the top entries enrolled in this course</p>
             </div>
-            <a href="{% url 'imports:upload' %}" class="text-xs font-semibold text-blue-600 hover:underline">
-                + Import Another File
+            <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="text-xs font-semibold text-blue-600 hover:underline">
+                + Upload Another Department File
             </a>
         </div>
         <div class="overflow-x-auto">
@@ -83,7 +134,7 @@
                         <th class="px-6 py-3 text-left font-bold text-slate-500 uppercase">Matric Number</th>
                         <th class="px-6 py-3 text-left font-bold text-slate-500 uppercase">Student Name</th>
                         <th class="px-6 py-3 text-left font-bold text-slate-500 uppercase">Department</th>
-                        <th class="px-6 py-3 text-left font-bold text-slate-500 uppercase">Email</th>
+                        <th class="px-6 py-3 text-left font-bold text-slate-500 uppercase">Source File</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -91,8 +142,8 @@
                     <tr class="hover:bg-slate-50/50">
                         <td class="px-6 py-3 font-mono font-bold text-slate-900">{{ s.matric_number }}</td>
                         <td class="px-6 py-3 font-medium text-slate-800">{{ s.name }}</td>
-                        <td class="px-6 py-3 text-slate-600">{{ s.department|default:"General" }}</td>
-                        <td class="px-6 py-3 text-slate-400 font-mono">{{ s.email|default:"–" }}</td>
+                        <td class="px-6 py-3 text-slate-600 font-semibold text-indigo-700">{{ s.department|default:"General" }}</td>
+                        <td class="px-6 py-3 text-slate-400 font-mono text-[11px]">{{ s.source_file|default:"Uploaded File" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

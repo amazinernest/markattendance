@@ -5,8 +5,14 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 mb-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <span>Multi-File & Multi-Department Enabled</span>
+            </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Import Class Roster</h1>
-            <p class="text-sm text-slate-500">Upload class lists from Word (.docx), PDF (.pdf), Excel (.xlsx), or CSV</p>
+            <p class="text-sm text-slate-500">Upload one or multiple class lists from Excel (.xlsx), Word (.docx), PDF (.pdf), or CSV</p>
         </div>
         <!-- Template Download Dropdown/Pills -->
         <div class="flex items-center space-x-2 text-xs">
@@ -25,7 +31,7 @@
 
     <!-- Upload Card -->
     <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm space-y-8">
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="uploadForm">
             {% csrf_token %}
 
             <!-- Step 1: Select Target Course -->
@@ -37,39 +43,60 @@
                     <option value="">-- Choose Course Section --</option>
                     {% for c in courses %}
                         <option value="{{ c.id }}" {% if selected_course and selected_course.id == c.id %}selected{% endif %}>
-                            {{ c.code }} – {{ c.title }} ({{ c.academic_session.name }})
+                            {{ c.code }} – {{ c.title }} 
+                            {% if c.enrolments.count %}
+                                ({{ c.enrolments.count }} students enrolled across {{ c.all_departments|length }} dept{{ c.all_departments|length|pluralize }})
+                            {% else %}
+                                (No students enrolled yet)
+                            {% endif %}
                         </option>
                     {% endfor %}
                 </select>
-                <p class="text-xs text-slate-400">Students parsed from the file will be officially enrolled in this course section.</p>
+                <p class="text-xs text-slate-400">
+                    Existing student records in this course are <strong>never deleted</strong>. Any newly uploaded files will safely add new students to this course.
+                </p>
             </div>
 
-            <!-- Multi-Department Support Note & Default Fallback -->
-            <div class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 space-y-3">
+            <!-- Multi-Department Guidance Box -->
+            <div class="bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-purple-50/70 p-5 rounded-2xl border border-indigo-100/80 space-y-3">
                 <div class="flex items-center space-x-2 text-indigo-900 font-bold text-xs uppercase tracking-wider">
                     <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
-                    <span>Multi-Department Course Support</span>
+                    <span>Multi-Department Course Rosters</span>
                 </div>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Courses can have students from over 10 different departments (e.g. general university courses). If your uploaded document contains a <strong>Department</strong> column, each student will be automatically categorized under their own department.
-                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 leading-relaxed">
+                    <div class="bg-white/80 p-3 rounded-xl border border-indigo-100/60 space-y-1">
+                        <strong class="text-indigo-950 block">Option A: Batch Upload Multiple Files</strong>
+                        <p>Select multiple department files at once (e.g. hold <kbd class="px-1 py-0.5 rounded bg-slate-100 border text-[10px] font-mono">Ctrl</kbd> or <kbd class="px-1 py-0.5 rounded bg-slate-100 border text-[10px] font-mono">Cmd</kbd> to select 3+ files). Attendly automatically identifies each department from the file name or document headers.</p>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-xl border border-indigo-100/60 space-y-1">
+                        <strong class="text-indigo-950 block">Option B: Sequential Uploads Over Time</strong>
+                        <p>You can upload Department A today and Department B tomorrow. Each upload appends students to the course roster without removing previously enrolled students.</p>
+                    </div>
+                </div>
+
                 <div class="pt-2">
-                    <label for="default_department" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">
-                        Fallback Department (used only if file has no Department column)
+                    <label for="default_department" class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">
+                        Fallback Department Name (Optional)
                     </label>
-                    <input type="text" name="default_department" id="default_department" placeholder="e.g. Computer Science, Mechanical Eng" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-xs text-slate-800 bg-white">
+                    <input type="text" name="default_department" id="default_department" placeholder="e.g. Guidance & Counselling (used only if files do not specify a department)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-xs text-slate-800 bg-white">
                 </div>
             </div>
 
-            <!-- Step 2: Drag and Drop File Input -->
+            <!-- Step 2: Drag and Drop Multi-File Input -->
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Upload Class List Document <span class="text-rose-500">*</span>
-                </label>
-                <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-3xl p-8 sm:p-12 text-center transition bg-slate-50/50 hover:bg-blue-50/20 group cursor-pointer relative">
-                    <input type="file" name="class_file" id="class_file" required accept=".xlsx,.xls,.docx,.doc,.pdf,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="updateFileName(this)">
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Upload Class List Document(s) <span class="text-rose-500">*</span>
+                    </label>
+                    <span class="text-[11px] text-indigo-600 font-semibold bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                        You can select multiple files
+                    </span>
+                </div>
+
+                <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-3xl p-8 sm:p-10 text-center transition bg-slate-50/50 hover:bg-blue-50/20 group cursor-pointer relative" id="dropZone">
+                    <input type="file" name="class_files" id="class_files" multiple required accept=".xlsx,.xls,.docx,.doc,.pdf,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFilesSelected(this)">
                     <div class="space-y-3 pointer-events-none">
                         <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 mx-auto flex items-center justify-center group-hover:scale-110 transition transform">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,24 +104,33 @@
                             </svg>
                         </div>
                         <div class="space-y-1">
-                            <p class="text-sm font-bold text-slate-900" id="fileLabel">
-                                Click or drag & drop class roster file here
+                            <p class="text-sm font-bold text-slate-900" id="filePrompt">
+                                Click or drag & drop class roster file(s) here
                             </p>
                             <p class="text-xs text-slate-400">
-                                Supports Excel (.xlsx, .xls), Word (.docx, .doc), PDF (.pdf), and CSV (.csv) up to 25MB
+                                Select 1 or more Excel (.xlsx, .xls), Word (.docx, .doc), PDF (.pdf), or CSV files
                             </p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Live Selected Files List -->
+                <div id="selectedFilesContainer" class="hidden space-y-2 pt-2">
+                    <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+                        <span class="font-bold text-slate-700">Selected Files (<span id="fileCountBadge">0</span>)</span>
+                        <button type="button" onclick="clearSelectedFiles()" class="text-rose-600 hover:underline font-semibold">Clear All</button>
+                    </div>
+                    <div id="selectedFilesList" class="space-y-1.5 max-h-60 overflow-y-auto"></div>
                 </div>
             </div>
 
             <!-- Submit Button -->
             <div class="pt-4 flex items-center justify-between">
-                <button type="submit" class="px-6 py-3.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
+                <button type="submit" id="submitBtn" class="px-6 py-3.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                     </svg>
-                    <span>Import and Enrol Students</span>
+                    <span id="btnText">Import and Enrol Students</span>
                 </button>
                 <a href="{% url 'courses:course_list' %}" class="text-sm font-semibold text-slate-500 hover:text-slate-800">
                     Cancel
@@ -105,10 +141,58 @@
 </div>
 
 <script>
-function updateFileName(input) {
-    if (input.files && input.files[0]) {
-        document.getElementById('fileLabel').innerHTML = '<span class="text-blue-600 font-bold">Selected file:</span> ' + input.files[0].name;
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function handleFilesSelected(input) {
+    const container = document.getElementById('selectedFilesContainer');
+    const list = document.getElementById('selectedFilesList');
+    const countBadge = document.getElementById('fileCountBadge');
+    const filePrompt = document.getElementById('filePrompt');
+    const btnText = document.getElementById('btnText');
+
+    if (!input.files || input.files.length === 0) {
+        container.classList.add('hidden');
+        filePrompt.innerText = 'Click or drag & drop class roster file(s) here';
+        btnText.innerText = 'Import and Enrol Students';
+        return;
     }
+
+    const count = input.files.length;
+    countBadge.innerText = count;
+    container.classList.remove('hidden');
+    list.innerHTML = '';
+
+    filePrompt.innerHTML = `<span class="text-blue-600 font-bold">${count} file${count > 1 ? 's' : ''} ready to upload</span>`;
+    btnText.innerText = `Import and Enrol from ${count} File${count > 1 ? 's' : ''}`;
+
+    Array.from(input.files).forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs';
+        
+        let fileIcon = '📄';
+        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) fileIcon = '📊';
+        else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) fileIcon = '📝';
+        else if (file.name.endsWith('.pdf')) fileIcon = '📑';
+
+        item.innerHTML = `
+            <div class="flex items-center space-x-2.5 truncate pr-3">
+                <span class="text-base">${fileIcon}</span>
+                <span class="font-bold text-slate-800 truncate">${file.name}</span>
+            </div>
+            <span class="shrink-0 font-mono text-slate-400 font-medium">${formatFileSize(file.size)}</span>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function clearSelectedFiles() {
+    const input = document.getElementById('class_files');
+    input.value = '';
+    handleFilesSelected(input);
 }
 </script>
 {% endblock %}
