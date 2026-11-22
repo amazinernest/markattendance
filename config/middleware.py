@@ -13,6 +13,11 @@ class TenantMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         request.institution = None
+        if connection.vendor != 'postgresql':
+            if request.user.is_authenticated and hasattr(request.user, 'institution'):
+                request.institution = request.user.institution
+            return
+
         if request.user.is_authenticated and hasattr(request.user, 'institution'):
             institution = request.user.institution
             if institution:
@@ -29,7 +34,8 @@ class TenantMiddleware(MiddlewareMixin):
                 cursor.execute("SELECT set_config('app.current_institution', NULL, false)")
 
     def process_response(self, request, response):
-        # Clean up after the request – clear the GUC.
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT set_config('app.current_institution', NULL, false)")
+        if connection.vendor == 'postgresql':
+            # Clean up after the request – clear the GUC.
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT set_config('app.current_institution', NULL, false)")
         return response
