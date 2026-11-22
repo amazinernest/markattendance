@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -7,39 +8,42 @@ from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from attendance_platform.apps.courses.models import Course, Student
 from .models import AttendanceSession, AttendanceRecord
+from .forms import AttendanceSessionForm
 
 
 @login_required
 def start_session(request, course_id):
-    """Start an attendance session for a particular course."""
+    """Setup and start a new class lecture attendance session with custom Topic, Date, and unique QR Code."""
     course = get_object_or_404(Course, pk=course_id)
     
     if request.method == 'POST':
-        title = request.POST.get('title', '').strip() or f"Lecture – {timezone.now().strftime('%b %d, %Y')}"
-        location_name = request.POST.get('location_name', '').strip() or (course.schedule or 'Classroom')
-        
-        session = AttendanceSession.objects.create(
-            course=course,
-            title=title,
-            location_name=location_name,
-            session_date=timezone.now().date(),
-            start_time=timezone.now().time(),
-            is_active=True,
-        )
-        messages.success(request, f"Live attendance session created for {course.code}!")
-        return redirect('attendance:session_detail', session_id=session.id)
+        form = AttendanceSessionForm(request.POST)
+        if form.is_valid():
+            session = form.save(commit=False)
+            session.course = course
+            session.token = uuid.uuid4()  # Each class session has its own unique cryptographic QR token
+            session.is_active = True
+            session.save()
+            
+            topic_str = f" – '{session.topic}'" if session.topic else ""
+            messages.success(request, f"Class attendance opened for {course.code}{topic_str} with its own unique QR Code!")
+            return redirect('attendance:session_detail', session_id=session.id)
+    else:
+        # Prepopulate with smart defaults
+        lecture_count = course.attendance_sessions.count() + 1
+        initial = {
+            'title': f"Lecture {lecture_count}",
+            'topic': '',
+            'session_date': timezone.now().date(),
+            'start_time': timezone.now().strftime('%H:%M'),
+            'location_name': course.schedule or '',
+        }
+        form = AttendanceSessionForm(initial=initial)
     
-    # If GET, create with sensible defaults or redirect
-    session = AttendanceSession.objects.create(
-        course=course,
-        title=f"Lecture – {timezone.now().strftime('%b %d, %Y')}",
-        location_name=course.schedule or 'Classroom',
-        session_date=timezone.now().date(),
-        start_time=timezone.now().time(),
-        is_active=True,
-    )
-    messages.success(request, f"Attendance window opened for {course.code}!")
-    return redirect('attendance:session_detail', session_id=session.id)
+    return render(request, 'attendance/session_create.html', {
+        'course': course,
+        'form': form,
+    })
 
 
 @login_required
@@ -63,6 +67,23 @@ def session_detail(request, session_id):
         'local_ip': '192.168.0.112:8000',
     }
     return render(request, 'attendance/session_detail.html', context)
+
+
+@login_required
+def session_print(request, session_id):
+    """Clean, high-resolution printable classroom poster view for the class QR code."""
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    checkin_url = session.get_checkin_url(request)
+    qr_code_b64 = session.get_qr_code_base64(checkin_url)
+
+    context = {
+        'session': session,
+        'course': session.course,
+        'checkin_url': checkin_url,
+        'qr_code_b64': qr_code_b64,
+        'printed_at': timezone.now(),
+    }
+    return render(request, 'attendance/session_print.html', context)
 
 
 def session_qr_image(request, session_id):
@@ -98,67 +119,78 @@ def student_lookup(request, token):
     """Fast JSON lookup of student details by matric number for this session's course."""
     session = get_object_or_404(AttendanceSession, token=token)
     matric = request.GET.get('matric', '').strip().upper()
-    if not matric:
-        return JsonResponse({'found': False})
+    
+    if not matric or len(matric) < 4:
+        return JsonResponse({'found': False, 'message': 'Matric number too short'})
 
-    # Search in CourseEnrolment
-    enrolment = session.course.enrolments.filter(
+    institution = session.course.institution
+    course = session.course
+
+    # 1. Search enrolled students first
+    enrolment = course.enrolments.filter(
         student__matric_number__iexact=matric
     ).select_related('student').first()
 
     if enrolment:
         return JsonResponse({
             'found': True,
-            'name': enrolment.student.name,
-            'department': enrolment.department or enrolment.student.department or '',
             'matric_number': enrolment.student.matric_number,
+            'name': enrolment.student.name,
+            'department': enrolment.department or enrolment.student.department or course.department,
+            'is_enrolled': True
         })
 
-    # Search in general Student database
+    # 2. Search institution-wide students
     student = Student.objects.filter(
-        institution=session.course.institution,
+        institution=institution,
         matric_number__iexact=matric
     ).first()
 
     if student:
         return JsonResponse({
             'found': True,
-            'name': student.name,
-            'department': student.department or '',
             'matric_number': student.matric_number,
+            'name': student.name,
+            'department': student.department or course.department,
+            'is_enrolled': False
         })
 
-    return JsonResponse({'found': False})
+    return JsonResponse({
+        'found': False,
+        'matric_number': matric,
+        'message': 'Student not found on class list'
+    })
 
 
 def reverse_geocode(lat, lon):
-    """Resolve latitude/longitude into a human-readable location address."""
+    """Fallback reverse geocoding via OpenStreetMap Nominatim."""
     try:
-        import urllib.request, json
+        import urllib.request
+        import json
         url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom=18"
-        req = urllib.request.Request(url, headers={'User-Agent': 'AttendlyAcademicPlatform/1.0'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'AttendlyAcademicPortal/1.0'})
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
-            addr = data.get('address', {})
-            parts = []
-            for k in ['amenity', 'building', 'road', 'suburb', 'city', 'state']:
-                val = addr.get(k)
-                if val and val not in parts:
-                    parts.append(val)
-            if parts:
-                return ", ".join(parts[:3])
-            return data.get('display_name', '')[:120]
+            if data and 'display_name' in data:
+                return data['display_name']
     except Exception:
-        return ''
+        pass
+    return ""
 
 
 @csrf_exempt
 @never_cache
 def student_checkin(request, token):
-    """Public student check-in portal accessed via QR code or direct link."""
+    """
+    Lightweight, high-performance student check-in view.
+    Zero render-blocking CDN dependencies for instantaneous mobile loading.
+    CSRF-exempt on valid UUID token to eliminate mobile cookie drop issues.
+    """
     session = get_object_or_404(AttendanceSession, token=token)
-    
-    # If session is closed, inform student
+    course = session.course
+    is_peer_mode = request.GET.get('peer') == '1' or request.POST.get('is_peer') == '1'
+
+    # If session is closed
     if not session.is_active:
         return render(request, 'attendance/student_checkin.html', {
             'session': session,
@@ -166,105 +198,97 @@ def student_checkin(request, token):
         })
 
     if request.method == 'POST':
-        matric_number = request.POST.get('matric_number', '').strip().upper()
-        student_name = request.POST.get('student_name', '').strip()
-        student_email = request.POST.get('student_email', '').strip().lower()
-        is_peer = request.POST.get('is_peer') == '1'
+        matric = request.POST.get('matric_number', '').strip().upper()
+        name = request.POST.get('student_name', '').strip()
+        lat = request.POST.get('latitude', '').strip()
+        lon = request.POST.get('longitude', '').strip()
+        accuracy = request.POST.get('accuracy', '').strip()
+        loc_address = request.POST.get('location_address', '').strip()
 
-        if not matric_number:
-            messages.error(request, "Please enter your matriculation number.")
-            return render(request, 'attendance/student_checkin.html', {
-                'session': session,
-                'is_closed': False,
-            })
+        if not matric:
+            messages.error(request, "Please enter your Matriculation Number.")
+            return render(request, 'attendance/student_checkin.html', {'session': session, 'is_peer_mode': is_peer_mode})
 
-        # Auto-lookup student name from database if not explicitly submitted
-        if not student_name:
-            enr = session.course.enrolments.filter(
-                student__matric_number__iexact=matric_number
-            ).select_related('student').first()
-            if enr:
-                student_name = enr.student.name
-            else:
-                stu = Student.objects.filter(
-                    institution=session.course.institution,
-                    matric_number__iexact=matric_number
-                ).first()
-                if stu:
-                    student_name = stu.name
-                else:
-                    messages.error(request, f"Matriculation number '{matric_number}' was not found in the course roster. Please enter your full name to complete check-in.")
-                    return render(request, 'attendance/student_checkin.html', {
-                        'session': session,
-                        'matric_number': matric_number,
-                        'need_name': True,
-                        'is_closed': False,
-                    })
-
-        # Check if already checked in
-        existing = AttendanceRecord.objects.filter(session=session, matric_number=matric_number).first()
+        # Check for duplicate check-in in this session
+        existing = AttendanceRecord.objects.filter(session=session, matric_number=matric).first()
         if existing:
+            messages.info(request, f"Attendance already confirmed for {existing.student_name} ({matric}) at {existing.checked_in_at.strftime('%I:%M %p')}.")
             return render(request, 'attendance/checkin_success.html', {
                 'session': session,
                 'record': existing,
-                'already_recorded': True,
+                'is_duplicate': True,
             })
 
-        # Determine client IP address
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0].strip()
-        else:
-            ip = request.META.get('REMOTE_ADDR')
+        # If name not provided via form/lookup, auto-resolve from database
+        if not name:
+            enr = course.enrolments.filter(student__matric_number__iexact=matric).select_related('student').first()
+            if enr:
+                name = enr.student.name
+            else:
+                std = Student.objects.filter(institution=course.institution, matric_number__iexact=matric).first()
+                if std:
+                    name = std.name
+                else:
+                    # Require name if not found in database
+                    messages.warning(request, f"Matric '{matric}' is not enrolled in {course.code}. Please provide your full name.")
+                    return render(request, 'attendance/student_checkin.html', {
+                        'session': session,
+                        'matric_number': matric,
+                        'need_name': True,
+                        'is_peer_mode': is_peer_mode,
+                    })
 
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        # Determine checkin method
+        checkin_method = AttendanceRecord.CheckinMethod.PEER_SHARED if is_peer_mode else AttendanceRecord.CheckinMethod.QR_SELF
 
-        # Extract student GPS coordinates & address if provided
-        lat_val = request.POST.get('latitude', '').strip()
-        lng_val = request.POST.get('longitude', '').strip()
-        acc_val = request.POST.get('accuracy', '').strip()
-        location_address = request.POST.get('location_address', '').strip()
-
+        # Parse GPS coordinates
         latitude = None
         longitude = None
         accuracy_meters = None
+        try:
+            if lat and lon:
+                latitude = float(lat)
+                longitude = float(lon)
+            if accuracy:
+                accuracy_meters = float(accuracy)
+        except (ValueError, TypeError):
+            pass
 
-        if lat_val and lng_val:
-            try:
-                latitude = float(lat_val)
-                longitude = float(lng_val)
-                if acc_val:
-                    accuracy_meters = float(acc_val)
-                # If frontend didn't supply reverse geocode, resolve it on server
-                if not location_address:
-                    location_address = reverse_geocode(latitude, longitude)
-            except (ValueError, TypeError):
-                pass
+        # Server-side reverse geocoding if client did not supply address
+        if latitude and longitude and not loc_address:
+            loc_address = reverse_geocode(latitude, longitude)
 
-        checkin_method = AttendanceRecord.CheckinMethod.PEER_SHARED if is_peer else AttendanceRecord.CheckinMethod.QR_SELF
+        # Get client IP & User-Agent
+        ip = request.META.get('HTTP_X_FORWARDED_FOR')
+        if ip:
+            ip = ip.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR')
 
+        user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+
+        # Create attendance record
         record = AttendanceRecord.objects.create(
             session=session,
-            student_name=student_name,
-            matric_number=matric_number,
-            student_email=student_email,
+            student_name=name,
+            matric_number=matric,
+            checkin_method=checkin_method,
             ip_address=ip,
             user_agent=user_agent,
             latitude=latitude,
             longitude=longitude,
             accuracy_meters=accuracy_meters,
-            location_address=location_address,
-            checkin_method=checkin_method,
+            location_address=loc_address,
             status=AttendanceRecord.Status.PRESENT,
         )
 
         return render(request, 'attendance/checkin_success.html', {
             'session': session,
             'record': record,
-            'already_recorded': False,
+            'is_duplicate': False,
         })
 
-    is_peer_mode = request.GET.get('peer') == '1'
+    # GET request: render check-in screen
     return render(request, 'attendance/student_checkin.html', {
         'session': session,
         'is_closed': False,
@@ -274,46 +298,39 @@ def student_checkin(request, token):
 
 @login_required
 def manual_checkin(request, session_id):
-    """Allows lecturer to manually mark a student present (for students without phones/data)."""
+    """Allows lecturer to manually mark a student present on the spot."""
     session = get_object_or_404(AttendanceSession, pk=session_id)
+    course = session.course
+    
     if request.method == 'POST':
         matric = request.POST.get('matric_number', '').strip().upper()
-        student_name = request.POST.get('student_name', '').strip()
-
         if not matric:
-            messages.error(request, "Please enter a matriculation number to mark present.")
+            messages.error(request, "Please enter a valid Matric Number.")
             return redirect('attendance:session_detail', session_id=session.id)
 
-        # Auto-resolve name from enrolled students
-        if not student_name:
-            enr = session.course.enrolments.filter(
-                student__matric_number__iexact=matric
-            ).select_related('student').first()
-            if enr:
-                student_name = enr.student.name
-            else:
-                stu = Student.objects.filter(
-                    institution=session.course.institution,
-                    matric_number__iexact=matric
-                ).first()
-                if stu:
-                    student_name = stu.name
-                else:
-                    student_name = matric
+        # Check duplicate
+        if AttendanceRecord.objects.filter(session=session, matric_number=matric).exists():
+            messages.warning(request, f"Student {matric} is already marked present for this session.")
+            return redirect('attendance:session_detail', session_id=session.id)
 
-        existing = AttendanceRecord.objects.filter(session=session, matric_number=matric).first()
-        if existing:
-            messages.info(request, f"Student {student_name} ({matric}) is already marked present.")
+        # Auto-lookup student name
+        name = matric
+        enr = course.enrolments.filter(student__matric_number__iexact=matric).select_related('student').first()
+        if enr:
+            name = enr.student.name
         else:
-            loc = session.location_name or "In Classroom (Manual Roll-Call)"
-            AttendanceRecord.objects.create(
-                session=session,
-                student_name=student_name,
-                matric_number=matric,
-                status=AttendanceRecord.Status.PRESENT,
-                checkin_method=AttendanceRecord.CheckinMethod.LECTURER_MANUAL,
-                location_address=f"In Classroom: {loc}"
-            )
-            messages.success(request, f"Marked present: {student_name} ({matric})")
+            std = Student.objects.filter(institution=course.institution, matric_number__iexact=matric).first()
+            if std:
+                name = std.name
+
+        AttendanceRecord.objects.create(
+            session=session,
+            student_name=name,
+            matric_number=matric,
+            checkin_method=AttendanceRecord.CheckinMethod.LECTURER_MANUAL,
+            location_address=session.location_name or 'Classroom Roll-Call',
+            status=AttendanceRecord.Status.PRESENT,
+        )
+        messages.success(request, f"Successfully recorded {name} ({matric}) via manual roll-call.")
 
     return redirect('attendance:session_detail', session_id=session.id)

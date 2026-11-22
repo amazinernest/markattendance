@@ -12,7 +12,8 @@ class AttendanceSession(models.Model):
     """An attendance session opened by a lecturer for a specific class meeting."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='attendance_sessions')
-    title = models.CharField(max_length=255, default='Lecture Attendance', help_text='e.g. Lecture 1: Architecture & Design')
+    title = models.CharField(max_length=255, default='Lecture Attendance', help_text='e.g. Lecture 1')
+    topic = models.CharField(max_length=255, blank=True, help_text='Specific topic taught in this class meeting, e.g. Psychological Measurement & Reliability')
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, help_text='Secure check-in token')
     session_date = models.DateField(default=timezone.now)
     start_time = models.TimeField(default=timezone.now)

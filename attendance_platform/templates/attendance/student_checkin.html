@@ -232,6 +232,11 @@
             <div class="badge">Lecture Attendance</div>
             <div class="course-code">{{ session.course.code }}</div>
             <div class="course-title">{{ session.course.title }}</div>
+            {% if session.topic %}
+            <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 8px; padding: 6px 10px; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                Topic: <span style="font-weight: 600; color: #93c5fd;">{{ session.topic }}</span>
+            </div>
+            {% endif %}
             <div class="meta-row">
                 Lecturer: <span>{{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email }}</span>
             </div>

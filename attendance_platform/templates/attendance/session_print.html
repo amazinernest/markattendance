@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print QR Poster – {{ session.course.code }}: {{ session.topic|default:session.title }}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Top Action Toolbar (Hidden during print) */
+        .toolbar {
+            width: 100%;
+            max-width: 680px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .toolbar-info {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.15s ease;
+        }
+        .btn-primary {
+            background: #ffffff;
+            color: #0f172a;
+        }
+        .btn-primary:hover {
+            background: #e2e8f0;
+        }
+        .btn-secondary {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+        }
+        .btn-secondary:hover {
+            background: #334155;
+            color: #ffffff;
+        }
+
+        /* Printable Sheet (Standard A4 / Letter proportions) */
+        .poster-sheet {
+            width: 100%;
+            max-width: 680px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 44px 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Institutional Header */
+        .institution-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #475569;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #0f172a;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+        .inst-dot {
+            width: 6px;
+            height: 6px;
+            background: #0f172a;
+            border-radius: 50%;
+        }
+
+        /* Course Code Badge */
+        .course-badge {
+            display: inline-block;
+            background: #0f172a;
+            color: #ffffff;
+            font-family: ui-monospace, monospace;
+            font-size: 16px;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .course-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            max-width: 580px;
+        }
+
+        /* Lecture Topic Box */
+        .topic-box {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin: 12px 0 20px;
+            width: 100%;
+        }
+        .topic-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+        .topic-name {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.3;
+        }
+
+        /* Meta Row: Date, Time & Venue */
+        .meta-strip {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 26px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #cbd5e1;
+            width: 100%;
+        }
+        .meta-item span {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* QR Code Container */
+        .qr-frame {
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            padding: 16px;
+            border-radius: 12px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+        .qr-frame img {
+            display: block;
+            width: 280px;
+            height: 280px;
+        }
+
+        /* Instructions */
+        .instructions {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .instructions-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .step-item {
+            font-size: 11px;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .step-num {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #0f172a;
+            color: #ffffff;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 18px;
+            margin-right: 4px;
+        }
+
+        /* Direct URL Fallback */
+        .url-box {
+            font-size: 11px;
+            color: #64748b;
+            font-family: ui-monospace, monospace;
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
+            width: 100%;
+        }
+        .url-box strong {
+            color: #0f172a;
+        }
+
+        /* Print Media Styles */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .toolbar {
+                display: none !important;
+            }
+            .poster-sheet {
+                border: none !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 24px 20px !important;
+            }
+            .qr-frame {
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+            }
+            .qr-frame img {
+                width: 320px !important;
+                height: 320px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Action Toolbar (Hidden during print) -->
+    <div class="toolbar">
+        <div class="toolbar-info">
+            <strong>Classroom Attendance Poster</strong> &bull; Ready to print on A4 / Letter
+        </div>
+        <div class="toolbar-actions">
+            <button type="button" onclick="window.print()" class="btn btn-primary">
+                🖨️ Print Poster (Ctrl/Cmd + P)
+            </button>
+            <a href="{% url 'attendance:session_detail' session.id %}" class="btn btn-secondary">
+                Back to Monitor
+            </a>
+        </div>
+    </div>
+
+    <!-- Printable Classroom Poster Sheet -->
+    <div class="poster-sheet">
+        <!-- Institution Header -->
+        <div class="institution-row">
+            <span>{{ session.course.institution.name|default:"Attendly Academic Platform" }}</span>
+            <span class="inst-dot"></span>
+            <span>Faculty Attendance Verification</span>
+        </div>
+
+        <!-- Course Code & Title -->
+        <div>
+            <div class="course-badge">{{ session.course.code }}</div>
+            <h1 class="course-title">{{ session.course.title }}</h1>
+        </div>
+
+        <!-- Lecture Topic Box -->
+        <div class="topic-box">
+            <div class="topic-label">{{ session.title }}</div>
+            <div class="topic-name">{{ session.topic|default:session.title }}</div>
+        </div>
+
+        <!-- Meta Details: Date, Time & Venue -->
+        <div class="meta-strip">
+            <div class="meta-item">
+                Date: <span>{{ session.session_date|date:"l, F d, Y" }}</span>
+            </div>
+            <div class="meta-item">
+                Time: <span>{{ session.start_time|time:"g:i A" }}</span>
+            </div>
+            {% if session.location_name %}
+            <div class="meta-item">
+                Venue: <span>{{ session.location_name }}</span>
+            </div>
+            {% endif %}
+            <div class="meta-item">
+                Lecturer: <span>{{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email }}</span>
+            </div>
+        </div>
+
+        <!-- High-Resolution QR Code Frame -->
+        <div class="qr-frame">
+            <img src="data:image/png;base64,{{ qr_code_b64 }}" alt="Class Attendance QR Code">
+        </div>
+
+        <!-- Step-by-Step Instructions for Students -->
+        <div class="instructions">
+            <div class="instructions-title">Instructions for Students</div>
+            <div class="steps">
+                <div class="step-item">
+                    <span class="step-num">1</span> <strong>Scan QR:</strong> Open your phone camera or QR scanner.
+                </div>
+                <div class="step-item">
+                    <span class="step-num">2</span> <strong>Verify Matric:</strong> Enter your student Matric Number.
+                </div>
+                <div class="step-item">
+                    <span class="step-num">3</span> <strong>Confirm:</strong> Click confirm to record your attendance.
+                </div>
+            </div>
+        </div>
+
+        <!-- Direct Backup URL -->
+        <div class="url-box">
+            Manual Check-In URL: <strong>{{ checkin_url }}</strong>
+        </div>
+    </div>
+
+</body>
+</html>

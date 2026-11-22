@@ -145,6 +145,12 @@
                     <span class="receipt-label">Course</span>
                     <span class="receipt-val">{{ session.course.code }}</span>
                 </div>
+                {% if session.topic %}
+                <div class="receipt-row">
+                    <span class="receipt-label">Topic</span>
+                    <span class="receipt-val" style="font-size: 11px;">{{ session.topic }}</span>
+                </div>
+                {% endif %}
                 <div class="receipt-row">
                     <span class="receipt-label">Timestamp</span>
                     <span class="receipt-val">{{ record.checked_in_at|date:"M d, Y" }} &bull; {{ record.checked_in_at|time:"g:i:s A" }}</span>
