@@ -355,3 +355,316 @@ def export_csv_report(request, course_id):
     filename = f"{course.code}_attendance_report.csv"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+def compute_session_attendance_data(session, department_filter=None):
+    """Computes comprehensive attendance data for a single class lecture session."""
+    course = session.course
+    enrolments = course.enrolments.select_related('student').all()
+    if department_filter and department_filter != 'ALL':
+        enrolments = enrolments.filter(department=department_filter)
+
+    records = session.records.all()
+    records_by_matric = {r.matric_number.upper().strip(): r for r in records}
+
+    student_rows = []
+    present_count = 0
+    absent_count = 0
+    dept_breakdown = {}
+
+    for enr in enrolments:
+        student = enr.student
+        matric = student.matric_number.upper().strip()
+        dept = enr.department or student.department or 'General'
+
+        if dept not in dept_breakdown:
+            dept_breakdown[dept] = {'enrolled': 0, 'present': 0}
+        dept_breakdown[dept]['enrolled'] += 1
+
+        rec = records_by_matric.get(matric)
+        if rec:
+            is_present = True
+            present_count += 1
+            dept_breakdown[dept]['present'] += 1
+        else:
+            is_present = False
+            absent_count += 1
+
+        student_rows.append({
+            'matric_number': student.matric_number,
+            'name': student.name,
+            'department': dept,
+            'email': student.email,
+            'is_present': is_present,
+            'status_label': 'PRESENT' if is_present else 'ABSENT',
+            'record': rec,
+            'time': rec.checked_in_at if rec else None,
+            'distance': rec.distance_from_venue_meters if rec else None,
+            'method': rec.get_checkin_method_display() if rec else None,
+            'is_enrolled': True,
+        })
+
+    # Also include any walk-in checkins not on official enrolled roster
+    if department_filter in [None, 'ALL', 'Unassigned']:
+        enrolled_matrics = {e.student.matric_number.upper().strip() for e in enrolments}
+        unregistered_matrics = set(records_by_matric.keys()) - enrolled_matrics
+        for u_mat in unregistered_matrics:
+            rec = records_by_matric[u_mat]
+            present_count += 1
+            dept = 'Unassigned'
+            if dept not in dept_breakdown:
+                dept_breakdown[dept] = {'enrolled': 0, 'present': 0}
+            dept_breakdown[dept]['present'] += 1
+            student_rows.append({
+                'matric_number': u_mat,
+                'name': rec.student_name or u_mat,
+                'department': dept,
+                'email': rec.student_email or '',
+                'is_present': True,
+                'status_label': 'PRESENT (Unenrolled)',
+                'record': rec,
+                'time': rec.checked_in_at,
+                'distance': rec.distance_from_venue_meters,
+                'method': rec.get_checkin_method_display(),
+                'is_enrolled': False,
+            })
+
+    student_rows.sort(key=lambda x: (not x['is_present'], x['department'], x['matric_number']))
+
+    total_eligible_population = len(student_rows)
+    turnout_pct = round((present_count / total_eligible_population) * 100, 1) if total_eligible_population > 0 else 0.0
+
+    dept_summary = []
+    for d_name, d_counts in sorted(dept_breakdown.items()):
+        d_turnout = round((d_counts['present'] / d_counts['enrolled']) * 100, 1) if d_counts['enrolled'] > 0 else 0.0
+        dept_summary.append({
+            'name': d_name,
+            'enrolled': d_counts['enrolled'],
+            'present': d_counts['present'],
+            'absent': max(0, d_counts['enrolled'] - d_counts['present']),
+            'turnout_pct': d_turnout,
+        })
+
+    return {
+        'student_rows': student_rows,
+        'total_enrolled': len(enrolments),
+        'total_records': len(records),
+        'present_count': present_count,
+        'absent_count': absent_count,
+        'turnout_pct': turnout_pct,
+        'dept_summary': dept_summary,
+    }
+
+
+@login_required
+def session_report(request, session_id):
+    """View detailed attendance report for an individual class meeting."""
+    session = get_object_or_404(AttendanceSession, id=session_id)
+    course = session.course
+    department_filter = request.GET.get('department', 'ALL')
+    stats = compute_session_attendance_data(session, department_filter)
+
+    context = {
+        'session': session,
+        'course': course,
+        'stats': stats,
+        'department_filter': department_filter,
+        'all_departments': course.all_departments,
+    }
+    return render(request, 'reports/session_report.html', context)
+
+
+@login_required
+def export_session_excel(request, session_id):
+    """Generate formatted Excel report for an individual class session."""
+    session = get_object_or_404(AttendanceSession, id=session_id)
+    course = session.course
+    department_filter = request.GET.get('department', 'ALL')
+    stats = compute_session_attendance_data(session, department_filter)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Class {session.title}"[:31]
+    ws.views.sheetView[0].showGridLines = True
+
+    # Styling definitions
+    title_font = Font(name='Arial', size=13, bold=True, color='0F172A')
+    subtitle_font = Font(name='Arial', size=10, italic=True, color='475569')
+    meta_label_font = Font(name='Arial', size=9, bold=True, color='64748B')
+    meta_val_font = Font(name='Arial', size=10, bold=True, color='0F172A')
+
+    header_font = Font(name='Arial', size=10, bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='1E3A8A', end_color='1E3A8A', fill_type='solid')
+
+    present_fill = PatternFill(start_color='D1FAE5', end_color='D1FAE5', fill_type='solid')
+    present_font = Font(name='Arial', size=9, bold=True, color='065F46')
+
+    absent_fill = PatternFill(start_color='FEE2E2', end_color='FEE2E2', fill_type='solid')
+    absent_font = Font(name='Arial', size=9, bold=True, color='991B1B')
+
+    thin_border = Border(
+        left=Side(style='thin', color='E2E8F0'),
+        right=Side(style='thin', color='E2E8F0'),
+        top=Side(style='thin', color='E2E8F0'),
+        bottom=Side(style='thin', color='E2E8F0'),
+    )
+
+    # 1. Header Banner
+    ws['A1'] = f"{course.institution.name.upper()}"
+    ws['A1'].font = Font(name='Arial', size=11, bold=True, color='1E3A8A')
+
+    ws['A2'] = f"{course.code} – {course.title}"
+    ws['A2'].font = title_font
+
+    topic_str = f" • Topic: {session.topic}" if session.topic else ""
+    ws['A3'] = f"Class Session Attendance Report: {session.title}{topic_str}"
+    ws['A3'].font = subtitle_font
+
+    # Metadata cards
+    ws['A5'] = "Date & Time:"
+    ws['A5'].font = meta_label_font
+    ws['B5'] = f"{session.session_date.strftime('%A, %b %d, %Y')} at {session.start_time.strftime('%I:%M %p')}"
+    ws['B5'].font = meta_val_font
+
+    ws['A6'] = "Classroom Venue:"
+    ws['A6'].font = meta_label_font
+    geo_info = f" (±{session.geofence_radius_meters}m GPS Geofence)" if session.enable_geofence else ""
+    ws['B6'] = f"{session.location_name or 'Main Lecture Hall'}{geo_info}"
+    ws['B6'].font = meta_val_font
+
+    ws['D5'] = "Total Enrolled:"
+    ws['D5'].font = meta_label_font
+    ws['E5'] = stats['total_enrolled']
+    ws['E5'].font = meta_val_font
+
+    ws['D6'] = "Verified Present:"
+    ws['D6'].font = meta_label_font
+    ws['E6'] = f"{stats['present_count']} ({stats['turnout_pct']}%)"
+    ws['E6'].font = meta_val_font
+
+    ws['G5'] = "Absent:"
+    ws['G5'].font = meta_label_font
+    ws['H5'] = stats['absent_count']
+    ws['H5'].font = absent_font
+
+    ws['G6'] = "Lecturer:"
+    ws['G6'].font = meta_label_font
+    ws['H6'] = f"{course.lecturer.first_name} {course.lecturer.last_name}" if course.lecturer else "Unassigned"
+    ws['H6'].font = meta_val_font
+
+    # Table Headers
+    headers = [
+        "S/N",
+        "Matriculation Number",
+        "Student Full Name",
+        "Department",
+        "Check-in Time",
+        "Distance From Venue",
+        "Method",
+        "Status",
+    ]
+    start_row = 8
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=start_row, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center' if col_idx in [1, 5, 6, 7, 8] else 'left', vertical='center')
+
+    # Data Rows
+    for row_idx, s in enumerate(stats['student_rows'], start=start_row + 1):
+        c1 = ws.cell(row=row_idx, column=1, value=row_idx - start_row)
+        c2 = ws.cell(row=row_idx, column=2, value=s['matric_number'])
+        c3 = ws.cell(row=row_idx, column=3, value=s['name'])
+        c4 = ws.cell(row=row_idx, column=4, value=s['department'])
+
+        time_str = s['time'].strftime('%I:%M:%S %p') if s['time'] else "–"
+        dist_str = f"{round(s['distance'])}m from venue" if s['distance'] is not None else "–"
+        method_str = s['method'] or "–"
+
+        c5 = ws.cell(row=row_idx, column=5, value=time_str)
+        c6 = ws.cell(row=row_idx, column=6, value=dist_str)
+        c7 = ws.cell(row=row_idx, column=7, value=method_str)
+        c8 = ws.cell(row=row_idx, column=8, value=s['status_label'])
+
+        c1.alignment = Alignment(horizontal='center')
+        c2.alignment = Alignment(horizontal='left')
+        c3.alignment = Alignment(horizontal='left')
+        c4.alignment = Alignment(horizontal='left')
+        c5.alignment = Alignment(horizontal='center')
+        c6.alignment = Alignment(horizontal='center')
+        c7.alignment = Alignment(horizontal='center')
+        c8.alignment = Alignment(horizontal='center')
+
+        if s['is_present']:
+            c8.fill = present_fill
+            c8.font = present_font
+        else:
+            c8.fill = absent_fill
+            c8.font = absent_font
+
+        for col in range(1, 9):
+            ws.cell(row=row_idx, column=col).border = thin_border
+
+    # Adjust column widths
+    for col in ws.columns:
+        max_len = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            if cell.row < start_row:
+                continue
+            val_str = str(cell.value or '')
+            if len(val_str) > max_len:
+                max_len = len(val_str)
+        ws.column_dimensions[col_letter].width = max(max_len + 4, 12)
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    clean_title = re.sub(r'[^A-Za-z0-9_\-]+', '_', session.title)
+    filename = f"{course.code}_{clean_title}_Attendance_Report.xlsx"
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def export_session_csv(request, session_id):
+    """Export attendance report for an individual session as CSV."""
+    session = get_object_or_404(AttendanceSession, id=session_id)
+    course = session.course
+    department_filter = request.GET.get('department', 'ALL')
+    stats = compute_session_attendance_data(session, department_filter)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow([f"Course: {course.code} - {course.title}"])
+    writer.writerow([f"Session: {session.title}", f"Topic: {session.topic or 'General'}", f"Date: {session.session_date} {session.start_time}"])
+    writer.writerow([f"Total Enrolled: {stats['total_enrolled']}", f"Present: {stats['present_count']}", f"Turnout: {stats['turnout_pct']}%"])
+    writer.writerow([])
+    writer.writerow(["S/N", "Matric Number", "Student Name", "Department", "Check-in Time", "Distance from Venue", "Method", "Status"])
+
+    for idx, s in enumerate(stats['student_rows'], 1):
+        time_str = s['time'].strftime('%I:%M:%S %p') if s['time'] else "–"
+        dist_str = f"{round(s['distance'])}m" if s['distance'] is not None else "–"
+        method_str = s['method'] or "–"
+        writer.writerow([
+            idx,
+            s['matric_number'],
+            s['name'],
+            s['department'],
+            time_str,
+            dist_str,
+            method_str,
+            s['status_label'],
+        ])
+
+    response = HttpResponse(output.getvalue(), content_type='text/csv')
+    clean_title = re.sub(r'[^A-Za-z0-9_\-]+', '_', session.title)
+    filename = f"{course.code}_{clean_title}_attendance_report.csv"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

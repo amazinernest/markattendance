@@ -70,13 +70,15 @@ def import_class_list(request):
             return redirect('imports:upload')
 
         course = get_object_or_404(Course, id=course_id)
-        fallback_dept = request.POST.get('default_department', '').strip()
+        chosen_dept = request.POST.get('department', '').strip() or request.POST.get('default_department', '').strip()
 
         file_summaries = []
         all_extracted_students = []
         total_created_students = 0
         total_new_enrolled = 0
         departments_found_this_batch = set()
+        if chosen_dept:
+            departments_found_this_batch.add(chosen_dept)
 
         for f in uploaded_files:
             file_name = f.name
@@ -110,13 +112,13 @@ def import_class_list(request):
             file_depts = set()
 
             for s_data in extracted:
-                # 1. Use row-level department if present in file
-                # 2. Or fallback to department typed by user in form
+                # 1. Use user-specified department chosen in the upload form
+                # 2. Or row-level department if present in file
                 # 3. Or department intelligently inferred from this file's name
                 # 4. Or course lead department
                 dept = (
-                    s_data.get('department')
-                    or fallback_dept
+                    chosen_dept
+                    or s_data.get('department')
                     or file_inferred_dept
                     or course.department
                     or 'General'

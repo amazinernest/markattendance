@@ -121,6 +121,74 @@
     </div>
     {% endif %}
 
+    <!-- Individual Class Sessions Attendance Reports Section -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Individual Class Session Reports</h3>
+                <p class="text-[11px] text-slate-500">Per-lecture attendance records, venue coordinates, and student turnout lists</p>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">
+                {{ selected_course.attendance_sessions.count }} lectures recorded
+            </div>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+            {% for sess in selected_course.attendance_sessions.all %}
+            <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#f7f9f3]/60 transition">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold text-slate-900">{{ sess.title }}</span>
+                        {% if sess.is_active %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">LIVE</span>
+                        {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">Closed</span>
+                        {% endif %}
+                        {% if sess.enable_geofence %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200/60">GPS Geofenced</span>
+                        {% endif %}
+                    </div>
+                    {% if sess.topic %}
+                    <div class="text-xs text-slate-700 font-medium">
+                        Topic: <span class="font-normal text-slate-600">{{ sess.topic }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-2">
+                        <span>{{ sess.session_date|date:"l, M d, Y" }} at {{ sess.start_time|time:"g:i A" }}</span>
+                        {% if sess.location_name %}
+                            <span>&bull; {{ sess.location_name }}</span>
+                        {% endif %}
+                        <span>&bull; <strong class="text-slate-800 tabular-nums">{{ sess.records.count }}</strong> attended</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0">
+                    <a href="{% url 'reports:session_report' sess.id %}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-900 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-xs space-x-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        <span>View Report</span>
+                    </a>
+                    <a href="{% url 'reports:export_session_excel' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 transition shadow-xs space-x-1" title="Download Excel">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>Excel</span>
+                    </a>
+                    <a href="{% url 'reports:export_session_csv' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 transition shadow-xs space-x-1" title="Download CSV">
+                        <span>CSV</span>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-6 text-slate-400 text-xs">
+                No lecture sessions recorded for this course yet.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     <!-- Student Attendance Audit Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">

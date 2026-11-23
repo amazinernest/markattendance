@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}{{ course.code }} – {{ session.title }} Class Report – ClassMarker{% endblock %}
+{% block section_title %}Class Session Attendance Report{% endblock %}
+{% block content %}
+<div class="space-y-6 max-w-6xl mx-auto">
+    <!-- Breadcrumbs & Nav Back -->
+    <div class="flex items-center space-x-2 text-xs text-slate-500">
+        <a href="{% url 'courses:course_detail' course.pk %}" class="hover:text-slate-800 transition font-medium">&larr; Back to {{ course.code }}</a>
+        <span>&bull;</span>
+        <a href="{% url 'reports:index' %}?course_id={{ course.id }}" class="hover:text-slate-800 transition font-medium">Semester Audit</a>
+        <span>&bull;</span>
+        <span class="text-slate-900 font-semibold">{{ session.title }} Report</span>
+    </div>
+
+    <!-- Header & Export Banner -->
+    <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded text-xs font-bold font-mono bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
+                    {{ course.code }}
+                </span>
+                <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">{{ session.title }} Attendance Report</h1>
+                {% if session.is_active %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse mr-1"></span>
+                        SESSION LIVE
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                        CONCLUDED
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if session.topic %}
+                <div class="text-xs font-semibold text-slate-800">
+                    <span class="text-slate-400 font-normal">Lecture Topic:</span> {{ session.topic }}
+                </div>
+            {% endif %}
+
+            <p class="text-xs text-slate-500 flex flex-wrap items-center gap-2">
+                <span>{{ session.session_date|date:"l, F d, Y" }} at {{ session.start_time|time:"g:i A" }}</span>
+                <span>&bull;</span>
+                <span>Venue: <strong class="text-slate-700">{{ session.location_name|default:"Main Lecture Hall" }}</strong></span>
+                {% if session.enable_geofence %}
+                    <span>&bull;</span>
+                    <span class="text-emerald-700 font-medium">📍 Geofence ({{ session.geofence_radius_meters }}m radius)</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Export & Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <a href="{% url 'reports:export_session_excel' session.id %}?department={{ department_filter }}" class="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-sm space-x-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Download Excel (.xlsx)</span>
+            </a>
+            <a href="{% url 'reports:export_session_csv' session.id %}?department={{ department_filter }}" class="inline-flex items-center px-3 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 transition shadow-xs space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <span>CSV</span>
+            </a>
+            <button type="button" onclick="window.print()" class="inline-flex items-center px-3 py-2 rounded-xl text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                <span>Print</span>
+            </button>
+            <a href="{% url 'attendance:session_detail' session.id %}" class="inline-flex items-center px-3 py-2 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-xs">
+                Live Monitor &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Key Metric Cards for this Class -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Class Enrolled</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{{ stats.total_enrolled }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Students on course roster</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Verified Present</span>
+            <div class="text-2xl font-bold text-[#4d7c0f] mt-1 tabular-nums">{{ stats.present_count }}</div>
+            <p class="text-[11px] text-emerald-600 font-medium mt-0.5">{{ stats.turnout_pct }}% Turnout</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Absent Students</span>
+            <div class="text-2xl font-bold text-rose-700 mt-1 tabular-nums">{{ stats.absent_count }}</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Did not verify attendance</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Classroom Geofence</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{{ session.geofence_radius_meters }}m</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Physical proximity radius</p>
+        </div>
+    </div>
+
+    <!-- Department Breakdown Strip (if multi-department) -->
+    {% if stats.dept_summary %}
+    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Department Attendance in this Class</h3>
+            <span class="text-[11px] text-slate-400">{{ stats.dept_summary|length }} Participating Department{{ stats.dept_summary|length|pluralize }}</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+            {% for d in stats.dept_summary %}
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                <div class="text-xs font-semibold text-slate-800 truncate" title="{{ d.name }}">{{ d.name }}</div>
+                <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-mono">{{ d.present }} / {{ d.enrolled }} present</span>
+                    <span class="font-bold font-mono text-[#4d7c0f]">{{ d.turnout_pct }}%</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Student Attendance Register for this Session -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Class Attendance Roster</h3>
+                <p class="text-[11px] text-slate-500">Complete attendance record for {{ session.title }} ({{ stats.student_rows|length }} students total)</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap items-center gap-2">
+                {% if all_departments %}
+                <form method="get" class="inline-block">
+                    <select name="department" onchange="this.form.submit()" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 bg-white focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16] outline-none">
+                        <option value="ALL" {% if department_filter == 'ALL' %}selected{% endif %}>All Departments</option>
+                        {% for dept in all_departments %}
+                            <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                {% endif %}
+                <input type="text" id="sessionReportSearch" onkeyup="filterSessionTable()" placeholder="Search matric or name..." class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] outline-none bg-white">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100 text-xs" id="sessionReportTable">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                    <tr>
+                        <th class="px-4 py-2.5 text-center w-12">S/N</th>
+                        <th class="px-4 py-2.5 text-left">Matric Number</th>
+                        <th class="px-4 py-2.5 text-left">Student Full Name</th>
+                        <th class="px-4 py-2.5 text-left">Department</th>
+                        <th class="px-4 py-2.5 text-left">Time & Distance</th>
+                        <th class="px-4 py-2.5 text-left">Verification Method</th>
+                        <th class="px-4 py-2.5 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                    {% for s in stats.student_rows %}
+                    <tr class="hover:bg-[#f7f9f3]/60 transition">
+                        <td class="px-4 py-2.5 text-center text-slate-400 font-mono">{{ forloop.counter }}</td>
+                        <td class="px-4 py-2.5 font-mono font-semibold text-slate-900">{{ s.matric_number }}</td>
+                        <td class="px-4 py-2.5 font-medium text-slate-800">
+                            {{ s.name }}
+                            {% if s.email %}
+                                <div class="text-[10px] text-slate-400 font-mono">{{ s.email }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2.5 text-slate-600">{{ s.department }}</td>
+                        <td class="px-4 py-2.5 text-slate-600">
+                            {% if s.time %}
+                                <div class="font-medium text-slate-800">{{ s.time|time:"g:i:s A" }}</div>
+                                {% if s.distance is not None %}
+                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 mt-0.5">
+                                        📍 {{ s.distance|floatformat:0 }}m from venue
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-slate-400">–</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2.5 text-slate-600">
+                            {% if s.method %}
+                                <span class="text-slate-800 font-medium">{{ s.method }}</span>
+                                {% if s.record and s.record.device_fingerprint %}
+                                    <div class="text-[10px] text-slate-400 font-mono">📱 Verified Phone</div>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-slate-400">–</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2.5 text-right">
+                            {% if s.is_present %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
+                                    PRESENT
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                    ABSENT
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-4 py-10 text-center text-slate-400 text-xs">
+                            No students found for this class meeting.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterSessionTable() {
+    const query = document.getElementById('sessionReportSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#sessionReportTable tbody tr');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
