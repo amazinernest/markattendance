@@ -1,5 +1,6 @@
 import io
 import csv
+import re
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -209,7 +210,7 @@ def export_excel_report(request, course_id):
     )
 
     # 1. Header Banner
-    ws['A1'] = f"{course.institution.name.upper()}"
+    ws['A1'] = f"{course.institution.name.upper() if course.institution else 'CLASSMARKER ACADEMIC'}"
     ws['A1'].font = Font(name='Arial', size=11, bold=True, color='1E3A8A')
     
     ws['A2'] = f"{course.code}: {course.title}"
@@ -510,7 +511,7 @@ def export_session_excel(request, session_id):
     )
 
     # 1. Header Banner
-    ws['A1'] = f"{course.institution.name.upper()}"
+    ws['A1'] = f"{course.institution.name.upper() if course.institution else 'CLASSMARKER ACADEMIC'}"
     ws['A1'].font = Font(name='Arial', size=11, bold=True, color='1E3A8A')
 
     ws['A2'] = f"{course.code} – {course.title}"

@@ -42,7 +42,7 @@ def course_create(request):
             if not course.institution_id:
                 inst = getattr(user, 'institution', None) or Institution.objects.first()
                 if not inst:
-                    inst = Institution.objects.create(name="Default Institution", code="INST")
+                    inst = Institution.objects.create(name="Default Institution", domain="institution.edu.ng")
                 course.institution = inst
             
             # Auto-assign academic session & semester if not chosen
