@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Delete Course – {{ course.code }} – ClassMarker{% endblock %}
+{% block section_title %}Delete Course{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto space-y-5">
+    <div>
+        <a href="{% url 'courses:course_detail' course.pk %}" class="inline-flex items-center text-xs font-medium text-slate-500 hover:text-slate-800 mb-1">
+            &larr; Back to {{ course.code }}
+        </a>
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Delete Course</h1>
+        <p class="text-xs text-slate-500">Please confirm permanent deletion of this academic course</p>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="bg-white rounded-2xl border border-rose-200 shadow-card p-6 sm:p-7 space-y-6">
+        <div class="flex items-start space-x-3.5">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center text-lg font-bold shrink-0">
+                ⚠️
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-base font-bold text-slate-900">Are you sure you want to delete this course?</h2>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    This action is <strong class="text-rose-700">permanent and irreversible</strong>. Deleting this course will automatically delete all associated attendance sessions, student enrolments, and check-in audit records.
+                </p>
+            </div>
+        </div>
+
+        <!-- Summary Details -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Course Code & Title:</span>
+                <span class="font-bold text-slate-900 font-mono">{{ course.code }} &bull; {{ course.title }}</span>
+            </div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Lead Faculty / Department:</span>
+                <span class="font-medium text-slate-800">{{ course.department|default:course.faculty|default:"General Studies" }}</span>
+            </div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Attendance Sessions:</span>
+                <span class="font-semibold text-rose-700 tabular-nums">{{ course.attendance_sessions.count }} session{{ course.attendance_sessions.count|pluralize }} will be deleted</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-500">Enrolled Students:</span>
+                <span class="font-semibold text-rose-700 tabular-nums">{{ course.enrolments.count }} student{{ course.enrolments.count|pluralize }} will be unlinked</span>
+            </div>
+        </div>
+
+        <form method="post" class="flex items-center space-x-3 pt-2">
+            {% csrf_token %}
+            <button type="submit" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-rose-600 hover:bg-rose-700 transition shadow-sm flex items-center space-x-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Yes, Permanently Delete Course</span>
+            </button>
+            <a href="{% url 'courses:course_detail' course.pk %}" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

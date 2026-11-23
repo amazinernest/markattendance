@@ -92,3 +92,24 @@ def course_update(request, pk):
     else:
         form = CourseForm(instance=course, user=user)
     return render(request, 'courses/course_form.html', {'form': form, 'operation': 'Update'})
+
+
+@login_required
+def course_delete(request, pk):
+    """Allows lecturer or admin to permanently delete a course and its sessions."""
+    course = get_object_or_404(Course, pk=pk)
+    user = request.user
+
+    # Permission check: assigned lecturer or staff/admin
+    if user.role == user.Role.LECTURER and course.lecturer != user and not user.is_staff:
+        messages.error(request, "You do not have permission to delete this course.")
+        return redirect('courses:course_list')
+
+    if request.method == 'POST':
+        code = course.code
+        title = course.title
+        course.delete()
+        messages.success(request, f"Course '{code} – {title}' and its attendance sessions have been deleted successfully.")
+        return redirect('courses:course_list')
+
+    return render(request, 'courses/course_confirm_delete.html', {'course': course})

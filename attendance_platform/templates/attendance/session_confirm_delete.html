@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Delete Session – {{ session.title }} – ClassMarker{% endblock %}
+{% block section_title %}Delete Attendance Session{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto space-y-5">
+    <div>
+        <a href="{% url 'attendance:session_detail' session.id %}" class="inline-flex items-center text-xs font-medium text-slate-500 hover:text-slate-800 mb-1">
+            &larr; Back to Session Monitor
+        </a>
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Delete Attendance Session</h1>
+        <p class="text-xs text-slate-500">Please confirm permanent deletion of this attendance session</p>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="bg-white rounded-2xl border border-rose-200 shadow-card p-6 sm:p-7 space-y-6">
+        <div class="flex items-start space-x-3.5">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center text-lg font-bold shrink-0">
+                ⚠️
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-base font-bold text-slate-900">Delete "{{ session.title }}"?</h2>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    This action is <strong class="text-rose-700">permanent</strong>. Deleting this attendance session will remove all <strong class="text-slate-900 tabular-nums">{{ session.records.count }}</strong> student check-in records taken during this lecture meeting.
+                </p>
+            </div>
+        </div>
+
+        <!-- Session Meta Summary -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Course:</span>
+                <span class="font-bold text-slate-900 font-mono">{{ course.code }} &bull; {{ course.title }}</span>
+            </div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Session Reference / Title:</span>
+                <span class="font-semibold text-slate-800">{{ session.title }}</span>
+            </div>
+            {% if session.topic %}
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Lecture Topic:</span>
+                <span class="font-medium text-slate-800">{{ session.topic }}</span>
+            </div>
+            {% endif %}
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Meeting Date & Time:</span>
+                <span class="font-medium text-slate-800">{{ session.session_date|date:"l, F d, Y" }} at {{ session.start_time|time:"g:i A" }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-500">Recorded Check-ins:</span>
+                <span class="font-semibold text-rose-700 tabular-nums">{{ session.records.count }} verified attendance records</span>
+            </div>
+        </div>
+
+        <form method="post" class="flex items-center space-x-3 pt-2">
+            {% csrf_token %}
+            <button type="submit" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-rose-600 hover:bg-rose-700 transition shadow-sm flex items-center space-x-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Yes, Permanently Delete Session</span>
+            </button>
+            <a href="{% url 'attendance:session_detail' session.id %}" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

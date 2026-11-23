@@ -41,6 +41,12 @@
                 <a href="{% url 'courses:course_update' course.pk %}" class="inline-flex items-center px-2.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
                     Edit
                 </a>
+                <a href="{% url 'courses:course_delete' course.pk %}" class="inline-flex items-center px-2.5 py-2 rounded-lg text-xs font-medium text-rose-600 hover:text-rose-800 border border-rose-200 hover:bg-rose-50 transition" title="Delete Course">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span>Delete</span>
+                </a>
             </div>
         </div>
 
@@ -138,6 +144,11 @@
                     </a>
                     <a href="{% url 'attendance:session_detail' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
                         Live Monitor &rarr;
+                    </a>
+                    <a href="{% url 'attendance:session_delete' sess.id %}" class="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition" title="Delete Session">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
                     </a>
                 </div>
             </div>

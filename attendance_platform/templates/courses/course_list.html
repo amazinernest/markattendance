@@ -88,6 +88,9 @@
                             <a href="{% url 'courses:course_update' course.pk %}" class="inline-flex items-center px-2 py-1 rounded-lg text-xs text-slate-600 hover:text-slate-900 transition">
                                 Edit
                             </a>
+                            <a href="{% url 'courses:course_delete' course.pk %}" class="inline-flex items-center px-2 py-1 rounded-lg text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition" title="Delete Course">
+                                Delete
+                            </a>
                         </td>
                     </tr>
                     {% empty %}

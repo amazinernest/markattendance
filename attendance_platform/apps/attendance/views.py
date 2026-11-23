@@ -521,3 +521,24 @@ def update_session_venue(request, session_id):
 
         return redirect('attendance:session_detail', session_id=session.id)
     return redirect('attendance:session_detail', session_id=session.id)
+
+
+@login_required
+def session_delete(request, session_id):
+    """Allows lecturer or admin to permanently delete an attendance session."""
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    course = session.course
+    user = request.user
+
+    # Permission check: assigned lecturer or staff/admin
+    if user.role == user.Role.LECTURER and course.lecturer != user and not user.is_staff:
+        messages.error(request, "You do not have permission to delete this attendance session.")
+        return redirect('courses:course_detail', pk=course.pk)
+
+    if request.method == 'POST':
+        title = session.title
+        session.delete()
+        messages.success(request, f"Attendance session '{title}' and its attendance records were deleted successfully.")
+        return redirect('courses:course_detail', pk=course.pk)
+
+    return render(request, 'attendance/session_confirm_delete.html', {'session': session, 'course': course})
