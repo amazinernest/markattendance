@@ -525,8 +525,12 @@ function acquireAndLockVenue() {
 }
 
 {% if session.is_active %}
-setTimeout(function() {
-    location.reload();
+setInterval(function() {
+    const active = document.activeElement;
+    const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+    if (!isTyping) {
+        location.reload();
+    }
 }, 12000);
 {% endif %}
 </script>

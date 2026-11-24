@@ -212,7 +212,7 @@
             </div>
 
             <div class="footer-note">
-                ClassMarker Academic Verification &bull; {{ session.course.institution.name }}
+                ClassMarker Academic Verification &bull; {{ session.course.institution.name|default:"ClassMarker Academic" }}
             </div>
         </div>
     </div>

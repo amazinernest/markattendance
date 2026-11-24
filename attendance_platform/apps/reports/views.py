@@ -216,7 +216,12 @@ def export_excel_report(request, course_id):
     ws['A2'] = f"{course.code}: {course.title}"
     ws['A2'].font = title_font
     
-    ws['A3'] = f"End-of-Semester Attendance Audit & Exam Eligibility Report • {course.academic_session.name} ({course.semester.name})"
+    term_str = ""
+    if course.academic_session:
+        term_str = f" • {course.academic_session.name}"
+        if course.semester:
+            term_str += f" ({course.semester.name})"
+    ws['A3'] = f"End-of-Semester Attendance Audit & Exam Eligibility Report{term_str}"
     ws['A3'].font = subtitle_font
 
     # Metadata cards

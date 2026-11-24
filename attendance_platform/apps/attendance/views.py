@@ -234,7 +234,7 @@ def student_checkin(request, token):
             return render(request, 'attendance/student_checkin.html', {'session': session, 'is_peer_mode': is_peer_mode})
 
         # Check for duplicate check-in in this session
-        existing = AttendanceRecord.objects.filter(session=session, matric_number=matric).first()
+        existing = AttendanceRecord.objects.filter(session=session, matric_number__iexact=matric).first()
         if existing:
             messages.info(request, f"Attendance already confirmed for {existing.student_name} ({matric}) at {existing.checked_in_at.strftime('%I:%M %p')}.")
             return render(request, 'attendance/checkin_success.html', {
@@ -285,7 +285,7 @@ def student_checkin(request, token):
             prior_record = AttendanceRecord.objects.filter(
                 session=session,
                 device_fingerprint=device_fingerprint
-            ).exclude(matric_number=matric).first()
+            ).exclude(matric_number__iexact=matric).first()
 
             if prior_record:
                 messages.error(
@@ -456,7 +456,7 @@ def manual_checkin(request, session_id):
             return redirect('attendance:session_detail', session_id=session.id)
 
         # Check duplicate
-        if AttendanceRecord.objects.filter(session=session, matric_number=matric).exists():
+        if AttendanceRecord.objects.filter(session=session, matric_number__iexact=matric).exists():
             messages.warning(request, f"Student {matric} is already marked present for this session.")
             return redirect('attendance:session_detail', session_id=session.id)
 

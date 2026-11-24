@@ -277,7 +277,7 @@
             </div>
             {% endif %}
             <div class="meta-row">
-                Lecturer: <span>{{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email }}</span>
+                Lecturer: <span>{{ session.course.lecturer.first_name }} {{ session.course.lecturer.last_name|default:session.course.lecturer.email|default:"Course Instructor" }}</span>
             </div>
             <div class="meta-row">
                 Date: <span>{{ session.session_date|date:"l, M d, Y" }}</span>
@@ -582,7 +582,7 @@
                         btn.disabled = false;
                         btn.innerText = 'Confirm Attendance';
                     },
-                    { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 12000, maximumAge: 10000 }
                 );
                 return false;
             } else {
@@ -668,7 +668,7 @@
                             }
                         }
                     },
-                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 12000, maximumAge: 10000 }
                 );
             } else if (GEOFENCE_ACTIVE && text) {
                 text.innerText = '⚠️ Geolocation not supported on this browser';
