@@ -66,6 +66,100 @@ class Course(models.Model):
                 deps.add(d.strip())
         return sorted(list(deps))
 
+    def add_department(self, dept_name):
+        """Add a department to participating_departments if not present."""
+        dept = dept_name.strip()
+        if not dept:
+            return False
+        current = [d.strip() for d in self.participating_departments.split(',') if d.strip()]
+        if not any(d.lower() == dept.lower() for d in current):
+            current.append(dept)
+            self.participating_departments = ", ".join(current)
+            if not self.department:
+                self.department = dept
+            self.save(update_fields=['participating_departments', 'department', 'updated_at'])
+            return True
+        return False
+
+    def rename_department(self, old_name, new_name):
+        """Rename an existing participating department across course config and enrolled students."""
+        old_clean = old_name.strip()
+        new_clean = new_name.strip()
+        if not old_clean or not new_clean or old_clean.lower() == new_clean.lower():
+            return 0
+
+        # 1. Update participating_departments list
+        current = [d.strip() for d in self.participating_departments.split(',') if d.strip()]
+        new_list = []
+        replaced = False
+        for d in current:
+            if d.lower() == old_clean.lower():
+                if not replaced:
+                    new_list.append(new_clean)
+                    replaced = True
+            else:
+                new_list.append(d)
+        if not replaced:
+            new_list.append(new_clean)
+        # Deduplicate preserving order
+        seen = set()
+        deduped = []
+        for d in new_list:
+            if d.lower() not in seen:
+                seen.add(d.lower())
+                deduped.append(d)
+        self.participating_departments = ", ".join(deduped)
+
+        # 2. Update primary department if it matched
+        if self.department and self.department.strip().lower() == old_clean.lower():
+            self.department = new_clean
+
+        self.save(update_fields=['participating_departments', 'department', 'updated_at'])
+
+        # 3. Update enrolled students' departments in this course
+        updated_enrolments = self.enrolments.filter(department__iexact=old_clean).update(department=new_clean)
+
+        # 4. Update student records in institution if they matched
+        Student.objects.filter(institution=self.institution, department__iexact=old_clean).update(department=new_clean)
+
+        return updated_enrolments
+
+    def remove_department(self, dept_name, action='reassign', target_dept='General'):
+        """
+        Remove a participating department from this course.
+        action: 'reassign' (reassign enrolled students to target_dept) or 'remove' (delete enrolments for this course)
+        """
+        clean_name = dept_name.strip()
+        if not clean_name:
+            return 0
+
+        # 1. Remove from participating_departments
+        current = [d.strip() for d in self.participating_departments.split(',') if d.strip()]
+        remaining = [d for d in current if d.lower() != clean_name.lower()]
+        self.participating_departments = ", ".join(remaining)
+
+        # 2. Update primary department if needed
+        if self.department and self.department.strip().lower() == clean_name.lower():
+            self.department = remaining[0] if remaining else ""
+
+        self.save(update_fields=['participating_departments', 'department', 'updated_at'])
+
+        # 3. Handle enrolled students
+        affected_count = 0
+        if action == 'remove':
+            deleted_tuple = self.enrolments.filter(department__iexact=clean_name).delete()
+            affected_count = deleted_tuple[0]
+            self.expected_population = self.enrolments.count()
+            self.save(update_fields=['expected_population', 'updated_at'])
+        else:
+            target = (target_dept or 'General').strip()
+            # If target is a real department, ensure it's in participating_departments
+            if target and target.lower() not in ['general', 'unassigned']:
+                self.add_department(target)
+            affected_count = self.enrolments.filter(department__iexact=clean_name).update(department=target)
+
+        return affected_count
+
 
 class Student(models.Model):
     """Student profile within an institution."""

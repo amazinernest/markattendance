@@ -77,26 +77,60 @@
         </div>
     </div>
 
-    <!-- Multi-Department Cohort Strip -->
-    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-2.5">
-        <div class="flex items-center justify-between">
-            <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Participating Academic Departments ({{ course.all_departments|length }})
+    <!-- Multi-Department Cohort Management Strip -->
+    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div>
+                <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Participating Academic Departments ({{ departments_data|length }})</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    Students from multiple departments take this course. You can edit names to fix errors or remove departments anytime.
+                </p>
             </div>
-            <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="text-xs font-semibold text-blue-600 hover:underline">
-                + Upload Department List
-            </a>
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="openAddDeptModal()" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition space-x-1">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Add Department</span>
+                </button>
+                <a href="{% url 'imports:upload' %}?course_id={{ course.id }}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 transition space-x-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <span>Upload Roster</span>
+                </a>
+            </div>
         </div>
-        <p class="text-xs text-slate-500">
-            Students from multiple departments are accommodated in this section and audited both jointly and by department.
-        </p>
-        <div class="flex flex-wrap gap-1.5 pt-1">
-            {% for d in course.all_departments %}
-                <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200">
-                    {{ d }}
+
+        <!-- Department Badges with Edit & Remove Actions -->
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+            {% for dept in departments_data %}
+            <div class="group inline-flex items-center pl-3 pr-1.5 py-1 rounded-xl text-xs font-medium bg-slate-50 hover:bg-slate-100/90 border border-slate-200 text-slate-800 transition shadow-2xs space-x-2">
+                <span class="font-semibold text-slate-900">{{ dept.name }}</span>
+                <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-white text-slate-600 border border-slate-200 tabular-nums" title="{{ dept.count }} enrolled student(s)">
+                    {{ dept.count }}
                 </span>
+                <div class="flex items-center space-x-0.5 border-l border-slate-200 pl-1.5">
+                    <!-- Edit / Rename button -->
+                    <button type="button" onclick="openEditDeptModal('{{ dept.name|escapejs }}')" class="p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-white transition" title="Edit / Rename {{ dept.name }}">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                        </svg>
+                    </button>
+                    <!-- Remove button -->
+                    <a href="{% url 'courses:department_remove' course.pk %}?department={{ dept.name|urlencode }}" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Remove {{ dept.name }} from this course">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
             {% empty %}
-                <span class="text-xs text-slate-400 italic">No specific departments enrolled yet. Upload a roster to populate.</span>
+            <div class="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-xs text-slate-400 w-full text-center">
+                No participating departments configured yet. Click <strong>+ Add Department</strong> or <strong>Upload Roster</strong> to enroll students.
+            </div>
             {% endfor %}
         </div>
     </div>
@@ -218,6 +252,74 @@
     </div>
 </div>
 
+<!-- Modal: Edit / Rename Department -->
+<div id="editDeptModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-xl p-6 space-y-4" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Edit Department Name</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Correct errors or typos in this department</p>
+            </div>
+            <button type="button" onclick="closeEditDeptModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <form method="post" action="{% url 'courses:department_edit' course.pk %}" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" id="editOldDeptInput" name="old_department" value="">
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Department Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="editNewDeptInput" name="new_department" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] outline-none">
+                <p class="text-[11px] text-slate-400 mt-1">Renaming will automatically update all enrolled student records in this department.</p>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeEditDeptModal()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-xs">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Add Department -->
+<div id="addDeptModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-xl p-6 space-y-4" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Add Participating Department</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Register a new academic department for {{ course.code }}</p>
+            </div>
+            <button type="button" onclick="closeAddDeptModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <form method="post" action="{% url 'courses:department_add' course.pk %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Department Name <span class="text-rose-500">*</span></label>
+                <input type="text" name="department_name" required placeholder="e.g. Computer Science, Mechanical Eng" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] outline-none">
+                <p class="text-[11px] text-slate-400 mt-1">This department will appear in attendance filters, roster imports, and semester audit reports.</p>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeAddDeptModal()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-[#84cc16] hover:bg-[#65a30d] transition shadow-xs">
+                    Add Department
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function filterRosterTable() {
     const query = document.getElementById('rosterSearchInput').value.toLowerCase();
@@ -227,5 +329,31 @@ function filterRosterTable() {
         row.style.display = text.includes(query) ? '' : 'none';
     });
 }
+
+function openEditDeptModal(deptName) {
+    document.getElementById('editOldDeptInput').value = deptName;
+    document.getElementById('editNewDeptInput').value = deptName;
+    document.getElementById('editDeptModal').classList.remove('hidden');
+    document.getElementById('editNewDeptInput').focus();
+}
+
+function closeEditDeptModal() {
+    document.getElementById('editDeptModal').classList.add('hidden');
+}
+
+function openAddDeptModal() {
+    document.getElementById('addDeptModal').classList.remove('hidden');
+}
+
+function closeAddDeptModal() {
+    document.getElementById('addDeptModal').classList.add('hidden');
+}
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeEditDeptModal();
+        closeAddDeptModal();
+    }
+});
 </script>
 {% endblock %}

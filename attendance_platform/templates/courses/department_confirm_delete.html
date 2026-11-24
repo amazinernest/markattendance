@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Remove Department – {{ department }} – ClassMarker{% endblock %}
+{% block section_title %}Remove Participating Department{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto space-y-5">
+    <div>
+        <a href="{% url 'courses:course_detail' course.pk %}" class="inline-flex items-center text-xs font-medium text-slate-500 hover:text-slate-800 mb-1">
+            &larr; Back to {{ course.code }}
+        </a>
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Remove Participating Department</h1>
+        <p class="text-xs text-slate-500">Configure how enrolled students from this department should be handled</p>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sm:p-7 space-y-6">
+        <div class="flex items-start space-x-3.5">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center text-lg font-bold shrink-0">
+                🏢
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-base font-bold text-slate-900">
+                    Remove &ldquo;{{ department }}&rdquo; from {{ course.code }}?
+                </h2>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    This will remove {{ department }} from the list of participating departments in <strong>{{ course.code }} – {{ course.title }}</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Department & Student Status Strip -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Department Name:</span>
+                <span class="font-bold text-slate-900">{{ department }}</span>
+            </div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="text-slate-500">Target Course:</span>
+                <span class="font-mono font-semibold text-slate-800">{{ course.code }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-500">Currently Enrolled Students:</span>
+                <span class="font-bold {% if enrolled_count > 0 %}text-amber-700{% else %}text-slate-600{% endif %} tabular-nums">
+                    {{ enrolled_count }} student{{ enrolled_count|pluralize }}
+                </span>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'courses:department_remove' course.pk %}" class="space-y-5">
+            {% csrf_token %}
+            <input type="hidden" name="department" value="{{ department }}">
+
+            {% if enrolled_count > 0 %}
+            <div class="space-y-3">
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    How should the {{ enrolled_count }} enrolled student{{ enrolled_count|pluralize }} be handled?
+                </label>
+
+                <!-- Option 1: Reassign (Default & Safest) -->
+                <div class="relative flex items-start p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition">
+                    <div class="flex items-center h-5">
+                        <input id="action_reassign" name="student_action" type="radio" value="reassign" checked onchange="toggleReassignTarget(true)" class="h-4 w-4 text-[#84cc16] focus:ring-[#84cc16] border-slate-300">
+                    </div>
+                    <div class="ml-3 text-xs flex-1">
+                        <label for="action_reassign" class="font-semibold text-slate-900 cursor-pointer">
+                            Keep students enrolled, but reassign to another department
+                        </label>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            Retains student attendance history and moves their course department record.
+                        </p>
+
+                        <div id="reassignSelectWrapper" class="mt-2.5">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Target Department:</label>
+                            <select name="target_department" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-800 bg-slate-50 focus:bg-white focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] outline-none">
+                                {% for d in other_departments %}
+                                    <option value="{{ d }}">{{ d }}</option>
+                                {% endfor %}
+                                <option value="General">General (Unassigned)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Option 2: Remove Enrolments -->
+                <div class="relative flex items-start p-3.5 rounded-xl border border-slate-200 hover:border-rose-300 bg-white cursor-pointer transition">
+                    <div class="flex items-center h-5">
+                        <input id="action_remove" name="student_action" type="radio" value="remove" onchange="toggleReassignTarget(false)" class="h-4 w-4 text-rose-600 focus:ring-rose-500 border-slate-300">
+                    </div>
+                    <div class="ml-3 text-xs flex-1">
+                        <label for="action_remove" class="font-semibold text-rose-700 cursor-pointer">
+                            Remove enrolled students from this course roster
+                        </label>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            De-enrolls all {{ enrolled_count }} student{{ enrolled_count|pluralize }} belonging to &ldquo;{{ department }}&rdquo; from {{ course.code }}.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <input type="hidden" name="student_action" value="reassign">
+            <p class="text-xs text-slate-500">
+                No students are currently enrolled under this department. It will be cleanly removed from the course participating departments list.
+            </p>
+            {% endif %}
+
+            <div class="flex items-center space-x-3 pt-3 border-t border-slate-100">
+                <button type="submit" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-rose-600 hover:bg-rose-700 transition shadow-sm flex items-center space-x-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span>Confirm Removal</span>
+                </button>
+                <a href="{% url 'courses:course_detail' course.pk %}" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleReassignTarget(show) {
+    const el = document.getElementById('reassignSelectWrapper');
+    if (el) {
+        el.style.display = show ? 'block' : 'none';
+    }
+}
+</script>
+{% endblock %}

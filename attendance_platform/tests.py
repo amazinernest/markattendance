@@ -304,3 +304,67 @@ class ComprehensiveSystemTests(TestCase):
         resp = self.client.post(course_delete_url)
         self.assertEqual(resp.status_code, 302)
         self.assertFalse(Course.objects.filter(pk=self.course.pk).exists())
+
+    def test_course_department_management(self):
+        self.client.login(email="lecturer@feduni.edu.ng", password="testpassword123")
+
+        # 1. Add Department
+        add_url = reverse('courses:department_add', kwargs={'pk': self.course.pk})
+        resp = self.client.post(add_url, {'department_name': 'Civil Engineering'})
+        self.assertEqual(resp.status_code, 302)
+        self.course.refresh_from_db()
+        self.assertIn('Civil Engineering', self.course.all_departments)
+
+        # 2. Edit / Rename Department (e.g. fix typo from "Software Eng" to "Software Engineering")
+        # Enrol a student under "Software Eng"
+        student_se = Student.objects.create(
+            institution=self.institution,
+            name="Bob Software",
+            matric_number="SE/2024/005",
+            department="Software Eng"
+        )
+        enr_se = CourseEnrolment.objects.create(
+            course=self.course,
+            student=student_se,
+            department="Software Eng"
+        )
+
+        edit_url = reverse('courses:department_edit', kwargs={'pk': self.course.pk})
+        resp = self.client.post(edit_url, {
+            'old_department': 'Software Eng',
+            'new_department': 'Software Engineering',
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.course.refresh_from_db()
+        self.assertIn('Software Engineering', self.course.all_departments)
+        self.assertNotIn('Software Eng', self.course.all_departments)
+
+        # Verify enrolled student's department was updated
+        enr_se.refresh_from_db()
+        self.assertEqual(enr_se.department, 'Software Engineering')
+
+        # 3. Remove Department GET confirmation
+        remove_url = reverse('courses:department_remove', kwargs={'pk': self.course.pk})
+        resp = self.client.get(f"{remove_url}?department=Civil%20Engineering")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Civil Engineering')
+
+        # 4. Remove Department with student reassignment
+        resp = self.client.post(remove_url, {
+            'department': 'Civil Engineering',
+            'student_action': 'reassign',
+            'target_department': 'General',
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.course.refresh_from_db()
+        self.assertNotIn('Civil Engineering', self.course.all_departments)
+
+        # 5. Remove Department with student deletion
+        resp = self.client.post(remove_url, {
+            'department': 'Software Engineering',
+            'student_action': 'remove',
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.course.refresh_from_db()
+        self.assertNotIn('Software Engineering', self.course.all_departments)
+        self.assertFalse(CourseEnrolment.objects.filter(id=enr_se.id).exists())
