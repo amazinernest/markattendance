@@ -374,12 +374,13 @@
                             Full Name <span style="color: #dc2626;">*</span>
                         </label>
                         <p style="font-size: 11px; color: #b45309; margin-bottom: 6px;">
-                            Matric number not found on enrolled list. Please provide full name:
+                            Matric number not found on enrolled list. Please provide full name to register:
                         </p>
                         <input 
                             type="text" 
                             id="fallback_name" 
-                            placeholder="Enter your full name" 
+                            name="fallback_student_name"
+                            placeholder="Enter your full name (e.g. John Doe)" 
                             oninput="document.getElementById('student_name').value = this.value"
                         >
                     </div>
@@ -512,6 +513,21 @@
                 return false;
             }
 
+            // If unregistered student, validate that full name is provided
+            const fallbackBox = document.getElementById('fallbackNameBox');
+            const isFallbackVisible = fallbackBox && window.getComputedStyle(fallbackBox).display !== 'none';
+            if (isFallbackVisible) {
+                const fallbackInput = document.getElementById('fallback_name');
+                const fallbackVal = fallbackInput ? fallbackInput.value.trim() : '';
+                const hiddenName = document.getElementById('student_name').value.trim();
+                if (!fallbackVal && !hiddenName) {
+                    alert('Please enter your Full Name to complete your registration.');
+                    if (fallbackInput) fallbackInput.focus();
+                    return false;
+                }
+                document.getElementById('student_name').value = fallbackVal || hiddenName;
+            }
+
             btn.disabled = true;
             btn.innerText = 'Verifying Physical Location...';
 
@@ -551,12 +567,14 @@
                         document.getElementById('accuracy').value = accuracy;
                         document.getElementById('is_mock').value = isMock ? '1' : '0';
 
-                        // Distance verification
+                        // Distance verification with indoor GPS drift tolerance
                         if (VENUE_LAT !== null && VENUE_LON !== null) {
                             const distance = calcDistance(VENUE_LAT, VENUE_LON, lat, lon);
                             const distRounded = Math.round(distance);
+                            const accuracyBuffer = Math.min(accuracy || 0, 60);
+                            const allowedLimit = VENUE_RADIUS + Math.max(25, accuracyBuffer);
 
-                            if (distance > VENUE_RADIUS) {
+                            if (distance > allowedLimit) {
                                 const distText = distRounded > 1000 ? (distRounded/1000).toFixed(1) + 'km' : distRounded + 'm';
                                 alert('❌ Attendance Blocked (Out of Range):\n\nYou are approximately ' + distText + ' away from the classroom (Allowed: ' + VENUE_RADIUS + 'm).\n\nPhysical presence inside the lecture hall is mandatory. Remote proxy check-ins are strictly rejected.');
                                 btn.disabled = false;
@@ -615,7 +633,10 @@
                             const distance = calcDistance(VENUE_LAT, VENUE_LON, lat, lon);
                             const distRounded = Math.round(distance);
 
-                            if (distance <= VENUE_RADIUS) {
+                            const accuracyBuffer = Math.min(pos.coords.accuracy || 0, 60);
+                            const allowedLimit = VENUE_RADIUS + Math.max(25, accuracyBuffer);
+
+                            if (distance <= allowedLimit) {
                                 if (text && pill && dot) {
                                     text.innerText = '✅ In Classroom (~' + distRounded + 'm from venue)';
                                     pill.style.background = '#ecfccb';

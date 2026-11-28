@@ -168,7 +168,7 @@
                 <!-- Status details -->
                 <div id="venueStatusBox" class="p-3 rounded-lg border text-xs {% if session.enable_geofence and session.has_venue_location %}bg-slate-50 border-slate-200{% else %}bg-amber-50/70 border-amber-200 text-amber-900{% endif %}">
                     {% if session.enable_geofence and session.has_venue_location %}
-                        <div class="space-y-1">
+                        <div class="space-y-1.5">
                             <div class="font-semibold text-slate-800 flex items-center justify-between">
                                 <span>📍 {{ session.location_name|default:"Classroom Location Locked" }}</span>
                                 <span class="font-mono text-[11px] text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">Radius: {{ session.geofence_radius_meters }}m</span>
@@ -176,18 +176,40 @@
                             <div class="text-[11px] text-slate-500 font-mono">
                                 Lat: {{ session.venue_latitude|floatformat:6 }}, Lon: {{ session.venue_longitude|floatformat:6 }}
                             </div>
-                            <div class="pt-1 text-[11px] text-emerald-700 font-medium flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Students beyond {{ session.geofence_radius_meters }}m are blocked from submitting attendance.
+                            <div class="pt-1 flex items-center justify-between text-[11px]">
+                                <span class="text-emerald-700 font-medium">📍 Geofence Active (±25m indoor drift tolerance)</span>
+                                <form method="post" action="{% url 'attendance:update_session_venue' session.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="toggle_geofence" value="1">
+                                    <button type="submit" class="text-[10px] font-bold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-0.5 rounded transition">
+                                        Disable Geofence
+                                    </button>
+                                </form>
                             </div>
+                        </div>
+                    {% elif session.has_venue_location and not session.enable_geofence %}
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span>🔓 Geofence Temporarily Disabled</span>
+                                <form method="post" action="{% url 'attendance:update_session_venue' session.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="toggle_geofence" value="1">
+                                    <button type="submit" class="text-[10px] font-bold text-emerald-800 hover:text-emerald-950 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 px-2.5 py-0.5 rounded transition">
+                                        Re-enable Geofence
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                Students in class can currently submit attendance without GPS radius checks. Click &ldquo;Re-enable Geofence&rdquo; when finished.
+                            </p>
                         </div>
                     {% else %}
                         <div class="space-y-1.5">
-                            <div class="font-bold text-amber-900 flex items-center gap-1">
+                            <div class="font-bold text-amber-900 flex items-center justify-between">
                                 <span>⚠️ Classroom location is not locked yet!</span>
                             </div>
                             <p class="text-[11px] text-amber-800 leading-relaxed">
-                                Students anywhere can currently mark attendance. Click below to lock the classroom location to your current GPS position so students outside the hall are strictly blocked.
+                                Students can currently mark attendance without physical distance checks. Click below to lock the classroom location to your current GPS position.
                             </p>
                         </div>
                     {% endif %}
@@ -200,14 +222,23 @@
                     <input type="hidden" name="venue_longitude" id="inputVenueLon" value="{{ session.venue_longitude|default:'' }}">
                     
                     <div class="space-y-1">
-                        <label class="block text-[11px] font-semibold text-slate-600">Verification Radius:</label>
-                        <select name="geofence_radius_meters" id="selectRadius" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-[#84cc16]">
-                            <option value="30" {% if session.geofence_radius_meters == 30 %}selected{% endif %}>30m – Small Seminar Room / Lab</option>
-                            <option value="60" {% if session.geofence_radius_meters == 60 %}selected{% endif %}>60m – Medium Lecture Hall</option>
-                            <option value="100" {% if session.geofence_radius_meters == 100 %}selected{% endif %}>100m – Large Lecture Complex (Recommended)</option>
-                            <option value="150" {% if session.geofence_radius_meters == 150 %}selected{% endif %}>150m – Amphitheatre / Multi-floor Block</option>
-                            <option value="250" {% if session.geofence_radius_meters == 250 %}selected{% endif %}>250m – Wide Faculty Quadrangle</option>
-                        </select>
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[11px] font-semibold text-slate-600">Verification Radius:</label>
+                            <span class="text-[10px] text-slate-400">Expand if students get out-of-range</span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <select name="geofence_radius_meters" id="selectRadius" class="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-[#84cc16]">
+                                <option value="50" {% if session.geofence_radius_meters == 50 %}selected{% endif %}>50m – Small Seminar Room / Lab</option>
+                                <option value="100" {% if session.geofence_radius_meters == 100 %}selected{% endif %}>100m – Medium Lecture Hall</option>
+                                <option value="150" {% if session.geofence_radius_meters == 150 %}selected{% endif %}>150m – Large Amphitheatre</option>
+                                <option value="200" {% if session.geofence_radius_meters == 200 %}selected{% endif %}>200m – Multi-floor Building (Recommended)</option>
+                                <option value="300" {% if session.geofence_radius_meters == 300 %}selected{% endif %}>300m – Faculty Complex / Thick Walls</option>
+                                <option value="500" {% if session.geofence_radius_meters == 500 %}selected{% endif %}>500m – Wide Quadrangle / Campus Wing</option>
+                            </select>
+                            <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs border border-slate-300 transition shrink-0" title="Update allowed radius without re-capturing GPS">
+                                Save Radius
+                            </button>
+                        </div>
                     </div>
 
                     <button type="button" id="btnLockVenue" onclick="acquireAndLockVenue()" class="w-full py-2 px-3 rounded-lg bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
@@ -215,7 +246,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <span id="btnLockVenueText">{% if session.has_venue_location %}📍 Re-capture / Update Current GPS{% else %}📍 Lock Classroom to My Current Location{% endif %}</span>
+                        <span id="btnLockVenueText">{% if session.has_venue_location %}📍 Re-capture GPS Venue Coordinates{% else %}📍 Lock Classroom to My Current Location{% endif %}</span>
                     </button>
                     <p id="venueCaptureFeedback" class="text-[11px] text-center hidden"></p>
                 </form>
@@ -271,22 +302,79 @@
                 </div>
             </div>
 
-            <!-- Manual Roll-Call Bar (Fallback for students without browsing phones) -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-card space-y-2">
+            <!-- Manual Check-In / Roll-Call Tool -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        Manual Roll-Call Fallback
-                    </span>
-                    <span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                        No Phone / No Data
+                    <div>
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>Manual Check-In & Roll-Call</span>
+                        </span>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            Mark students present who had out-of-range radius errors, flat batteries, or no smartphone.
+                        </p>
+                    </div>
+                    <span class="text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                        Auto-Enrolls & Confirms
                     </span>
                 </div>
-                <form method="post" action="{% url 'attendance:manual_checkin' session.id %}" class="flex gap-2">
+
+                <form method="post" action="{% url 'attendance:manual_checkin' session.id %}" class="space-y-3">
                     {% csrf_token %}
-                    <input type="text" name="matric_number" required placeholder="Student Matric Number (e.g. 250305001)" class="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-mono uppercase text-slate-900 focus:outline-none focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16]">
-                    <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 font-bold text-xs transition shadow-sm shrink-0">
-                        Mark Present
-                    </button>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Matriculation Number(s) <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea 
+                            name="matric_numbers" 
+                            rows="2" 
+                            required 
+                            placeholder="Enter single matric or multiple separated by commas, spaces, or lines (e.g. 250305001, 250305042, 250305089)..." 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono uppercase text-slate-900 focus:outline-none focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] transition placeholder:normal-case placeholder:font-sans placeholder:text-slate-400"
+                        ></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                                Student Name <span class="text-slate-400 font-normal">(Optional, if adding 1 new student)</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                name="student_name" 
+                                placeholder="e.g. John Doe" 
+                                class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] transition placeholder:text-slate-400"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                                Department <span class="text-slate-400 font-normal">(For new students)</span>
+                            </label>
+                            <select 
+                                name="department" 
+                                class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:border-[#84cc16]"
+                            >
+                                {% for d in course.all_departments %}
+                                    <option value="{{ d }}">{{ d }}</option>
+                                {% empty %}
+                                    <option value="{{ course.department|default:'General' }}">{{ course.department|default:'General' }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="text-[11px] text-slate-500">
+                            💡 You can paste a list of matric numbers from WhatsApp, Excel, or paper attendance.
+                        </span>
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 font-bold text-xs transition shadow-sm flex items-center space-x-1.5 shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Mark Present Now</span>
+                        </button>
+                    </div>
                 </form>
             </div>
 

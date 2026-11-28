@@ -1,3 +1,4 @@
+import re
 import uuid
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -6,7 +7,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
-from attendance_platform.apps.courses.models import Course, Student
+from attendance_platform.apps.courses.models import Course, Student, CourseEnrolment
 from .models import AttendanceSession, AttendanceRecord
 from .forms import AttendanceSessionForm
 
@@ -222,8 +223,12 @@ def student_checkin(request, token):
         })
 
     if request.method == 'POST':
-        matric = request.POST.get('matric_number', '').strip().upper()
-        name = request.POST.get('student_name', '').strip()
+        raw_matric = request.POST.get('matric_number', '')
+        matric = re.sub(r'[\s\t\r\n]+', '', raw_matric.strip().upper())
+        if matric.endswith('.0') and matric[:-2].isdigit():
+            matric = matric[:-2]
+
+        name = request.POST.get('student_name', '').strip() or request.POST.get('fallback_student_name', '').strip()
         lat = request.POST.get('latitude', '').strip()
         lon = request.POST.get('longitude', '').strip()
         accuracy = request.POST.get('accuracy', '').strip()
@@ -253,14 +258,38 @@ def student_checkin(request, token):
                 if std:
                     name = std.name
                 else:
-                    # Require name if not found in database
-                    messages.warning(request, f"Matric '{matric}' is not enrolled in {course.code}. Please provide your full name.")
+                    # Prompt student for full name to auto-register them
+                    messages.warning(request, f"Matric '{matric}' is not yet on the course roster. Please enter your Full Name below to register.")
                     return render(request, 'attendance/student_checkin.html', {
                         'session': session,
                         'matric_number': matric,
                         'need_name': True,
                         'is_peer_mode': is_peer_mode,
                     })
+
+        # Auto-register / enroll student so they become an official student on the course roster
+        student, s_created = Student.objects.get_or_create(
+            institution=course.institution,
+            matric_number=matric,
+            defaults={
+                'name': name,
+                'department': course.department or 'General',
+            }
+        )
+        if not student.name and name:
+            student.name = name
+            student.save(update_fields=['name'])
+
+        enrolment, e_created = CourseEnrolment.objects.get_or_create(
+            course=course,
+            student=student,
+            defaults={
+                'department': student.department or course.department or 'General'
+            }
+        )
+        if e_created:
+            course.expected_population = course.enrolments.count()
+            course.save(update_fields=['expected_population', 'updated_at'])
 
         # Determine checkin method
         checkin_method = AttendanceRecord.CheckinMethod.PEER_SHARED if is_peer_mode else AttendanceRecord.CheckinMethod.QR_SELF
@@ -384,8 +413,13 @@ def student_checkin(request, token):
                     'geofence_error': 'Invalid GPS coordinates received.',
                 })
 
+            # Account for mobile indoor GPS drift / error margin (e.g. concrete walls, multi-story buildings):
+            # A student's phone inside a lecture hall might report accuracy ±25m to ±60m.
+            accuracy_buffer = min(float(accuracy_meters or 0), 60.0)
+            allowed_radius = float(session.geofence_radius_meters) + max(25.0, accuracy_buffer)
+
             # Anti-Cheating Rule 3: Strict Radius Enforcement (Faraway Students Blocked)
-            if distance_meters > session.geofence_radius_meters:
+            if distance_meters > allowed_radius:
                 dist_str = f"{int(distance_meters):,}m" if distance_meters < 1000 else f"{(distance_meters/1000.0):.2f}km"
                 messages.error(
                     request,
@@ -445,79 +479,167 @@ def student_checkin(request, token):
 
 @login_required
 def manual_checkin(request, session_id):
-    """Allows lecturer to manually mark a student present on the spot."""
+    """
+    Allows lecturer to manually mark one or multiple students present on the spot
+    by entering or pasting their matriculation numbers.
+    Auto-registers students to the course roster if not already enrolled.
+    """
     session = get_object_or_404(AttendanceSession, pk=session_id)
     course = session.course
     
     if request.method == 'POST':
-        matric = request.POST.get('matric_number', '').strip().upper()
-        if not matric:
-            messages.error(request, "Please enter a valid Matric Number.")
+        raw_matrics = request.POST.get('matric_numbers', '').strip() or request.POST.get('matric_number', '').strip()
+        single_name = request.POST.get('student_name', '').strip()
+        dept_override = request.POST.get('department', '').strip() or course.department or 'General'
+
+        if not raw_matrics:
+            messages.error(request, "Please enter at least one Matriculation Number.")
             return redirect('attendance:session_detail', session_id=session.id)
 
-        # Check duplicate
-        if AttendanceRecord.objects.filter(session=session, matric_number__iexact=matric).exists():
-            messages.warning(request, f"Student {matric} is already marked present for this session.")
+        # Split multiple matric numbers by commas, semicolons, or whitespace/newlines
+        tokens = re.split(r'[,;\s\n\r]+', raw_matrics)
+        clean_matrics = []
+        for t in tokens:
+            m = t.strip().upper()
+            if m.endswith('.0') and m[:-2].isdigit():
+                m = m[:-2]
+            if len(m) >= 3 and m not in clean_matrics:
+                clean_matrics.append(m)
+
+        if not clean_matrics:
+            messages.error(request, "No valid matriculation numbers found.")
             return redirect('attendance:session_detail', session_id=session.id)
 
-        # Auto-lookup student name
-        name = matric
-        enr = course.enrolments.filter(student__matric_number__iexact=matric).select_related('student').first()
-        if enr:
-            name = enr.student.name
-        else:
-            std = Student.objects.filter(institution=course.institution, matric_number__iexact=matric).first()
-            if std:
-                name = std.name
+        marked_present = []
+        already_present = []
 
-        AttendanceRecord.objects.create(
-            session=session,
-            student_name=name,
-            matric_number=matric,
-            checkin_method=AttendanceRecord.CheckinMethod.LECTURER_MANUAL,
-            location_address=session.location_name or 'Classroom Roll-Call',
-            status=AttendanceRecord.Status.PRESENT,
-        )
-        messages.success(request, f"Successfully recorded {name} ({matric}) via manual roll-call.")
+        for matric in clean_matrics:
+            # Check duplicate in this session
+            existing = AttendanceRecord.objects.filter(session=session, matric_number__iexact=matric).first()
+            if existing:
+                already_present.append(f"{existing.student_name} ({matric})")
+                continue
+
+            # Resolve name
+            name = ""
+            if len(clean_matrics) == 1 and single_name:
+                name = single_name
+            else:
+                # 1. Look in course enrolments
+                enr = course.enrolments.filter(student__matric_number__iexact=matric).select_related('student').first()
+                if enr:
+                    name = enr.student.name
+                else:
+                    # 2. Look in institution-wide students
+                    std = Student.objects.filter(institution=course.institution, matric_number__iexact=matric).first()
+                    if std:
+                        name = std.name
+                    else:
+                        name = f"Student {matric}"
+
+            # Auto-enroll student into course if not enrolled
+            student, s_created = Student.objects.get_or_create(
+                institution=course.institution,
+                matric_number=matric,
+                defaults={
+                    'name': name,
+                    'department': dept_override,
+                }
+            )
+            if not student.name and name and name != f"Student {matric}":
+                student.name = name
+                student.save(update_fields=['name'])
+
+            CourseEnrolment.objects.get_or_create(
+                course=course,
+                student=student,
+                defaults={
+                    'department': dept_override or student.department or 'General'
+                }
+            )
+
+            # Record attendance
+            AttendanceRecord.objects.create(
+                session=session,
+                student_name=student.name or name,
+                matric_number=matric,
+                checkin_method=AttendanceRecord.CheckinMethod.LECTURER_MANUAL,
+                location_address=session.location_name or 'Classroom Roll-Call (Lecturer Manual)',
+                is_geofence_verified=True,
+                geofence_status='NOT_REQUIRED',
+                status=AttendanceRecord.Status.PRESENT,
+            )
+            marked_present.append(f"{student.name or name} ({matric})")
+
+        # Update course population
+        course.expected_population = course.enrolments.count()
+        course.save(update_fields=['expected_population', 'updated_at'])
+
+        if marked_present:
+            summary = ", ".join(marked_present[:4])
+            extra = f" and {len(marked_present) - 4} more" if len(marked_present) > 4 else ""
+            messages.success(request, f"✅ Successfully marked {len(marked_present)} student(s) present: {summary}{extra}.")
+
+        if already_present:
+            messages.info(request, f"ℹ️ {len(already_present)} student(s) were already marked present in this session.")
 
     return redirect('attendance:session_detail', session_id=session.id)
 
 
 @login_required
 def update_session_venue(request, session_id):
-    """Allows lecturer to lock or update classroom GPS venue coordinates and radius on the fly."""
+    """
+    Allows lecturer to lock or update classroom GPS venue coordinates,
+    toggle geofence on/off, and update radius on the fly.
+    """
     session = get_object_or_404(AttendanceSession, pk=session_id)
     if request.method == 'POST':
+        # Check if toggling geofence state (enable/disable)
+        if 'toggle_geofence' in request.POST:
+            session.enable_geofence = not session.enable_geofence
+            session.save(update_fields=['enable_geofence', 'updated_at'])
+            state_msg = "enabled (physical GPS required)" if session.enable_geofence else "temporarily disabled (students can check in without GPS radius restriction)"
+            messages.success(request, f"Classroom geofence has been {state_msg}.")
+            return redirect('attendance:session_detail', session_id=session.id)
+
         lat = request.POST.get('venue_latitude')
         lon = request.POST.get('venue_longitude')
         radius = request.POST.get('geofence_radius_meters')
         venue_name = request.POST.get('location_name', '').strip()
 
         try:
+            changed_fields = []
             if lat and lon:
                 session.venue_latitude = float(lat)
                 session.venue_longitude = float(lon)
+                session.enable_geofence = True
+                changed_fields.extend(['venue_latitude', 'venue_longitude', 'enable_geofence'])
             if radius:
                 session.geofence_radius_meters = int(radius)
+                changed_fields.append('geofence_radius_meters')
             if venue_name:
                 session.location_name = venue_name
-            session.enable_geofence = True
-            session.save()
+                changed_fields.append('location_name')
+
+            if changed_fields:
+                changed_fields.append('updated_at')
+                session.save(update_fields=changed_fields)
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
                 return JsonResponse({
                     'success': True,
-                    'message': f"Classroom location locked to {session.location_name or 'current GPS position'} ({session.geofence_radius_meters}m radius).",
-                    'venue_latitude': float(session.venue_latitude),
-                    'venue_longitude': float(session.venue_longitude),
+                    'message': f"Classroom location settings updated ({session.geofence_radius_meters}m radius).",
+                    'venue_latitude': float(session.venue_latitude) if session.venue_latitude else None,
+                    'venue_longitude': float(session.venue_longitude) if session.venue_longitude else None,
                     'radius': session.geofence_radius_meters,
                     'location_name': session.location_name,
+                    'enable_geofence': session.enable_geofence,
                 })
-            messages.success(request, f"Classroom location successfully updated ({session.geofence_radius_meters}m radius).")
+            messages.success(request, f"Classroom location settings updated ({session.geofence_radius_meters}m radius).")
         except (ValueError, TypeError) as e:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'error': 'Invalid GPS coordinates.'}, status=400)
-            messages.error(request, "Invalid coordinates provided.")
+                return JsonResponse({'success': False, 'error': 'Invalid settings provided.'}, status=400)
+            messages.error(request, "Invalid coordinates or radius provided.")
 
         return redirect('attendance:session_detail', session_id=session.id)
     return redirect('attendance:session_detail', session_id=session.id)

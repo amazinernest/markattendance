@@ -274,13 +274,25 @@ class ComprehensiveSystemTests(TestCase):
     def test_manual_checkin_and_toggle_and_delete(self):
         self.client.login(email="lecturer@feduni.edu.ng", password="testpassword123")
 
-        # 1. Manual Roll-call checkin
+        # 1. Manual Roll-call checkin (supports single or multiple batch matrics)
         manual_url = reverse('attendance:manual_checkin', kwargs={'session_id': self.session.id})
-        resp = self.client.post(manual_url, {'matric_number': 'CSC/2024/001'})
+        resp = self.client.post(manual_url, {
+            'matric_numbers': 'CSC/2024/001, CSC/2024/055, CSC/2024/056'
+        })
         self.assertEqual(resp.status_code, 302)
         rec = AttendanceRecord.objects.filter(session=self.session, matric_number='CSC/2024/001').first()
         self.assertIsNotNone(rec)
         self.assertEqual(rec.checkin_method, AttendanceRecord.CheckinMethod.LECTURER_MANUAL)
+        # Check newly auto-enrolled student
+        rec2 = AttendanceRecord.objects.filter(session=self.session, matric_number='CSC/2024/055').first()
+        self.assertIsNotNone(rec2)
+        self.assertTrue(CourseEnrolment.objects.filter(course=self.course, student__matric_number='CSC/2024/055').exists())
+
+        # Test Geofence toggle via update_session_venue
+        venue_url = reverse('attendance:update_session_venue', kwargs={'session_id': self.session.id})
+        self.client.post(venue_url, {'toggle_geofence': '1'})
+        self.session.refresh_from_db()
+        self.assertFalse(self.session.enable_geofence)
 
         # 2. Toggle session
         toggle_url = reverse('attendance:session_toggle', kwargs={'session_id': self.session.id})
