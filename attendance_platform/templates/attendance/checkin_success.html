@@ -162,9 +162,15 @@
         </div>
 
         <div class="receipt-card">
-            <div class="icon-circle">&check;</div>
-            <div class="title">Attendance Confirmed</div>
-            <div class="subtitle">Your lecture attendance has been officially recorded</div>
+            {% if is_duplicate %}
+                <div class="icon-circle" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">ℹ️</div>
+                <div class="title">Already Confirmed</div>
+                <div class="subtitle">Your attendance was already verified earlier for this lecture</div>
+            {% else %}
+                <div class="icon-circle">&check;</div>
+                <div class="title">Attendance Confirmed</div>
+                <div class="subtitle">Your lecture attendance has been officially recorded</div>
+            {% endif %}
 
             <div class="receipt-details">
                 <div class="receipt-row">
@@ -210,6 +216,20 @@
                     <span class="status-pill">{{ record.get_status_display }}</span>
                 </div>
             </div>
+
+            {% if is_duplicate %}
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; font-size: 11px; color: #166534; text-align: left; line-height: 1.4;">
+                    <strong>Notice:</strong> Your presence in this lecture was verified at {{ record.checked_in_at|time:"g:i A" }}. There is no need to scan again.
+                </div>
+            {% endif %}
+
+            {% if session.is_active %}
+                <div style="margin-bottom: 14px;">
+                    <a href="{% url 'attendance:student_checkin' session.token %}?peer=1" class="btn-peer">
+                        🤝 Assist a Classmate (Help Peer Check In) &rarr;
+                    </a>
+                </div>
+            {% endif %}
 
             <div class="footer-note">
                 ClassMarker Academic Verification &bull; {{ session.course.institution.name|default:"ClassMarker Academic" }}
