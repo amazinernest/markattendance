@@ -274,7 +274,39 @@ class ComprehensiveSystemTests(TestCase):
     def test_manual_checkin_and_toggle_and_delete(self):
         self.client.login(email="lecturer@feduni.edu.ng", password="testpassword123")
 
-        # 1. Manual Roll-call checkin (supports single or multiple batch matrics)
+        # 1. Interactive student search endpoint by matric number
+        search_url = reverse('attendance:session_student_search', kwargs={'session_id': self.session.id})
+        resp = self.client.get(search_url + '?q=CSC/2024')
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['success'])
+        self.assertTrue(len(data['results']) > 0)
+        self.assertEqual(data['results'][0]['matric_number'], 'CSC/2024/001')
+
+        # 2. Mark student PRESENT via session_mark_attendance endpoint
+        mark_url = reverse('attendance:session_mark_attendance', kwargs={'session_id': self.session.id})
+        resp = self.client.post(mark_url, {
+            'matric_number': 'CSC/2024/001',
+            'status': 'PRESENT',
+        }, headers={'x-requested-with': 'XMLHttpRequest'})
+        self.assertEqual(resp.status_code, 200)
+        mark_data = resp.json()
+        self.assertTrue(mark_data['success'])
+        self.assertEqual(mark_data['status'], 'PRESENT')
+        self.assertTrue(AttendanceRecord.objects.filter(session=self.session, matric_number='CSC/2024/001').exists())
+
+        # 3. Mark student ABSENT via session_mark_attendance endpoint
+        resp_absent = self.client.post(mark_url, {
+            'matric_number': 'CSC/2024/001',
+            'status': 'ABSENT',
+        }, headers={'x-requested-with': 'XMLHttpRequest'})
+        self.assertEqual(resp_absent.status_code, 200)
+        absent_data = resp_absent.json()
+        self.assertTrue(absent_data['success'])
+        self.assertEqual(absent_data['status'], 'ABSENT')
+        self.assertFalse(AttendanceRecord.objects.filter(session=self.session, matric_number='CSC/2024/001').exists())
+
+        # 4. Manual Roll-call checkin (supports single or multiple batch matrics)
         manual_url = reverse('attendance:manual_checkin', kwargs={'session_id': self.session.id})
         resp = self.client.post(manual_url, {
             'matric_numbers': 'CSC/2024/001, CSC/2024/055, CSC/2024/056'

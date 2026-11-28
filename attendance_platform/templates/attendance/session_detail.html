@@ -302,80 +302,86 @@
                 </div>
             </div>
 
-            <!-- Manual Check-In / Roll-Call Tool -->
-            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-3">
+            <!-- Manual Check-In & Interactive Roll-Call Tool -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-card space-y-4">
                 <div class="flex items-center justify-between">
                     <div>
                         <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>Manual Check-In & Roll-Call</span>
+                            <svg class="w-4 h-4 text-[#84cc16]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                            <span>Interactive Roll-Call &amp; Manual Check-In</span>
                         </span>
                         <p class="text-[11px] text-slate-500 mt-0.5">
-                            Mark students present who had out-of-range radius errors, flat batteries, or no smartphone.
+                            Search student by Matric Number, view their name, and toggle them <strong>Present</strong> or <strong>Absent</strong>.
                         </p>
                     </div>
                     <span class="text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                        Auto-Enrolls & Confirms
+                        Live Instant Roll-Call
                     </span>
                 </div>
 
-                <form method="post" action="{% url 'attendance:manual_checkin' session.id %}" class="space-y-3">
-                    {% csrf_token %}
+                <!-- Instant Search & Quick Action Box -->
+                <div class="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200 space-y-3">
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                        Search Student by Matric Number or Name:
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="matricSearchInput" 
+                            oninput="handleMatricSearch(this.value)" 
+                            placeholder="Type matric number (e.g. 250305001 or CSC/2024/001)..." 
+                            class="w-full pl-9 pr-24 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-mono uppercase text-slate-900 placeholder:normal-case placeholder:font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] shadow-2xs"
+                            autocomplete="off"
+                        >
+                        <div id="searchSpinner" class="hidden absolute inset-y-0 right-3 flex items-center text-[10px] font-bold text-slate-400">
+                            Searching...
+                        </div>
+                    </div>
 
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
-                            Matriculation Number(s) <span class="text-rose-500">*</span>
-                        </label>
+                    <!-- Search Feedback Notification -->
+                    <div id="rollcallNotice" class="hidden text-xs py-1.5 px-2.5 rounded-lg font-medium"></div>
+
+                    <!-- Instant Search Results Dropdown/Card Container -->
+                    <div id="searchResultsContainer" class="space-y-2">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- Quick Bulk Paste Accordion (Optional for pasting 20+ matrics at once) -->
+                <details class="text-xs border border-slate-200 rounded-xl bg-white overflow-hidden group">
+                    <summary class="px-3.5 py-2.5 font-semibold text-slate-700 bg-slate-50/60 hover:bg-slate-100 cursor-pointer flex items-center justify-between transition select-none">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <span>Paste Bulk Matric List (Multiple Students at once)</span>
+                        </span>
+                        <span class="text-[10px] font-normal text-slate-400">Comma, space, or line-separated</span>
+                    </summary>
+                    <form method="post" action="{% url 'attendance:manual_checkin' session.id %}" class="p-3.5 space-y-3 border-t border-slate-200 bg-white">
+                        {% csrf_token %}
                         <textarea 
                             name="matric_numbers" 
                             rows="2" 
                             required 
-                            placeholder="Enter single matric or multiple separated by commas, spaces, or lines (e.g. 250305001, 250305042, 250305089)..." 
+                            placeholder="e.g. 250305001, 250305042, 250305089..." 
                             class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono uppercase text-slate-900 focus:outline-none focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] transition placeholder:normal-case placeholder:font-sans placeholder:text-slate-400"
                         ></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
-                                Student Name <span class="text-slate-400 font-normal">(Optional, if adding 1 new student)</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                name="student_name" 
-                                placeholder="e.g. John Doe" 
-                                class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-[#84cc16] focus:ring-1 focus:ring-[#84cc16] transition placeholder:text-slate-400"
-                            >
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-400">Pasting multiple matrics marks them all as present.</span>
+                            <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-sm">
+                                Mark All Present
+                            </button>
                         </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
-                                Department <span class="text-slate-400 font-normal">(For new students)</span>
-                            </label>
-                            <select 
-                                name="department" 
-                                class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:border-[#84cc16]"
-                            >
-                                {% for d in course.all_departments %}
-                                    <option value="{{ d }}">{{ d }}</option>
-                                {% empty %}
-                                    <option value="{{ course.department|default:'General' }}">{{ course.department|default:'General' }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-1">
-                        <span class="text-[11px] text-slate-500">
-                            💡 You can paste a list of matric numbers from WhatsApp, Excel, or paper attendance.
-                        </span>
-                        <button type="submit" class="px-4 py-2 rounded-xl bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 font-bold text-xs transition shadow-sm flex items-center space-x-1.5 shrink-0">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            <span>Mark Present Now</span>
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </details>
             </div>
 
             <!-- Verified Attendee Table -->
@@ -481,6 +487,162 @@
 </div>
 
 <script>
+let searchDebounce = null;
+const searchUrl = "{% url 'attendance:session_student_search' session.id %}";
+const markUrl = "{% url 'attendance:session_mark_attendance' session.id %}";
+const csrfToken = "{{ csrf_token }}";
+
+function handleMatricSearch(query) {
+    clearTimeout(searchDebounce);
+    const container = document.getElementById('searchResultsContainer');
+    const spinner = document.getElementById('searchSpinner');
+    const trimmed = query.trim();
+
+    if (!trimmed || trimmed.length < 2) {
+        container.innerHTML = '';
+        if (spinner) spinner.classList.add('hidden');
+        return;
+    }
+
+    if (spinner) spinner.classList.remove('hidden');
+
+    searchDebounce = setTimeout(() => {
+        fetch(searchUrl + '?q=' + encodeURIComponent(trimmed), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (spinner) spinner.classList.add('hidden');
+            renderSearchResults(data.results || [], trimmed);
+        })
+        .catch(err => {
+            if (spinner) spinner.classList.add('hidden');
+            console.error('Search error', err);
+        });
+    }, 250);
+}
+
+function renderSearchResults(results, query) {
+    const container = document.getElementById('searchResultsContainer');
+    if (!results || results.length === 0) {
+        container.innerHTML = `
+            <div class="p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-500 text-center">
+                No enrolled student found matching "<strong class="font-mono text-slate-800">${escapeHtml(query)}</strong>".
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    results.forEach(student => {
+        const isPresent = student.is_present;
+        const statusBadge = isPresent 
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
+                 <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16] mr-1"></span> PRESENT
+               </span>`
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1"></span> ABSENT
+               </span>`;
+
+        const nameDisplay = student.name ? escapeHtml(student.name) : `<span class="text-slate-400 italic">Name not registered</span>`;
+        const deptDisplay = student.department ? escapeHtml(student.department) : 'General';
+
+        html += `
+            <div id="studentCard_${student.matric_number.replace(/[^a-zA-Z0-9]/g, '_')}" class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-300 transition">
+                <div class="space-y-0.5">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-mono font-bold text-xs text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${escapeHtml(student.matric_number)}</span>
+                        ${statusBadge}
+                    </div>
+                    <div class="text-xs font-semibold text-slate-800">${nameDisplay}</div>
+                    <div class="text-[11px] text-slate-500">
+                        ${deptDisplay} ${student.checkin_time ? `&bull; Checked in at <span class="font-mono font-semibold text-slate-700">${student.checkin_time}</span>` : ''}
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" 
+                            onclick="setStudentAttendance('${escapeHtml(student.matric_number)}', 'PRESENT', '${escapeHtml(student.name || '')}', '${escapeHtml(student.department || '')}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${isPresent ? 'bg-[#ecfccb] text-[#365314] border border-[#bef264] ring-1 ring-[#84cc16]' : 'bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 shadow-sm'}">
+                        <span>&check; Present</span>
+                    </button>
+                    <button type="button" 
+                            onclick="setStudentAttendance('${escapeHtml(student.matric_number)}', 'ABSENT', '${escapeHtml(student.name || '')}', '${escapeHtml(student.department || '')}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1 ${!isPresent ? 'bg-rose-100 text-rose-800 border border-rose-300 ring-1 ring-rose-400' : 'bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200'}">
+                        <span>&times; Absent</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function setStudentAttendance(matric, status, name, department) {
+    const notice = document.getElementById('rollcallNotice');
+    const formData = new FormData();
+    formData.append('matric_number', matric);
+    formData.append('status', status);
+    formData.append('student_name', name || '');
+    formData.append('department', department || '');
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    fetch(markUrl, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Update attendance progress numbers on page without full reload
+            if (data.total_present !== undefined) {
+                const countElem = document.getElementById('attendeeCount');
+                if (countElem) countElem.innerText = data.total_present;
+            }
+
+            // Show friendly transient banner
+            if (notice) {
+                notice.className = status === 'PRESENT' 
+                    ? 'text-xs py-2 px-3 rounded-lg font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 block'
+                    : 'text-xs py-2 px-3 rounded-lg font-semibold bg-slate-100 text-slate-700 border border-slate-200 block';
+                notice.innerHTML = status === 'PRESENT'
+                    ? `✅ <strong>${escapeHtml(matric)}</strong> (${escapeHtml(name || 'Student')}) marked <strong>PRESENT</strong>.`
+                    : `ℹ️ <strong>${escapeHtml(matric)}</strong> marked <strong>ABSENT</strong>.`;
+                notice.classList.remove('hidden');
+                setTimeout(() => { notice.classList.add('hidden'); }, 3500);
+            }
+
+            // Re-query current input to update status buttons immediately
+            const currentQuery = document.getElementById('matricSearchInput')?.value || matric;
+            handleMatricSearch(currentQuery);
+        } else {
+            alert(data.error || 'Failed to update attendance status.');
+        }
+    })
+    .catch(err => {
+        console.error('Attendance update error', err);
+        alert('Network or server error updating attendance.');
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function filterLiveAttendees() {
     const q = (document.getElementById('liveAttendeeSearch')?.value || '').toLowerCase();
     const rows = document.querySelectorAll('#liveAttendeesTable tbody tr');

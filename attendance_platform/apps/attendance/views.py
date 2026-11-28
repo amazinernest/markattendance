@@ -587,6 +587,220 @@ def manual_checkin(request, session_id):
 
 
 @login_required
+def session_student_search(request, session_id):
+    """
+    Search student(s) by matric number or name within this session's course/institution.
+    Returns student profile along with their current attendance status in this session (Present / Absent).
+    """
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    course = session.course
+    from django.db.models import Q
+    q = request.GET.get('q', '').strip()
+
+    if not q:
+        return JsonResponse({'success': True, 'results': []})
+
+    clean_q = re.sub(r'[\s\t\r\n]+', '', q.upper())
+    if clean_q.endswith('.0') and clean_q[:-2].isdigit():
+        clean_q = clean_q[:-2]
+
+    # Map current session records by matric number
+    records = AttendanceRecord.objects.filter(session=session)
+    records_by_matric = {r.matric_number.upper().strip(): r for r in records}
+
+    # Search in:
+    # 1. Course enrolments
+    enrolments = course.enrolments.select_related('student').filter(
+        Q(student__matric_number__icontains=clean_q) |
+        Q(student__name__icontains=q)
+    )[:10]
+
+    results = []
+    seen_matrics = set()
+
+    for enr in enrolments:
+        std = enr.student
+        m = std.matric_number.upper().strip()
+        seen_matrics.add(m)
+        rec = records_by_matric.get(m)
+        is_present = rec is not None and rec.status == AttendanceRecord.Status.PRESENT
+        results.append({
+            'matric_number': std.matric_number,
+            'name': std.name,
+            'department': enr.department or std.department or course.department or 'General',
+            'is_enrolled': True,
+            'is_present': is_present,
+            'record_id': str(rec.id) if rec else None,
+            'checkin_time': rec.checked_in_at.strftime('%I:%M %p') if rec else None,
+            'method': rec.get_checkin_method_display() if rec else None,
+        })
+
+    # 2. Institution-wide students not yet in results
+    if len(results) < 8:
+        other_students = Student.objects.filter(
+            institution=course.institution
+        ).filter(
+            Q(matric_number__icontains=clean_q) |
+            Q(name__icontains=q)
+        ).exclude(
+            matric_number__in=seen_matrics
+        )[:8 - len(results)]
+
+        for std in other_students:
+            m = std.matric_number.upper().strip()
+            seen_matrics.add(m)
+            rec = records_by_matric.get(m)
+            is_present = rec is not None and rec.status == AttendanceRecord.Status.PRESENT
+            results.append({
+                'matric_number': std.matric_number,
+                'name': std.name,
+                'department': std.department or course.department or 'General',
+                'is_enrolled': False,
+                'is_present': is_present,
+                'record_id': str(rec.id) if rec else None,
+                'checkin_time': rec.checked_in_at.strftime('%I:%M %p') if rec else None,
+                'method': rec.get_checkin_method_display() if rec else None,
+            })
+
+    # 3. If no matching students were found in enrolled or known rosters, offer on-the-fly registration for clean_q
+    if not results and len(clean_q) >= 3:
+        rec_exact = records_by_matric.get(clean_q)
+        results.append({
+            'matric_number': clean_q,
+            'name': rec_exact.student_name if rec_exact else '',
+            'department': course.department or 'General',
+            'is_enrolled': False,
+            'is_new': True,
+            'is_present': rec_exact is not None and rec_exact.status == AttendanceRecord.Status.PRESENT,
+            'record_id': str(rec_exact.id) if rec_exact else None,
+            'checkin_time': rec_exact.checked_in_at.strftime('%I:%M %p') if rec_exact else None,
+            'method': rec_exact.get_checkin_method_display() if rec_exact else None,
+        })
+
+    return JsonResponse({'success': True, 'query': q, 'results': results})
+
+
+@login_required
+def session_mark_attendance(request, session_id):
+    """
+    Sets attendance status (PRESENT or ABSENT) for a student in this session.
+    Accepts POST with:
+      - matric_number (required)
+      - status ('PRESENT' or 'ABSENT')
+      - student_name (optional)
+      - department (optional)
+    Supports JSON response or standard form redirect.
+    """
+    session = get_object_or_404(AttendanceSession, pk=session_id)
+    course = session.course
+
+    if request.method != 'POST':
+        return redirect('attendance:session_detail', session_id=session.id)
+
+    raw_matric = request.POST.get('matric_number', '').strip()
+    status_choice = request.POST.get('status', 'PRESENT').strip().upper()
+    student_name = request.POST.get('student_name', '').strip()
+    dept = request.POST.get('department', '').strip() or course.department or 'General'
+
+    matric = re.sub(r'[\s\t\r\n]+', '', raw_matric.upper())
+    if matric.endswith('.0') and matric[:-2].isdigit():
+        matric = matric[:-2]
+
+    if not matric:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+            return JsonResponse({'success': False, 'error': 'Matriculation number is required.'}, status=400)
+        messages.error(request, "Matriculation number is required.")
+        return redirect('attendance:session_detail', session_id=session.id)
+
+    if status_choice == 'ABSENT':
+        # Remove present record for this session if one exists
+        deleted_count, _ = AttendanceRecord.objects.filter(session=session, matric_number__iexact=matric).delete()
+        msg = f"Marked {matric} as ABSENT for this lecture."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+            expected = course.expected_population or 1
+            present_total = session.records.count()
+            return JsonResponse({
+                'success': True,
+                'status': 'ABSENT',
+                'matric_number': matric,
+                'message': msg,
+                'total_present': present_total,
+                'attendance_rate': min(round((present_total / expected) * 100, 1), 100.0)
+            })
+        messages.info(request, f"ℹ️ {msg}")
+        return redirect('attendance:session_detail', session_id=session.id)
+
+    # status_choice is PRESENT
+    # 1. Resolve student record or auto-create
+    resolved_name = student_name
+    enr = course.enrolments.filter(student__matric_number__iexact=matric).select_related('student').first()
+    if enr:
+        resolved_name = enr.student.name
+        dept = enr.department or dept
+    else:
+        std = Student.objects.filter(institution=course.institution, matric_number__iexact=matric).first()
+        if std:
+            resolved_name = std.name
+            dept = std.department or dept
+        elif not resolved_name:
+            resolved_name = f"Student {matric}"
+
+    student, s_created = Student.objects.get_or_create(
+        institution=course.institution,
+        matric_number=matric,
+        defaults={
+            'name': resolved_name,
+            'department': dept,
+        }
+    )
+    if not student.name and resolved_name:
+        student.name = resolved_name
+        student.save(update_fields=['name'])
+
+    CourseEnrolment.objects.get_or_create(
+        course=course,
+        student=student,
+        defaults={'department': dept}
+    )
+    course.expected_population = course.enrolments.count()
+    course.save(update_fields=['expected_population', 'updated_at'])
+
+    # 2. Create or update AttendanceRecord
+    record, r_created = AttendanceRecord.objects.update_or_create(
+        session=session,
+        matric_number=matric,
+        defaults={
+            'student_name': student.name or resolved_name,
+            'status': AttendanceRecord.Status.PRESENT,
+            'checkin_method': AttendanceRecord.CheckinMethod.LECTURER_MANUAL,
+            'location_address': session.location_name or 'Classroom Roll-Call (Lecturer Manual)',
+            'is_geofence_verified': True,
+            'geofence_status': 'NOT_REQUIRED',
+        }
+    )
+
+    msg = f"Marked {student.name or resolved_name} ({matric}) as PRESENT."
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+        expected = course.expected_population or 1
+        present_total = session.records.count()
+        return JsonResponse({
+            'success': True,
+            'status': 'PRESENT',
+            'matric_number': matric,
+            'name': student.name or resolved_name,
+            'department': dept,
+            'record_id': str(record.id),
+            'checkin_time': record.checked_in_at.strftime('%I:%M %p'),
+            'message': msg,
+            'total_present': present_total,
+            'attendance_rate': min(round((present_total / expected) * 100, 1), 100.0)
+        })
+
+    messages.success(request, f"✅ {msg}")
+    return redirect('attendance:session_detail', session_id=session.id)
+
+
+@login_required
 def update_session_venue(request, session_id):
     """
     Allows lecturer to lock or update classroom GPS venue coordinates,
