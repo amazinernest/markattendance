@@ -135,28 +135,46 @@
         </div>
     </div>
 
-    <!-- Attendance Sessions Section -->
+    <!-- Attendance Sessions Section & Class Stats -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
-        <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+        <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Attendance Sessions ({{ course.attendance_sessions.count }})</h2>
-                <p class="text-[11px] text-slate-500">Recorded classroom lectures and QR check-in events</p>
+                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Class Attendance &amp; Stats ({{ sessions_with_stats|length }})</span>
+                </h2>
+                <p class="text-[11px] text-slate-500">Summary statistics and attendee headcounts for every lecture</p>
             </div>
-            <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
-                + Launch New Session
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{% url 'reports:index' %}?course_id={{ course.id }}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-subtle space-x-1">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Full Audit Report</span>
+                </a>
+                <a href="{% url 'attendance:start_session' course.pk %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+                    + Launch New Class
+                </a>
+            </div>
         </div>
 
         <div class="divide-y divide-slate-200">
-            {% for sess in course.attendance_sessions.all %}
-            <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-slate-50/70 transition text-xs">
-                <div class="space-y-0.5">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-semibold text-slate-900">{{ sess.title }}</span>
+            {% for item in sessions_with_stats %}
+            {% with sess=item.session %}
+            <div class="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-slate-50/70 transition text-xs">
+                <!-- Class Meta -->
+                <div class="space-y-1 sm:max-w-md">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-bold text-slate-900 text-sm">{{ sess.title }}</span>
                         {% if sess.is_active %}
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">LIVE NOW</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse mr-1"></span>
+                                LIVE NOW
+                            </span>
                         {% else %}
-                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">Closed</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">Concluded</span>
+                        {% endif %}
+                        {% if sess.enable_geofence %}
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200">📍 {{ sess.geofence_radius_meters }}m Geofence</span>
                         {% endif %}
                     </div>
                     {% if sess.topic %}
@@ -165,24 +183,53 @@
                     </div>
                     {% endif %}
                     <div class="text-[11px] text-slate-500">
-                        {{ sess.session_date|date:"l, M d, Y" }} at {{ sess.start_time|time:"g:i A" }} &bull;
-                        <strong class="text-slate-700 tabular-nums">{{ sess.records.count }}</strong> students verified
+                        {{ sess.session_date|date:"l, M d, Y" }} at {{ sess.start_time|time:"g:i A" }}
+                        {% if sess.location_name %} &bull; <span>{{ sess.location_name }}</span>{% endif %}
                     </div>
                 </div>
+
+                <!-- Stats Badges -->
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Present Count Badge -->
+                    <div class="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center gap-2">
+                        <div>
+                            <div class="text-[10px] font-semibold text-emerald-800 uppercase tracking-wide">Present</div>
+                            <div class="text-sm font-bold font-mono text-emerald-700">{{ item.present_count }} <span class="text-[10px] font-normal text-emerald-600">students</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Absent Count Badge -->
+                    <div class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center gap-2">
+                        <div>
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Absent</div>
+                            <div class="text-sm font-bold font-mono text-slate-700">{{ item.absent_count }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Turnout % -->
+                    <div class="px-3 py-1.5 rounded-lg bg-[#ecfccb]/60 border border-[#d9f99d] flex items-center gap-2">
+                        <div>
+                            <div class="text-[10px] font-semibold text-[#365314] uppercase tracking-wide">Turnout</div>
+                            <div class="text-sm font-bold font-mono text-[#4d7c0f]">{{ item.turnout_pct }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
                 <div class="flex items-center space-x-2 shrink-0">
-                    <a href="{% url 'reports:session_report' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-subtle space-x-1">
+                    <a href="{% url 'reports:session_report' sess.id %}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-800 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-xs space-x-1">
                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <span>Report</span>
+                        <span>View Attendance List &amp; Stats</span>
                     </a>
-                    <a href="{% url 'attendance:session_print' sess.id %}" target="_blank" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-subtle space-x-1">
-                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    <a href="{% url 'reports:export_session_excel' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-2xs space-x-1" title="Download Excel">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <span>Print QR</span>
+                        <span class="hidden sm:inline">Excel</span>
                     </a>
-                    <a href="{% url 'attendance:session_detail' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
+                    <a href="{% url 'attendance:session_detail' sess.id %}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition shadow-subtle">
                         Live Monitor &rarr;
                     </a>
                     <a href="{% url 'attendance:session_delete' sess.id %}" class="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition" title="Delete Session">
@@ -192,6 +239,7 @@
                     </a>
                 </div>
             </div>
+            {% endwith %}
             {% empty %}
             <div class="text-center py-8 text-slate-400 text-xs">
                 No attendance sessions recorded yet. Click "Take Attendance (QR)" to launch your first session.

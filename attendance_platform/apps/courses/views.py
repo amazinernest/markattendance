@@ -42,9 +42,28 @@ def course_detail(request, pk):
             'count': dept_counts.get(d, 0)
         })
 
+    # Total roster count for turnout calculations
+    total_enrolled = course.enrolled_count
+
+    # Build attendance statistics for each session/class
+    sessions = course.attendance_sessions.all()
+    sessions_with_stats = []
+    for sess in sessions:
+        present_count = sess.records.count()
+        turnout_pct = round((present_count / total_enrolled * 100), 1) if total_enrolled > 0 else 0.0
+        absent_count = max(0, total_enrolled - present_count)
+        sessions_with_stats.append({
+            'session': sess,
+            'present_count': present_count,
+            'absent_count': absent_count,
+            'turnout_pct': min(turnout_pct, 100.0),
+            'recent_attendees': sess.records.order_by('-checked_in_at')[:5],
+        })
+
     return render(request, 'courses/course_detail.html', {
         'course': course,
         'departments_data': departments_data,
+        'sessions_with_stats': sessions_with_stats,
     })
 
 
