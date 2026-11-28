@@ -323,6 +323,9 @@
 
                 <!-- Instant Search & Quick Action Box -->
                 <div class="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200 space-y-3">
+                    <form id="markAttendanceForm" style="display:none;">
+                        {% csrf_token %}
+                    </form>
                     <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                         Search Student by Matric Number or Name:
                     </label>
@@ -537,7 +540,10 @@ function renderSearchResults(results, query) {
     }
 
     let html = '';
-    results.forEach(student => {
+    const currentResults = {};
+
+    results.forEach((student, idx) => {
+        currentResults[idx] = student;
         const isPresent = student.is_present;
         const statusBadge = isPresent 
             ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#ecfccb] text-[#365314] border border-[#d9f99d]">
@@ -565,12 +571,20 @@ function renderSearchResults(results, query) {
 
                 <div class="flex items-center gap-1.5 shrink-0">
                     <button type="button" 
-                            onclick="setStudentAttendance('${escapeHtml(student.matric_number)}', 'PRESENT', '${escapeHtml(student.name || '')}', '${escapeHtml(student.department || '')}')" 
+                            id="btnPresent_${idx}"
+                            data-matric="${escapeHtml(student.matric_number)}"
+                            data-name="${escapeHtml(student.name || '')}"
+                            data-dept="${escapeHtml(student.department || '')}"
+                            onclick="setStudentAttendanceByIndex(${idx}, 'PRESENT')" 
                             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${isPresent ? 'bg-[#ecfccb] text-[#365314] border border-[#bef264] ring-1 ring-[#84cc16]' : 'bg-[#84cc16] hover:bg-[#65a30d] text-slate-950 shadow-sm'}">
                         <span>&check; Present</span>
                     </button>
                     <button type="button" 
-                            onclick="setStudentAttendance('${escapeHtml(student.matric_number)}', 'ABSENT', '${escapeHtml(student.name || '')}', '${escapeHtml(student.department || '')}')" 
+                            id="btnAbsent_${idx}"
+                            data-matric="${escapeHtml(student.matric_number)}"
+                            data-name="${escapeHtml(student.name || '')}"
+                            data-dept="${escapeHtml(student.department || '')}"
+                            onclick="setStudentAttendanceByIndex(${idx}, 'ABSENT')" 
                             class="px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1 ${!isPresent ? 'bg-rose-100 text-rose-800 border border-rose-300 ring-1 ring-rose-400' : 'bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200'}">
                         <span>&times; Absent</span>
                     </button>
@@ -579,27 +593,57 @@ function renderSearchResults(results, query) {
         `;
     });
 
+    window._lastSearchResults = currentResults;
     container.innerHTML = html;
+}
+
+function getCsrfToken() {
+    let token = document.querySelector('#markAttendanceForm [name=csrfmiddlewaretoken]')?.value;
+    if (!token) {
+        token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    }
+    if (!token) {
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        if (match) token = match[1];
+    }
+    return token || "{{ csrf_token }}";
+}
+
+function setStudentAttendanceByIndex(index, status) {
+    const student = (window._lastSearchResults || {})[index];
+    if (!student) return;
+    setStudentAttendance(student.matric_number, status, student.name, student.department);
 }
 
 function setStudentAttendance(matric, status, name, department) {
     const notice = document.getElementById('rollcallNotice');
+    const token = getCsrfToken();
     const formData = new FormData();
     formData.append('matric_number', matric);
     formData.append('status', status);
     formData.append('student_name', name || '');
     formData.append('department', department || '');
-    formData.append('csrfmiddlewaretoken', csrfToken);
+    formData.append('csrfmiddlewaretoken', token);
 
     fetch(markUrl, {
         method: 'POST',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-CSRFToken': token
         },
         body: formData
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.text().then(text => {
+                let errObj = {};
+                try { errObj = JSON.parse(text); } catch(e) {}
+                throw new Error(errObj.error || errObj.message || 'Server error ' + res.status);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
         if (data.success) {
             // Update attendance progress numbers on page without full reload
@@ -614,7 +658,7 @@ function setStudentAttendance(matric, status, name, department) {
                     ? 'text-xs py-2 px-3 rounded-lg font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 block'
                     : 'text-xs py-2 px-3 rounded-lg font-semibold bg-slate-100 text-slate-700 border border-slate-200 block';
                 notice.innerHTML = status === 'PRESENT'
-                    ? `✅ <strong>${escapeHtml(matric)}</strong> (${escapeHtml(name || 'Student')}) marked <strong>PRESENT</strong>.`
+                    ? `✅ <strong>${escapeHtml(matric)}</strong> (${escapeHtml(data.name || name || 'Student')}) marked <strong>PRESENT</strong>.`
                     : `ℹ️ <strong>${escapeHtml(matric)}</strong> marked <strong>ABSENT</strong>.`;
                 notice.classList.remove('hidden');
                 setTimeout(() => { notice.classList.add('hidden'); }, 3500);
@@ -629,7 +673,7 @@ function setStudentAttendance(matric, status, name, department) {
     })
     .catch(err => {
         console.error('Attendance update error', err);
-        alert('Network or server error updating attendance.');
+        alert('Error: ' + err.message);
     });
 }
 
